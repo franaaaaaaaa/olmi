@@ -450,62 +450,62 @@
         // Función drawSimulation corregida - pelota deslizándose desde arriba
         function drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY) {
   // Posición de la polea justo en la cima del plano
-  const pulleyX = 50 + planeWidth;
-  const pulleyY = height - 50 - planeHeight;
-  const pulleyRadius = 20;
+            const pulleyX = 50 + planeWidth;
+              const pulleyY = height - 50 - planeHeight;
+              const pulleyRadius = 20;
 
   // Dibujar polea
-  ctx.beginPath();
-  ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
-  ctx.strokeStyle = '#8e44ad';
-  ctx.lineWidth = 3;
-  ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = '#8e44ad';
+          ctx.lineWidth = 3;
+          ctx.stroke();
 
   // Dibujar soporte de la polea
-  ctx.beginPath();
-  ctx.moveTo(pulleyX - 30, pulleyY - 20);
-  ctx.lineTo(pulleyX + 30, pulleyY - 20);
-  ctx.lineTo(pulleyX + 30, pulleyY);
-  ctx.lineTo(pulleyX - 30, pulleyY);
-  ctx.closePath();
-  ctx.fillStyle = '#bdc3c7';
-  ctx.fill();
-  ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(pulleyX - 30, pulleyY - 20);
+          ctx.lineTo(pulleyX + 30, pulleyY - 20);
+          ctx.lineTo(pulleyX + 30, pulleyY);
+          ctx.lineTo(pulleyX - 30, pulleyY);
+          ctx.closePath();
+          ctx.fillStyle = '#bdc3c7';
+          ctx.fill();
+          ctx.stroke();
 
   // Cuerda desde el objeto hasta la polea
-  ctx.beginPath();
-  ctx.moveTo(objectX, objectY);
-  ctx.lineTo(pulleyX, pulleyY);
-  ctx.strokeStyle = '#d35400';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(objectX, objectY);
+          ctx.lineTo(pulleyX, pulleyY);
+          ctx.strokeStyle = '#d35400';
+          ctx.lineWidth = 2;
+          ctx.stroke();
 
   // Posición del contrapeso (a la derecha de la polea)
-  const counterWeightY = pulleyY + (position / length) * 100;
-  const counterWeightSize = 20 + pulleyConfig.counterMass / 3;
+          const counterWeightY = pulleyY + (position / length) * 100;
+          const counterWeightSize = 20 + pulleyConfig.counterMass / 3;
 
-  ctx.beginPath();
-  ctx.arc(pulleyX, counterWeightY, counterWeightSize, 0, Math.PI * 2);
-  ctx.fillStyle = '#3498db';
-  ctx.fill();
-  ctx.strokeStyle = '#2980b9';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(pulleyX, counterWeightY, counterWeightSize, 0, Math.PI * 2);
+          ctx.fillStyle = '#3498db';
+          ctx.fill();
+          ctx.strokeStyle = '#2980b9';
+          ctx.lineWidth = 2;
+          ctx.stroke();
 
   // Etiqueta del contrapeso
-  ctx.fillStyle = '#fff';
-  ctx.font = '14px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightSize + 15);
+          ctx.fillStyle = '#fff';
+          ctx.font = '14px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightSize + 15);
 
   // Cuerda del contrapeso
-  ctx.beginPath();
-  ctx.moveTo(pulleyX, pulleyY + pulleyRadius);
-  ctx.lineTo(pulleyX, counterWeightY - counterWeightSize);
-  ctx.strokeStyle = '#d35400';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
+              ctx.beginPath();
+            ctx.moveTo(pulleyX, pulleyY + pulleyRadius);
+              ctx.lineTo(pulleyX, counterWeightY - counterWeightSize);
+              ctx.strokeStyle = '#d35400';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+           }
 
         
         // Dibujar sistema de poleas corregido
