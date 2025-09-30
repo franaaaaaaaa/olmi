@@ -11,19 +11,16 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
         body {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: #fff;
             min-height: 100vh;
             padding: 20px;
         }
-        
         .container {
             max-width: 1400px;
             margin: 0 auto;
         }
-        
         header {
             text-align: center;
             margin-bottom: 30px;
@@ -32,25 +29,21 @@
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-        
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-        
         .subtitle {
             font-size: 1.2rem;
             opacity: 0.9;
         }
-        
         .content {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             margin-bottom: 30px;
         }
-        
         .panel {
             flex: 1;
             min-width: 300px;
@@ -60,23 +53,19 @@
             padding: 20px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
-        
         .panel h2 {
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
         .input-group {
             margin-bottom: 15px;
         }
-        
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
         }
-        
         input[type="number"], select {
             width: 100%;
             padding: 10px;
@@ -85,23 +74,19 @@
             background: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
         }
-        
         .range-container {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
         input[type="range"] {
             flex: 1;
         }
-        
         .range-value {
             min-width: 40px;
             text-align: center;
             font-weight: bold;
         }
-        
         button {
             background: #4a90e2;
             color: white;
@@ -115,13 +100,11 @@
             width: 100%;
             margin-top: 10px;
         }
-        
         button:hover {
             background: #357abd;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        
         .simulation-area {
             flex: 2;
             min-width: 500px;
@@ -133,7 +116,6 @@
             display: flex;
             flex-direction: column;
         }
-        
         .canvas-container {
             flex: 1;
             background: rgba(255, 255, 255, 0.9);
@@ -143,92 +125,75 @@
             margin-bottom: 20px;
             min-height: 400px;
         }
-        
         canvas {
             display: block;
             width: 100%;
             height: 100%;
         }
-        
         .data-display {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
-        
         .data-item {
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 10px;
             text-align: center;
         }
-        
         .data-value {
             font-size: 1.5rem;
             font-weight: bold;
             margin-top: 5px;
         }
-        
         .controls {
             display: flex;
             gap: 10px;
             margin-top: 20px;
         }
-        
         .controls button {
             flex: 1;
         }
-        
         .reset-btn {
             background: #e74c3c;
         }
-        
         .reset-btn:hover {
             background: #c0392b;
         }
-        
         .pause-btn {
             background: #f39c12;
         }
-        
         .pause-btn:hover {
             background: #d35400;
         }
-        
         .export-btn {
             background: #27ae60;
         }
-        
         .export-btn:hover {
             background: #219653;
         }
-        
         .pulley-config {
             margin-top: 20px;
             padding-top: 20px;
             border-top: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
         .pulley-toggle {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
-        
         .pulley-toggle input {
             margin-right: 10px;
             width: 20px;
             height: 20px;
         }
-        
         .pulley-options {
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             margin-top: 10px;
         }
-        
         footer {
             text-align: center;
             padding: 20px;
@@ -237,12 +202,10 @@
             border-radius: 15px;
             font-size: 0.9rem;
         }
-        
         @media (max-width: 768px) {
             .content {
                 flex-direction: column;
             }
-            
             .panel, .simulation-area {
                 min-width: 100%;
             }
@@ -255,11 +218,9 @@
             <h1>Simulador de Plano Inclinado con Poleas</h1>
             <p class="subtitle">Estudia el comportamiento de un objeto que baja por un plano inclinado con sistemas de poleas</p>
         </header>
-        
         <div class="content">
             <div class="panel">
                 <h2>Parámetros del Sistema</h2>
-                
                 <div class="input-group">
                     <label for="mass">Masa del objeto (kg)</label>
                     <div class="range-container">
@@ -267,7 +228,6 @@
                         <span class="range-value" id="mass-value">10</span>
                     </div>
                 </div>
-                
                 <div class="input-group">
                     <label for="angle">Ángulo del plano (grados)</label>
                     <div class="range-container">
@@ -275,7 +235,6 @@
                         <span class="range-value" id="angle-value">30</span>
                     </div>
                 </div>
-                
                 <div class="input-group">
                     <label for="friction">Coeficiente de fricción</label>
                     <div class="range-container">
@@ -283,7 +242,6 @@
                         <span class="range-value" id="friction-value">0.10</span>
                     </div>
                 </div>
-                
                 <div class="input-group">
                     <label for="length">Longitud del plano (m)</label>
                     <div class="range-container">
@@ -291,18 +249,15 @@
                         <span class="range-value" id="length-value">10</span>
                     </div>
                 </div>
-                
                 <div class="input-group">
                     <label for="gravity">Gravedad (m/s²)</label>
                     <input type="number" id="gravity" value="9.8" min="1" max="20" step="0.1">
                 </div>
-                
                 <div class="pulley-config">
                     <div class="pulley-toggle">
                         <input type="checkbox" id="pulley-toggle">
                         <label for="pulley-toggle">Usar sistema de poleas</label>
                     </div>
-                    
                     <div class="pulley-options" id="pulley-options" style="display: none;">
                         <div class="input-group">
                             <label for="pulley-type">Tipo de polea</label>
@@ -312,7 +267,6 @@
                                 <option value="compound">Sistema compuesto</option>
                             </select>
                         </div>
-                        
                         <div class="input-group">
                             <label for="counter-mass">Masa contrapeso (kg)</label>
                             <div class="range-container">
@@ -320,7 +274,6 @@
                                 <span class="range-value" id="counter-mass-value">5</span>
                             </div>
                         </div>
-                        
                         <div class="input-group">
                             <label for="pulley-friction">Fricción en polea</label>
                             <div class="range-container">
@@ -330,22 +283,18 @@
                         </div>
                     </div>
                 </div>
-                
                 <button id="start-btn">Iniciar Simulación</button>
             </div>
-            
             <div class="simulation-area">
                 <h2>Simulación</h2>
                 <div class="canvas-container">
                     <canvas id="simulation-canvas"></canvas>
                 </div>
-                
                 <div class="controls">
                     <button id="pause-btn" class="pause-btn">Pausar</button>
                     <button id="reset-btn" class="reset-btn">Reiniciar</button>
                     <button id="export-btn" class="export-btn">Exportar Datos</button>
                 </div>
-                
                 <div class="data-display">
                     <div class="data-item">
                         <div>Tiempo</div>
@@ -374,12 +323,10 @@
                 </div>
             </div>
         </div>
-        
         <footer>
             <p>Simulador de Plano Inclinado con Poleas - Física Clásica</p>
         </footer>
     </div>
-
     <script>
         // Elementos del DOM
         const canvas = document.getElementById('simulation-canvas');
@@ -504,35 +451,34 @@
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
-
+            
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
             const planeHeight = Math.min(height * 0.6, width * 0.6 * Math.tan(angleRad));
             const planeWidth = planeHeight / Math.tan(angleRad);
-
+            
             // Calcular posición del objeto (desde la parte superior)
             const objectX = 50 + (position / length) * planeWidth;
             const objectY = (height - 50 - planeHeight) + (position / length) * planeHeight;
-
+            
             ctx.clearRect(0, 0, width, height);
-
+            
             // Dibujar plano inclinado (triángulo rectángulo)
             ctx.beginPath();
-            ctx.moveTo(50, height - 50);                      // Punto base izquierdo
-            ctx.lineTo(50 + planeWidth, height - 50);         // Base derecha
-            ctx.lineTo(50, height - 50 - planeHeight);        // Punto superior izquierdo
+            ctx.moveTo(50, height - 50); // Punto base izquierdo
+            ctx.lineTo(50 + planeWidth, height - 50); // Base derecha
+            ctx.lineTo(50, height - 50 - planeHeight); // Punto superior izquierdo
             ctx.closePath();
-
             ctx.fillStyle = "#a3c9a8";
             ctx.fill();
             ctx.strokeStyle = "#000";
             ctx.stroke();
-
+            
             // Dibujar poleas si están activadas
             if (usePulley) {
                 drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY);
             }
-
+            
             // Dibujar objeto encima del plano
             const objectSize = 20 + mass / 3;
             ctx.beginPath();
@@ -542,7 +488,7 @@
             ctx.strokeStyle = "#c1121f";
             ctx.lineWidth = 2;
             ctx.stroke();
-
+            
             // Dibujar ángulo
             ctx.beginPath();
             ctx.arc(50, height - 50, 30, 0, -angleRad, true);
@@ -554,19 +500,20 @@
             ctx.fillStyle = '#e74c3c';
             ctx.font = '16px Arial';
             ctx.fillText(`${angle}°`, 70, height - 80);
-
+            
             // Etiqueta de masa
             ctx.fillStyle = '#fff';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectSize - 5);
         }
-
-        // Dibujar sistema de poleas
+        
+        // Dibujar sistema de poleas corregido
         function drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY) {
-            const pulleyX = 50 + planeWidth + 80;
-            const pulleyY = height - 50 - planeHeight - 30;
-            const pulleyRadius = 25;
+            // Posicionar la polea en la parte superior del plano
+            const pulleyX = 50 + planeWidth;
+            const pulleyY = height - 50 - planeHeight;
+            const pulleyRadius = 20;
             
             // Dibujar polea
             ctx.beginPath();
@@ -577,8 +524,8 @@
             
             // Dibujar soporte de polea
             ctx.beginPath();
-            ctx.moveTo(pulleyX - 40, pulleyY);
-            ctx.lineTo(pulleyX + 40, pulleyY);
+            ctx.moveTo(pulleyX - 30, pulleyY);
+            ctx.lineTo(pulleyX + 30, pulleyY);
             ctx.strokeStyle = '#7f8c8d';
             ctx.lineWidth = 4;
             ctx.stroke();
@@ -591,10 +538,11 @@
             ctx.lineWidth = 2;
             ctx.stroke();
             
-            // Dibujar contrapeso
-            const counterWeightY = pulleyY + (position / length) * planeWidth;
-            const counterWeightSize = 20 + pulleyConfig.counterMass / 3;
+            // Calcular posición del contrapeso (se mueve en dirección opuesta)
+            const counterWeightY = pulleyY + (position / length) * 150; // 150 es una constante para la amplitud del movimiento
             
+            // Dibujar contrapeso
+            const counterWeightSize = 15 + pulleyConfig.counterMass / 3;
             ctx.beginPath();
             ctx.arc(pulleyX, counterWeightY, counterWeightSize, 0, Math.PI * 2);
             ctx.fillStyle = '#3498db';
@@ -727,7 +675,6 @@
         function animate() {
             calculatePhysics();
             drawSimulation();
-            
             if (isRunning) {
                 animationId = requestAnimationFrame(animate);
             }
@@ -773,7 +720,6 @@
         pauseBtn.addEventListener('click', function() {
             isRunning = !isRunning;
             pauseBtn.textContent = isRunning ? "Pausar" : "Continuar";
-            
             if (isRunning) {
                 startTime = performance.now() - currentTime * 1000;
                 animate();
