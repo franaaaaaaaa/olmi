@@ -443,12 +443,40 @@
             counterMass: parseFloat(counterMassSlider.value),
             pulleyFriction: parseFloat(pulleyFrictionSlider.value)
         };
+
+        // Variables para escalado del plano
+        let scaleFactor = 1;
+        let baseX = 0;
+        let baseY = 0;
+        let planeWidth = 0;
+        let planeHeight = 0;
         
         // Configuración del canvas
         function setupCanvas() {
             const container = canvas.parentElement;
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
+            
+            // Calcular factor de escala basado en la longitud del plano
+            const maxPlaneWidth = canvas.width * 0.7;
+            scaleFactor = maxPlaneWidth / length;
+            
+            // Calcular dimensiones del plano
+            const angleRad = angle * Math.PI / 180;
+            planeWidth = length * scaleFactor;
+            planeHeight = planeWidth * Math.tan(angleRad);
+            
+            // Asegurar que el plano no sea demasiado alto
+            const maxHeight = canvas.height * 0.6;
+            if (planeHeight > maxHeight) {
+                planeHeight = maxHeight;
+                planeWidth = planeHeight / Math.tan(angleRad);
+                scaleFactor = planeWidth / length;
+            }
+            
+            // Posición base del plano
+            baseX = 50;
+            baseY = canvas.height - 50;
         }
         
         // Actualizar valores de los sliders
@@ -460,6 +488,7 @@
         angleSlider.addEventListener('input', function() {
             angleValue.textContent = this.value;
             angle = parseFloat(this.value);
+            setupCanvas();
             drawSimulation();
         });
         
@@ -471,6 +500,7 @@
         lengthSlider.addEventListener('input', function() {
             lengthValue.textContent = this.value;
             length = parseFloat(this.value);
+            setupCanvas();
             drawSimulation();
         });
         
@@ -500,27 +530,19 @@
             pulleyConfig.pulleyFriction = parseFloat(this.value);
         });
         
-        // Función drawSimulation corregida - pelota deslizándose desde arriba
+        // Función drawSimulation corregida
         function drawSimulation() {
-            const width = canvas.width;
-            const height = canvas.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calcular posición del objeto
+            const objectX = baseX + (position / length) * planeWidth;
+            const objectY = baseY - (position / length) * planeHeight;
 
-            // Calcular dimensiones del plano
-            const angleRad = angle * Math.PI / 180;
-            const planeHeight = Math.min(height * 0.6, width * 0.6 * Math.tan(angleRad));
-            const planeWidth = planeHeight / Math.tan(angleRad);
-
-            // Calcular posición del objeto (desde la parte superior)
-            const objectX = 50 + (position / length) * planeWidth;
-            const objectY = (height - 50 - planeHeight) + (position / length) * planeHeight;
-
-            ctx.clearRect(0, 0, width, height);
-
-            // Dibujar plano inclinado (triángulo rectángulo)
+            // Dibujar plano inclinado
             ctx.beginPath();
-            ctx.moveTo(50, height - 50);                      // Punto base izquierdo
-            ctx.lineTo(50 + planeWidth, height - 50);         // Base derecha
-            ctx.lineTo(50, height - 50 - planeHeight);        // Punto superior izquierdo
+            ctx.moveTo(baseX, baseY);                      // Punto base izquierdo
+            ctx.lineTo(baseX + planeWidth, baseY);         // Base derecha
+            ctx.lineTo(baseX, baseY - planeHeight);        // Punto superior izquierdo
             ctx.closePath();
 
             ctx.fillStyle = "#a3c9a8";
@@ -530,7 +552,7 @@
 
             // Dibujar poleas si están activadas
             if (usePulley) {
-                drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY);
+                drawPulleySystem(objectX, objectY);
             }
 
             // Dibujar objeto encima del plano
@@ -545,7 +567,7 @@
 
             // Dibujar ángulo
             ctx.beginPath();
-            ctx.arc(50, height - 50, 30, 0, -angleRad, true);
+            ctx.arc(baseX, baseY, 30, 0, -angle * Math.PI / 180, true);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -553,19 +575,19 @@
             // Etiqueta del ángulo
             ctx.fillStyle = '#e74c3c';
             ctx.font = '16px Arial';
-            ctx.fillText(`${angle}°`, 70, height - 80);
+            ctx.fillText(`${angle}°`, baseX + 20, baseY - 30);
 
             // Etiqueta de masa
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#000';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectSize - 5);
         }
 
         // Dibujar sistema de poleas
-        function drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY) {
-            const pulleyX = 50 + planeWidth + 80;
-            const pulleyY = height - 50 - planeHeight - 30;
+        function drawPulleySystem(objectX, objectY) {
+            const pulleyX = baseX + planeWidth + 80;
+            const pulleyY = baseY - planeHeight - 30;
             const pulleyRadius = 25;
             
             // Dibujar polea
@@ -604,7 +626,7 @@
             ctx.stroke();
             
             // Etiqueta de contrapeso
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#000';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightSize + 15);
