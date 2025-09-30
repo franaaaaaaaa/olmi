@@ -474,9 +474,9 @@
                 scaleFactor = planeWidth / length;
             }
             
-            // Posición base del plano
+            // Posición base del plano (ahora en la parte superior izquierda)
             baseX = 50;
-            baseY = canvas.height - 50;
+            baseY = 50;
         }
         
         // Actualizar valores de los sliders
@@ -530,19 +530,19 @@
             pulleyConfig.pulleyFriction = parseFloat(this.value);
         });
         
-        // Función drawSimulation corregida
+        // Función drawSimulation corregida - plano desde la parte superior
         function drawSimulation() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Calcular posición del objeto
             const objectX = baseX + (position / length) * planeWidth;
-            const objectY = baseY - (position / length) * planeHeight;
+            const objectY = baseY + (position / length) * planeHeight;
 
-            // Dibujar plano inclinado
+            // Dibujar plano inclinado (desde la esquina superior izquierda hacia abajo)
             ctx.beginPath();
-            ctx.moveTo(baseX, baseY);                      // Punto base izquierdo
-            ctx.lineTo(baseX + planeWidth, baseY);         // Base derecha
-            ctx.lineTo(baseX, baseY - planeHeight);        // Punto superior izquierdo
+            ctx.moveTo(baseX, baseY);                      // Punto superior izquierdo
+            ctx.lineTo(baseX + planeWidth, baseY + planeHeight); // Punto inferior derecho
+            ctx.lineTo(baseX, baseY + planeHeight);        // Punto inferior izquierdo
             ctx.closePath();
 
             ctx.fillStyle = "#a3c9a8";
@@ -567,7 +567,7 @@
 
             // Dibujar ángulo
             ctx.beginPath();
-            ctx.arc(baseX, baseY, 30, 0, -angle * Math.PI / 180, true);
+            ctx.arc(baseX, baseY + planeHeight, 30, Math.PI, Math.PI + (angle * Math.PI / 180), false);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -575,7 +575,7 @@
             // Etiqueta del ángulo
             ctx.fillStyle = '#e74c3c';
             ctx.font = '16px Arial';
-            ctx.fillText(`${angle}°`, baseX + 20, baseY - 30);
+            ctx.fillText(`${angle}°`, baseX + 20, baseY + planeHeight - 30);
 
             // Etiqueta de masa
             ctx.fillStyle = '#000';
@@ -584,10 +584,10 @@
             ctx.fillText(`${mass} kg`, objectX, objectY - objectSize - 5);
         }
 
-        // Dibujar sistema de poleas
+        // Dibujar sistema de poleas - ahora en la parte superior del plano
         function drawPulleySystem(objectX, objectY) {
             const pulleyX = baseX + planeWidth + 80;
-            const pulleyY = baseY - planeHeight - 30;
+            const pulleyY = baseY;
             const pulleyRadius = 25;
             
             // Dibujar polea
