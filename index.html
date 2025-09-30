@@ -402,12 +402,18 @@
         massSlider.addEventListener('input', function() {
             massValue.textContent = this.value;
             mass = parseFloat(this.value);
+            if (isRunning) {
+                resetSimulation();
+            }
         });
         
         angleSlider.addEventListener('input', function() {
             angleValue.textContent = this.value;
             angle = parseFloat(this.value);
             drawSimulation();
+            if (isRunning) {
+                resetSimulation();
+            }
         });
         
         frictionSlider.addEventListener('input', function() {
@@ -419,6 +425,9 @@
             lengthValue.textContent = parseFloat(this.value).toFixed(1);
             length = parseFloat(this.value);
             drawSimulation();
+            if (isRunning) {
+                resetSimulation();
+            }
         });
         
         gravityInput.addEventListener('input', function() {
@@ -430,16 +439,25 @@
             usePulley = this.checked;
             pulleyOptions.style.display = usePulley ? 'block' : 'none';
             drawSimulation();
+            if (isRunning) {
+                resetSimulation();
+            }
         });
         
         pulleyType.addEventListener('change', function() {
             pulleyConfig.type = this.value;
             drawSimulation();
+            if (isRunning) {
+                resetSimulation();
+            }
         });
         
         counterMassSlider.addEventListener('input', function() {
             counterMassValue.textContent = this.value;
             pulleyConfig.counterMass = parseFloat(this.value);
+            if (isRunning) {
+                resetSimulation();
+            }
         });
         
         pulleyFrictionSlider.addEventListener('input', function() {
@@ -567,7 +585,7 @@
             ctx.stroke();
         }
         
-        // Calcular física del plano inclinado
+        // Calcular física del plano inclinado - CORREGIDO
         function calculatePhysics() {
             const angleRad = angle * Math.PI / 180;
             
@@ -598,11 +616,6 @@
                     // Sistema compuesto: combinación de poleas fijas y móviles
                     netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 3;
                 }
-            }
-            
-            // Si el objeto está en reposo y la fuerza neta es menor que la fricción estática máxima
-            if (velocity === 0 && Math.abs(netForceValue) <= frictionForce && !usePulley) {
-                netForceValue = 0;
             }
             
             // Calcular masa efectiva para sistemas con poleas
@@ -682,6 +695,28 @@
             }
         }
         
+        // Función para reiniciar simulación
+        function resetSimulation() {
+            isRunning = false;
+            isPaused = false;
+            currentTime = 0;
+            position = 0;
+            velocity = 0;
+            acceleration = 0;
+            netForce = 0;
+            energy = 0;
+            simulationData = [];
+            
+            timeValue.textContent = "0.00 s";
+            positionValue.textContent = "0.00 m";
+            velocityValue.textContent = "0.00 m/s";
+            accelerationValue.textContent = "0.00 m/s²";
+            forceValue.textContent = "0.00 N";
+            energyValue.textContent = "0.00 J";
+            
+            drawSimulation();
+        }
+        
         // Exportar datos a CSV
         function exportData() {
             if (simulationData.length === 0) {
@@ -735,25 +770,7 @@
         });
         
         resetBtn.addEventListener('click', function() {
-            isRunning = false;
-            isPaused = false;
-            pauseBtn.textContent = "Pausar";
-            currentTime = 0;
-            position = 0;
-            velocity = 0;
-            acceleration = 0;
-            netForce = 0;
-            energy = 0;
-            simulationData = [];
-            
-            timeValue.textContent = "0.00 s";
-            positionValue.textContent = "0.00 m";
-            velocityValue.textContent = "0.00 m/s";
-            accelerationValue.textContent = "0.00 m/s²";
-            forceValue.textContent = "0.00 N";
-            energyValue.textContent = "0.00 J";
-            
-            drawSimulation();
+            resetSimulation();
         });
         
         exportBtn.addEventListener('click', exportData);
