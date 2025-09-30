@@ -245,8 +245,8 @@
                 <div class="input-group">
                     <label for="length">Longitud del plano (m)</label>
                     <div class="range-container">
-                        <input type="range" id="length-slider" min="5" max="20" value="10" step="1">
-                        <span class="range-value" id="length-value">10</span>
+                        <input type="range" id="length-slider" min="1" max="15" value="8" step="0.5">
+                        <span class="range-value" id="length-value">8.0</span>
                     </div>
                 </div>
                 <div class="input-group">
@@ -416,7 +416,7 @@
         });
         
         lengthSlider.addEventListener('input', function() {
-            lengthValue.textContent = this.value;
+            lengthValue.textContent = parseFloat(this.value).toFixed(1);
             length = parseFloat(this.value);
             drawSimulation();
         });
@@ -454,24 +454,25 @@
             
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
-            const planeHeight = Math.min(height * 0.6, width * 0.6 * Math.tan(angleRad));
+            const planeHeight = Math.min(height * 0.5, width * 0.6 * Math.tan(angleRad));
             const planeWidth = planeHeight / Math.tan(angleRad);
             
             // Calcular posición del objeto
-            const objectX = 50 + (position / length) * planeWidth;
-            const objectY = (height - 50 - planeHeight) + (position / length) * planeHeight;
+            const objectX = 100 + (position / length) * planeWidth;
+            const objectY = (height - 100 - planeHeight) + (position / length) * planeHeight;
             
             ctx.clearRect(0, 0, width, height);
             
             // Dibujar plano inclinado
             ctx.beginPath();
-            ctx.moveTo(50, height - 50);
-            ctx.lineTo(50 + planeWidth, height - 50);
-            ctx.lineTo(50, height - 50 - planeHeight);
+            ctx.moveTo(100, height - 100);
+            ctx.lineTo(100 + planeWidth, height - 100);
+            ctx.lineTo(100, height - 100 - planeHeight);
             ctx.closePath();
             ctx.fillStyle = "#a3c9a8";
             ctx.fill();
             ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
             ctx.stroke();
             
             // Dibujar poleas si están activadas
@@ -491,7 +492,7 @@
             
             // Dibujar ángulo
             ctx.beginPath();
-            ctx.arc(50, height - 50, 30, 0, -angleRad, true);
+            ctx.arc(100, height - 100, 30, 0, -angleRad, true);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -499,20 +500,20 @@
             // Etiqueta del ángulo
             ctx.fillStyle = '#e74c3c';
             ctx.font = '16px Arial';
-            ctx.fillText(`${angle}°`, 70, height - 80);
+            ctx.fillText(`${angle}°`, 120, height - 120);
             
             // Etiqueta de masa
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#000';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectSize - 5);
         }
         
-        // Dibujar sistema de poleas corregido
+        // Dibujar sistema de poleas corregido - POLEA A LA IZQUIERDA
         function drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY) {
-            // Posicionar la polea en la parte superior del plano
-            const pulleyX = 50 + planeWidth + 50;
-            const pulleyY = height - 50 - planeHeight - 20;
+            // Posicionar la polea a la IZQUIERDA del plano
+            const pulleyX = 50;
+            const pulleyY = height - 100 - planeHeight - 30;
             const pulleyRadius = 20;
             
             // Dibujar polea
@@ -539,7 +540,7 @@
             ctx.stroke();
             
             // Calcular posición del contrapeso (se mueve en dirección opuesta)
-            const counterWeightY = pulleyY + (position / length) * 200;
+            const counterWeightY = pulleyY + (position / length) * 150;
             
             // Dibujar contrapeso
             const counterWeightSize = 15 + pulleyConfig.counterMass / 3;
@@ -552,7 +553,7 @@
             ctx.stroke();
             
             // Etiqueta de contrapeso
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#000';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightSize + 15);
@@ -705,7 +706,7 @@
             document.body.removeChild(link);
         }
         
-        // Controladores de botones
+        // Controladores de botones CORREGIDOS
         startBtn.addEventListener('click', function() {
             if (!isRunning) {
                 isRunning = true;
@@ -715,6 +716,10 @@
                 if (currentTime === 0) {
                     simulationData = [];
                 }
+                animate();
+            } else if (isPaused) {
+                isPaused = false;
+                pauseBtn.textContent = "Pausar";
                 animate();
             }
         });
