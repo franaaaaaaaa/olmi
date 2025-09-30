@@ -295,10 +295,11 @@
                 netForce = mass * g * Math.sin(angleRad) - tension;
             }
 
-            const acceleration = netForce / mass;
+            // siempre positivo para que baje
+            const acceleration = Math.abs(netForce / mass);
             const dt = 0.05;
 
-            velocity += acceleration * dt;
+            velocity = Math.abs(velocity + acceleration * dt);
             position += velocity * dt;
 
             if (position < 0) {
@@ -320,4 +321,3 @@
     </script>
 </body>
 </html>
-
