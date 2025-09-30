@@ -369,7 +369,7 @@
         // Variables de simulación
         let animationId;
         let isRunning = false;
-        let startTime;
+        let isPaused = false;
         let currentTime = 0;
         let position = 0;
         let velocity = 0;
@@ -447,72 +447,72 @@
             pulleyConfig.pulleyFriction = parseFloat(this.value);
         });
         
-        // Función drawSimulation corregida - pelota deslizándose desde arriba
-        function drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY) {
-  // Posición de la polea justo en la cima del plano
-            const pulleyX = 50 + planeWidth;
-              const pulleyY = height - 50 - planeHeight;
-              const pulleyRadius = 20;
-
-  // Dibujar polea
-          ctx.beginPath();
-          ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
-          ctx.strokeStyle = '#8e44ad';
-          ctx.lineWidth = 3;
-          ctx.stroke();
-
-  // Dibujar soporte de la polea
-          ctx.beginPath();
-          ctx.moveTo(pulleyX - 30, pulleyY - 20);
-          ctx.lineTo(pulleyX + 30, pulleyY - 20);
-          ctx.lineTo(pulleyX + 30, pulleyY);
-          ctx.lineTo(pulleyX - 30, pulleyY);
-          ctx.closePath();
-          ctx.fillStyle = '#bdc3c7';
-          ctx.fill();
-          ctx.stroke();
-
-  // Cuerda desde el objeto hasta la polea
-          ctx.beginPath();
-          ctx.moveTo(objectX, objectY);
-          ctx.lineTo(pulleyX, pulleyY);
-          ctx.strokeStyle = '#d35400';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-  // Posición del contrapeso (a la derecha de la polea)
-          const counterWeightY = pulleyY + (position / length) * 100;
-          const counterWeightSize = 20 + pulleyConfig.counterMass / 3;
-
-          ctx.beginPath();
-          ctx.arc(pulleyX, counterWeightY, counterWeightSize, 0, Math.PI * 2);
-          ctx.fillStyle = '#3498db';
-          ctx.fill();
-          ctx.strokeStyle = '#2980b9';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-  // Etiqueta del contrapeso
-          ctx.fillStyle = '#fff';
-          ctx.font = '14px Arial';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightSize + 15);
-
-  // Cuerda del contrapeso
-              ctx.beginPath();
-            ctx.moveTo(pulleyX, pulleyY + pulleyRadius);
-              ctx.lineTo(pulleyX, counterWeightY - counterWeightSize);
-              ctx.strokeStyle = '#d35400';
-              ctx.lineWidth = 2;
-              ctx.stroke();
-           }
-
+        // Función drawSimulation corregida
+        function drawSimulation() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Calcular dimensiones del plano
+            const angleRad = angle * Math.PI / 180;
+            const planeHeight = Math.min(height * 0.6, width * 0.6 * Math.tan(angleRad));
+            const planeWidth = planeHeight / Math.tan(angleRad);
+            
+            // Calcular posición del objeto
+            const objectX = 50 + (position / length) * planeWidth;
+            const objectY = (height - 50 - planeHeight) + (position / length) * planeHeight;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Dibujar plano inclinado
+            ctx.beginPath();
+            ctx.moveTo(50, height - 50);
+            ctx.lineTo(50 + planeWidth, height - 50);
+            ctx.lineTo(50, height - 50 - planeHeight);
+            ctx.closePath();
+            ctx.fillStyle = "#a3c9a8";
+            ctx.fill();
+            ctx.strokeStyle = "#000";
+            ctx.stroke();
+            
+            // Dibujar poleas si están activadas
+            if (usePulley) {
+                drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY);
+            }
+            
+            // Dibujar objeto
+            const objectSize = 20 + mass / 3;
+            ctx.beginPath();
+            ctx.arc(objectX, objectY, objectSize, 0, Math.PI * 2);
+            ctx.fillStyle = "#e63946";
+            ctx.fill();
+            ctx.strokeStyle = "#c1121f";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Dibujar ángulo
+            ctx.beginPath();
+            ctx.arc(50, height - 50, 30, 0, -angleRad, true);
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Etiqueta del ángulo
+            ctx.fillStyle = '#e74c3c';
+            ctx.font = '16px Arial';
+            ctx.fillText(`${angle}°`, 70, height - 80);
+            
+            // Etiqueta de masa
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${mass} kg`, objectX, objectY - objectSize - 5);
+        }
         
         // Dibujar sistema de poleas corregido
         function drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY) {
             // Posicionar la polea en la parte superior del plano
-            const pulleyX = 50 + planeWidth;
-            const pulleyY = height - 50 - planeHeight;
+            const pulleyX = 50 + planeWidth + 50;
+            const pulleyY = height - 50 - planeHeight - 20;
             const pulleyRadius = 20;
             
             // Dibujar polea
@@ -539,7 +539,7 @@
             ctx.stroke();
             
             // Calcular posición del contrapeso (se mueve en dirección opuesta)
-            const counterWeightY = pulleyY + (position / length) * 150; // 150 es una constante para la amplitud del movimiento
+            const counterWeightY = pulleyY + (position / length) * 200;
             
             // Dibujar contrapeso
             const counterWeightSize = 15 + pulleyConfig.counterMass / 3;
@@ -622,7 +622,7 @@
             // Actualizar velocidad y posición
             const deltaTime = 0.016; // Aproximadamente 60 FPS
             
-            if (isRunning) {
+            if (isRunning && !isPaused) {
                 velocity += acceleration * deltaTime;
                 
                 // No permitir velocidad negativa si el objeto está en la parte superior
@@ -635,6 +635,7 @@
                 if (position >= length && velocity > 0) {
                     velocity = 0;
                     position = length;
+                    isRunning = false;
                 } else {
                     position += velocity * deltaTime;
                 }
@@ -659,7 +660,7 @@
             energyValue.textContent = energy.toFixed(2) + " J";
             
             // Guardar datos para exportación
-            if (isRunning) {
+            if (isRunning && !isPaused) {
                 simulationData.push({
                     time: currentTime,
                     position: position,
@@ -675,7 +676,7 @@
         function animate() {
             calculatePhysics();
             drawSimulation();
-            if (isRunning) {
+            if (isRunning && !isPaused) {
                 animationId = requestAnimationFrame(animate);
             }
         }
@@ -708,7 +709,8 @@
         startBtn.addEventListener('click', function() {
             if (!isRunning) {
                 isRunning = true;
-                startTime = performance.now() - currentTime * 1000;
+                isPaused = false;
+                pauseBtn.textContent = "Pausar";
                 // Reiniciar datos al iniciar nueva simulación
                 if (currentTime === 0) {
                     simulationData = [];
@@ -718,16 +720,18 @@
         });
         
         pauseBtn.addEventListener('click', function() {
-            isRunning = !isRunning;
-            pauseBtn.textContent = isRunning ? "Pausar" : "Continuar";
             if (isRunning) {
-                startTime = performance.now() - currentTime * 1000;
-                animate();
+                isPaused = !isPaused;
+                pauseBtn.textContent = isPaused ? "Continuar" : "Pausar";
+                if (!isPaused) {
+                    animate();
+                }
             }
         });
         
         resetBtn.addEventListener('click', function() {
             isRunning = false;
+            isPaused = false;
             pauseBtn.textContent = "Pausar";
             currentTime = 0;
             position = 0;
