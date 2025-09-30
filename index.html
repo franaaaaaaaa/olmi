@@ -1,57 +1,375 @@
-function drawPulleySystem(width, height, planeWidth, planeHeight, objectX, objectY) {
-    const pulleyX = 50 + planeWidth + 80;
-    const pulleyY = height - 50 - planeHeight - 30;
-    const pulleyRadius = 25;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Plano Inclinado con Poleas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);}
+        h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);}
+        .subtitle { font-size: 1.2rem; opacity: 0.9; }
+        .content { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; }
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .panel h2 { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid rgba(255,255,255,0.3); }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+        input[type="number"], select { width: 100%; padding: 10px; border: none; border-radius: 8px; background: rgba(255,255,255,0.9); font-size: 1rem; }
+        .range-container { display: flex; align-items: center; gap: 10px; }
+        input[type="range"] { flex: 1; }
+        .range-value { min-width: 40px; text-align: center; font-weight: bold; }
+        button {
+            background: #4a90e2; color: white; border: none; padding: 12px 20px;
+            border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600;
+            transition: all 0.3s ease; width: 100%; margin-top: 10px;
+        }
+        button:hover { background: #357abd; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2);}
+        .simulation-area { flex: 2; min-width: 500px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .canvas-container { flex: 1; background: rgba(255,255,255,0.9); border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 20px; min-height: 400px; }
+        canvas { display: block; width: 100%; height: 100%; }
+        .data-display { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+        .data-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center; }
+        .data-value { font-size: 1.5rem; font-weight: bold; margin-top: 5px; }
+        .controls { display: flex; gap: 10px; margin-top: 20px; }
+        .controls button { flex: 1; }
+        .reset-btn { background: #e74c3c; }
+        .reset-btn:hover { background: #c0392b; }
+        .pause-btn { background: #f39c12; }
+        .pause-btn:hover { background: #d35400; }
+        .export-btn { background: #27ae60; }
+        .export-btn:hover { background: #219653; }
+        .pulley-config { margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.3); }
+        .pulley-toggle { display: flex; align-items: center; margin-bottom: 15px; }
+        .pulley-toggle input { margin-right: 10px; width: 20px; height: 20px; }
+        .pulley-options { padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px; }
+        footer { text-align: center; padding: 20px; margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 15px; font-size: 0.9rem; }
+        @media (max-width: 768px) { .content { flex-direction: column; } .panel, .simulation-area { min-width: 100%; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulador de Plano Inclinado con Poleas</h1>
+            <p class="subtitle">Estudia el comportamiento de un objeto que baja por un plano inclinado con sistemas de poleas</p>
+        </header>
+        <div class="content">
+            <div class="panel">
+                <h2>Parámetros del Sistema</h2>
+                <div class="input-group">
+                    <label for="mass">Masa del objeto (kg)</label>
+                    <div class="range-container">
+                        <input type="range" id="mass-slider" min="1" max="50" value="10" step="1">
+                        <span class="range-value" id="mass-value">10</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="angle">Ángulo del plano (grados)</label>
+                    <div class="range-container">
+                        <input type="range" id="angle-slider" min="5" max="60" value="30" step="1">
+                        <span class="range-value" id="angle-value">30</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="friction">Coeficiente de fricción</label>
+                    <div class="range-container">
+                        <input type="range" id="friction-slider" min="0" max="0.5" value="0.1" step="0.01">
+                        <span class="range-value" id="friction-value">0.10</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="length">Longitud del plano (m)</label>
+                    <div class="range-container">
+                        <input type="range" id="length-slider" min="5" max="20" value="10" step="1">
+                        <span class="range-value" id="length-value">10</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="gravity">Gravedad (m/s²)</label>
+                    <input type="number" id="gravity" value="9.8" min="1" max="20" step="0.1">
+                </div>
+                <div class="pulley-config">
+                    <div class="pulley-toggle">
+                        <input type="checkbox" id="pulley-toggle">
+                        <label for="pulley-toggle">Usar sistema de poleas</label>
+                    </div>
+                    <div class="pulley-options" id="pulley-options" style="display: none;">
+                        <div class="input-group">
+                            <label for="pulley-type">Tipo de polea</label>
+                            <select id="pulley-type">
+                                <option value="fixed">Polea fija</option>
+                                <option value="movable">Polea móvil</option>
+                                <option value="compound">Sistema compuesto</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="counter-mass">Masa contrapeso (kg)</label>
+                            <div class="range-container">
+                                <input type="range" id="counter-mass-slider" min="1" max="50" value="5" step="1">
+                                <span class="range-value" id="counter-mass-value">5</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="pulley-friction">Fricción en polea</label>
+                            <div class="range-container">
+                                <input type="range" id="pulley-friction-slider" min="0" max="0.2" value="0.05" step="0.01">
+                                <span class="range-value" id="pulley-friction-value">0.05</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="start-btn">Iniciar Simulación</button>
+            </div>
+            <div class="simulation-area">
+                <h2>Simulación</h2>
+                <div class="canvas-container">
+                    <canvas id="simulation-canvas"></canvas>
+                </div>
+                <div class="controls">
+                    <button id="pause-btn" class="pause-btn">Pausar</button>
+                    <button id="reset-btn" class="reset-btn">Reiniciar</button>
+                    <button id="export-btn" class="export-btn">Exportar Datos</button>
+                </div>
+                <div class="data-display">
+                    <div class="data-item">
+                        <div>Tiempo</div>
+                        <div class="data-value" id="time-value">0.00 s</div>
+                    </div>
+                    <div class="data-item">
+                        <div>Posición</div>
+                        <div class="data-value" id="position-value">0.00 m</div>
+                    </div>
+                    <div class="data-item">
+                        <div>Velocidad</div>
+                        <div class="data-value" id="velocity-value">0.00 m/s</div>
+                    </div>
+                    <div class="data-item">
+                        <div>Aceleración</div>
+                        <div class="data-value" id="acceleration-value">0.00 m/s²</div>
+                    </div>
+                    <div class="data-item">
+                        <div>Fuerza Net</div>
+                        <div class="data-value" id="force-value">0.00 N</div>
+                    </div>
+                    <div class="data-item">
+                        <div>Energía</div>
+                        <div class="data-value" id="energy-value">0.00 J</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>Simulador de Plano Inclinado con Poleas - Física Clásica</p>
+        </footer>
+    </div>
 
-    // Dibujar polea
-    ctx.beginPath();
-    ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = '#8e44ad';
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    <script>
+        const canvas = document.getElementById('simulation-canvas');
+        const ctx = canvas.getContext('2d');
 
-    // Soporte de la polea
-    ctx.beginPath();
-    ctx.moveTo(pulleyX - 40, pulleyY);
-    ctx.lineTo(pulleyX + 40, pulleyY);
-    ctx.strokeStyle = '#7f8c8d';
-    ctx.lineWidth = 4;
-    ctx.stroke();
+        const massSlider = document.getElementById('mass-slider');
+        const massValue = document.getElementById('mass-value');
+        const angleSlider = document.getElementById('angle-slider');
+        const angleValue = document.getElementById('angle-value');
+        const frictionSlider = document.getElementById('friction-slider');
+        const frictionValue = document.getElementById('friction-value');
+        const lengthSlider = document.getElementById('length-slider');
+        const lengthValue = document.getElementById('length-value');
+        const gravityInput = document.getElementById('gravity');
 
-    // Cuerda desde el objeto hasta la polea
-    ctx.beginPath();
-    ctx.moveTo(objectX, objectY);
-    ctx.lineTo(pulleyX, pulleyY);
-    ctx.strokeStyle = '#d35400';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+        const pulleyToggle = document.getElementById('pulley-toggle');
+        const pulleyOptions = document.getElementById('pulley-options');
+        const pulleyType = document.getElementById('pulley-type');
+        const counterMassSlider = document.getElementById('counter-mass-slider');
+        const counterMassValue = document.getElementById('counter-mass-value');
+        const pulleyFrictionSlider = document.getElementById('pulley-friction-slider');
+        const pulleyFrictionValue = document.getElementById('pulley-friction-value');
 
-    // Dibujar contrapeso en posición coherente (sube cuando objeto baja)
-    const counterWeightSize = 20 + pulleyConfig.counterMass / 3;
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const exportBtn = document.getElementById('export-btn');
 
-    // La posición del contrapeso debe reflejar el movimiento inverso
-    const maxRopeLength = planeHeight + 100; // ajustar según canvas
-    const counterWeightY = pulleyY - (position / length) * maxRopeLength;
+        const timeValue = document.getElementById('time-value');
+        const positionValue = document.getElementById('position-value');
+        const velocityValue = document.getElementById('velocity-value');
+        const accelerationValue = document.getElementById('acceleration-value');
+        const forceValue = document.getElementById('force-value');
+        const energyValue = document.getElementById('energy-value');
 
-    ctx.beginPath();
-    ctx.arc(pulleyX, counterWeightY, counterWeightSize, 0, Math.PI * 2);
-    ctx.fillStyle = '#3498db';
-    ctx.fill();
-    ctx.strokeStyle = '#2980b9';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+        let animationId, isRunning=false, startTime, currentTime=0, position=0, velocity=0, acceleration=0, netForce=0, energy=0, simulationData=[];
 
-    // Etiqueta del contrapeso
-    ctx.fillStyle = '#fff';
-    ctx.font = '14px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightSize + 15);
+        let mass = parseFloat(massSlider.value);
+        let angle = parseFloat(angleSlider.value);
+        let friction = parseFloat(frictionSlider.value);
+        let length = parseFloat(lengthSlider.value);
+        let gravity = parseFloat(gravityInput.value);
+        let usePulley = false;
+        let pulleyConfig = { type: 'fixed', counterMass: parseFloat(counterMassSlider.value), pulleyFriction: parseFloat(pulleyFrictionSlider.value) };
 
-    // Cuerda del contrapeso
-    ctx.beginPath();
-    ctx.moveTo(pulleyX, pulleyY + pulleyRadius);
-    ctx.lineTo(pulleyX, counterWeightY - counterWeightSize);
-    ctx.strokeStyle = '#d35400';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-}
+        function setupCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        massSlider.addEventListener('input', function(){ massValue.textContent=this.value; mass=parseFloat(this.value); });
+        angleSlider.addEventListener('input', function(){ angleValue.textContent=this.value; angle=parseFloat(this.value); drawSimulation(); });
+        frictionSlider.addEventListener('input', function(){ frictionValue.textContent=parseFloat(this.value).toFixed(2); friction=parseFloat(this.value); });
+        lengthSlider.addEventListener('input', function(){ lengthValue.textContent=this.value; length=parseFloat(this.value); drawSimulation(); });
+        gravityInput.addEventListener('input', function(){ gravity=parseFloat(this.value); });
+
+        pulleyToggle.addEventListener('change', function(){ usePulley=this.checked; pulleyOptions.style.display=usePulley?'block':'none'; drawSimulation(); });
+        pulleyType.addEventListener('change', function(){ pulleyConfig.type=this.value; drawSimulation(); });
+        counterMassSlider.addEventListener('input', function(){ counterMassValue.textContent=this.value; pulleyConfig.counterMass=parseFloat(this.value); drawSimulation(); });
+        pulleyFrictionSlider.addEventListener('input', function(){ pulleyFrictionValue.textContent=parseFloat(this.value).toFixed(2); pulleyConfig.pulleyFriction=parseFloat(this.value); drawSimulation(); });
+
+        function calculatePhysics(dt){
+            const angleRad = angle * Math.PI/180;
+            const gravityForce = mass * gravity * Math.sin(angleRad);
+            const frictionForce = friction * mass * gravity * Math.cos(angleRad);
+            netForce = gravityForce - frictionForce;
+            acceleration = netForce / mass;
+            velocity += acceleration * dt;
+            position += velocity * dt;
+            if(position>length){ position=length; velocity=0; acceleration=0; }
+            energy = 0.5*mass*velocity*velocity + mass*gravity*position*Math.sin(angleRad);
+        }
+
+        function drawPlane() {
+            const startX=50, startY=canvas.height-50;
+            const endX=startX+length*Math.cos(angle*Math.PI/180);
+            const endY=startY-length*Math.sin(angle*Math.PI/180);
+            ctx.beginPath();
+            ctx.moveTo(startX,startY);
+            ctx.lineTo(endX,endY);
+            ctx.strokeStyle='#2c3e50';
+            ctx.lineWidth=5;
+            ctx.stroke();
+            return {startX,startY,endX,endY};
+        }
+
+        function drawObject(plane) {
+            const x = plane.startX + position*Math.cos(angle*Math.PI/180);
+            const y = plane.startY - position*Math.sin(angle*Math.PI/180);
+            ctx.fillStyle='#e67e22';
+            ctx.beginPath();
+            ctx.arc(x,y,20,0,Math.PI*2);
+            ctx.fill();
+            ctx.strokeStyle='#d35400';
+            ctx.lineWidth=2;
+            ctx.stroke();
+            return {x,y};
+        }
+
+        function drawPulleySystem(plane, objectPos) {
+            const pulleyX = plane.endX;
+            const pulleyY = plane.endY - 25;
+            const pulleyRadius = 25;
+            // Dibujar polea
+            ctx.beginPath();
+            ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI*2);
+            ctx.strokeStyle='#8e44ad';
+            ctx.lineWidth=3;
+            ctx.stroke();
+            // Soporte
+            ctx.beginPath();
+            ctx.moveTo(pulleyX-40, pulleyY);
+            ctx.lineTo(pulleyX+40, pulleyY);
+            ctx.strokeStyle='#7f8c8d';
+            ctx.lineWidth=4;
+            ctx.stroke();
+            // Cuerda objeto
+            ctx.beginPath();
+            ctx.moveTo(objectPos.x, objectPos.y);
+            ctx.lineTo(pulleyX, pulleyY);
+            ctx.strokeStyle='#d35400';
+            ctx.lineWidth=2;
+            ctx.stroke();
+            // Contrapeso
+            const counterSize=20+pulleyConfig.counterMass/3;
+            const maxRope=200;
+            const counterY = pulleyY + pulleyRadius + (length-position)/length*maxRope;
+            ctx.beginPath();
+            ctx.arc(pulleyX, counterY, counterSize, 0, Math.PI*2);
+            ctx.fillStyle='#3498db';
+            ctx.fill();
+            ctx.strokeStyle='#2980b9';
+            ctx.lineWidth=2;
+            ctx.stroke();
+            ctx.fillStyle='#fff';
+            ctx.font='14px Arial';
+            ctx.textAlign='center';
+            ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterY + counterSize + 15);
+            // Cuerda contrapeso
+            ctx.beginPath();
+            ctx.moveTo(pulleyX, pulleyY+pulleyRadius);
+            ctx.lineTo(pulleyX, counterY-counterSize);
+            ctx.strokeStyle='#d35400';
+            ctx.lineWidth=2;
+            ctx.stroke();
+        }
+
+        function drawSimulation() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            const plane = drawPlane();
+            const objectPos = drawObject(plane);
+            if(usePulley) drawPulleySystem(plane, objectPos);
+        }
+
+        function updateDataDisplay(){
+            timeValue.textContent=currentTime.toFixed(2)+' s';
+            positionValue.textContent=position.toFixed(2)+' m';
+            velocityValue.textContent=velocity.toFixed(2)+' m/s';
+            accelerationValue.textContent=acceleration.toFixed(2)+' m/s²';
+            forceValue.textContent=netForce.toFixed(2)+' N';
+            energyValue.textContent=energy.toFixed(2)+' J';
+        }
+
+        function animate(timestamp){
+            if(!startTime) startTime=timestamp;
+            const dt=(timestamp-startTime)/1000;
+            startTime=timestamp;
+            if(isRunning){
+                calculatePhysics(dt);
+                currentTime+=dt;
+                updateDataDisplay();
+                drawSimulation();
+            }
+            animationId=requestAnimationFrame(animate);
+        }
+
+        startBtn.addEventListener('click', function(){ isRunning=true; });
+        pauseBtn.addEventListener('click', function(){ isRunning=!isRunning; pauseBtn.textContent=isRunning?'Pausar':'Reanudar'; });
+        resetBtn.addEventListener('click', function(){
+            position=0; velocity=0; acceleration=0; currentTime=0; netForce=0; energy=0;
+            updateDataDisplay(); drawSimulation();
+        });
+
+        window.addEventListener('resize', function(){ setupCanvas(); drawSimulation(); });
+
+        setupCanvas();
+        drawSimulation();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
