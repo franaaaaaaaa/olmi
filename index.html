@@ -12,7 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50, #34495e);
             color: #fff;
             min-height: 100vh;
             padding: 20px;
@@ -29,15 +29,18 @@
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: #ecf0f1;
         }
         .subtitle {
             font-size: 1.2rem;
             opacity: 0.9;
+            color: #bdc3c7;
         }
         .content {
             display: flex;
@@ -53,19 +56,22 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .panel h2 {
             margin-bottom: 20px;
-            padding-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            color: #ecf0f1;
         }
         .input-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
+            color: #ecf0f1;
         }
         input[type="number"], select {
             width: 100%;
@@ -74,11 +80,12 @@
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
+            color: #2c3e50;
             transition: all 0.3s ease;
         }
         input[type="number"]:focus, select:focus {
             outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 0 0 2px #3498db;
         }
         .input-container {
             display: flex;
@@ -92,6 +99,7 @@
             min-width: 40px;
             text-align: center;
             font-weight: bold;
+            color: #bdc3c7;
         }
         button {
             background: #3498db;
@@ -110,7 +118,7 @@
         button:hover {
             background: #2980b9;
             transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
         .simulation-area {
             flex: 2;
@@ -122,6 +130,7 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .canvas-container {
             flex: 1;
@@ -130,7 +139,8 @@
             overflow: hidden;
             position: relative;
             margin-bottom: 20px;
-            min-height: 450px;
+            min-height: 400px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
         }
         canvas {
             display: block;
@@ -148,16 +158,13 @@
             padding: 15px;
             border-radius: 10px;
             text-align: center;
-            backdrop-filter: blur(5px);
-        }
-        .data-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-bottom: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .data-value {
             font-size: 1.5rem;
             font-weight: bold;
+            margin-top: 5px;
+            color: #3498db;
         }
         .controls {
             display: flex;
@@ -205,6 +212,7 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         footer {
             text-align: center;
@@ -213,6 +221,7 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
             font-size: 0.9rem;
+            color: #bdc3c7;
         }
         @media (max-width: 768px) {
             .content {
@@ -312,27 +321,27 @@
                 </div>
                 <div class="data-display">
                     <div class="data-item">
-                        <div class="data-label">Tiempo</div>
+                        <div>Tiempo</div>
                         <div class="data-value" id="time-value">0.00 s</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">Posición</div>
+                        <div>Posición</div>
                         <div class="data-value" id="position-value">0.00 m</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">Velocidad</div>
+                        <div>Velocidad</div>
                         <div class="data-value" id="velocity-value">0.00 m/s</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">Aceleración</div>
+                        <div>Aceleración</div>
                         <div class="data-value" id="acceleration-value">0.00 m/s²</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">Fuerza Net</div>
+                        <div>Fuerza Net</div>
                         <div class="data-value" id="force-value">0.00 N</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">Energía</div>
+                        <div>Energía</div>
                         <div class="data-value" id="energy-value">0.00 J</div>
                     </div>
                 </div>
@@ -496,26 +505,25 @@
             pulleyConfig.pulleyFriction = value;
         });
        
-        // Función drawSimulation completamente corregida
+        // Función drawSimulation corregida
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
            
-            // Limpiar canvas
-            ctx.clearRect(0, 0, width, height);
-           
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
-            const planeHeight = height * 0.35;
+            const planeHeight = Math.min(height * 0.5, width * 0.6 * Math.tan(angleRad));
             const planeWidth = planeHeight / Math.tan(angleRad);
            
-            // Posicionar el plano
-            const baseX = width * 0.15;
-            const baseY = height * 0.7;
+            // Ajustar posición inicial del plano según si hay polea o no
+            const baseX = usePulley ? width * 0.4 : width * 0.2;
+            const baseY = height - 100;
            
-            // Calcular posición del objeto - CORREGIDO: se mueve hacia abajo del plano
+            // Calcular posición del objeto
             const objectX = baseX + (position / length) * planeWidth;
-            const objectY = baseY - (position / length) * planeHeight;
+            const objectY = baseY - planeHeight + (position / length) * planeHeight;
+           
+            ctx.clearRect(0, 0, width, height);
            
             // Dibujar plano inclinado
             ctx.beginPath();
@@ -523,23 +531,9 @@
             ctx.lineTo(baseX + planeWidth, baseY);
             ctx.lineTo(baseX, baseY - planeHeight);
             ctx.closePath();
-            
-            ctx.fillStyle = '#5D8AA8';
+            ctx.fillStyle = "#8bc34a";
             ctx.fill();
-            ctx.strokeStyle = '#2c3e50';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-           
-            // Dibujar base del plano
-            ctx.beginPath();
-            ctx.moveTo(baseX, baseY);
-            ctx.lineTo(baseX + planeWidth, baseY);
-            ctx.lineTo(baseX + planeWidth, baseY + 15);
-            ctx.lineTo(baseX, baseY + 15);
-            ctx.closePath();
-            ctx.fillStyle = '#8B7355';
-            ctx.fill();
-            ctx.strokeStyle = '#5D4037';
+            ctx.strokeStyle = "#2e7d32";
             ctx.lineWidth = 2;
             ctx.stroke();
            
@@ -549,53 +543,52 @@
             }
            
             // Dibujar objeto como RECTÁNGULO
-            const objectWidth = 40 + mass * 0.8;
-            const objectHeight = 30 + mass * 0.6;
-            
-            ctx.fillStyle = '#E74C3C';
+            const objectWidth = 25 + mass / 2;
+            const objectHeight = 15 + mass / 3;
+            ctx.fillStyle = "#e74c3c";
             ctx.fillRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
-            ctx.strokeStyle = '#C0392B';
+            ctx.strokeStyle = "#c0392b";
             ctx.lineWidth = 2;
             ctx.strokeRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
            
-            // Detalle del objeto
-            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.fillRect(objectX - objectWidth/2 + 8, objectY - objectHeight/2 + 8, objectWidth - 16, 10);
+            // Detalles del objeto
+            ctx.fillStyle = "#c0392b";
+            ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 5, objectWidth - 10, 3);
+            ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 10, objectWidth - 10, 3);
            
             // Dibujar ángulo
             ctx.beginPath();
-            ctx.arc(baseX, baseY, 35, 0, -angleRad, true);
-            ctx.strokeStyle = '#3498DB';
+            ctx.arc(baseX, baseY, 30, 0, -angleRad, true);
+            ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
            
             // Etiqueta del ángulo
-            ctx.fillStyle = '#3498DB';
-            ctx.font = 'bold 16px Arial';
-            ctx.fillText(`${angle}°`, baseX + 25, baseY - 20);
+            ctx.fillStyle = '#e74c3c';
+            ctx.font = '16px Arial';
+            ctx.fillText(`${angle}°`, baseX + 20, baseY - 20);
            
             // Etiqueta de masa
             ctx.fillStyle = '#2c3e50';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = '14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 15);
+            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 10);
         }
        
-        // Dibujar sistema de poleas completamente corregido
+        // Dibujar sistema de poleas mejorado
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
-            // Posicionar la polea correctamente - no achatada
-            const pulleyX = baseX + planeWidth * 0.8;
-            const pulleyY = baseY - planeHeight - 60;
+            // Posicionar la polea a la izquierda del plano
+            const pulleyX = baseX - 100;
+            const pulleyY = baseY - planeHeight - 50;
             const pulleyRadius = 25;
            
-            // Dibujar soporte de la polea mejorado
+            // Dibujar soporte de la polea
             ctx.beginPath();
             ctx.moveTo(pulleyX - 40, pulleyY - 50);
             ctx.lineTo(pulleyX + 40, pulleyY - 50);
             ctx.lineTo(pulleyX + 40, pulleyY - 20);
             ctx.lineTo(pulleyX - 40, pulleyY - 20);
             ctx.closePath();
-            
             ctx.fillStyle = '#7f8c8d';
             ctx.fill();
             ctx.strokeStyle = '#2c3e50';
@@ -603,10 +596,14 @@
             ctx.stroke();
            
             // Detalles del soporte
-            ctx.fillStyle = '#95a5a6';
-            ctx.fillRect(pulleyX - 35, pulleyY - 45, 70, 5);
+            ctx.beginPath();
+            ctx.moveTo(pulleyX - 35, pulleyY - 45);
+            ctx.lineTo(pulleyX + 35, pulleyY - 45);
+            ctx.strokeStyle = '#95a5a6';
+            ctx.lineWidth = 1;
+            ctx.stroke();
            
-            // Dibujar polea con proporciones correctas
+            // Dibujar polea
             ctx.beginPath();
             ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
             ctx.strokeStyle = '#2c3e50';
@@ -623,44 +620,44 @@
             // Eje de la polea
             ctx.beginPath();
             ctx.arc(pulleyX, pulleyY, 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#E74C3C';
+            ctx.fillStyle = '#e74c3c';
             ctx.fill();
            
             // Dibujar cuerda desde el objeto hasta la polea
             ctx.beginPath();
             ctx.moveTo(objectX, objectY);
-            ctx.lineTo(pulleyX, pulleyY + pulleyRadius);
+            ctx.lineTo(pulleyX + pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
             ctx.stroke();
            
-            // Calcular posición del contrapeso - CORREGIDO: movimiento opuesto
+            // Calcular posición del contrapeso (se mueve en dirección opuesta al objeto)
             const maxCounterWeightMovement = 200;
-            const counterWeightY = pulleyY + pulleyRadius + 50 + (position / length) * maxCounterWeightMovement;
+            const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
            
             // Dibujar contrapeso como RECTÁNGULO
-            const counterWeightWidth = 35 + pulleyConfig.counterMass * 0.8;
-            const counterWeightHeight = 25 + pulleyConfig.counterMass * 0.6;
-            
-            ctx.fillStyle = '#3498DB';
+            const counterWeightWidth = 20 + pulleyConfig.counterMass / 2;
+            const counterWeightHeight = 15 + pulleyConfig.counterMass / 3;
+            ctx.fillStyle = '#3498db';
             ctx.fillRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
-            ctx.strokeStyle = '#2980B9';
+            ctx.strokeStyle = '#2980b9';
             ctx.lineWidth = 2;
             ctx.strokeRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
            
-            // Detalle del contrapeso
-            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.fillRect(pulleyX - counterWeightWidth/2 + 6, counterWeightY - counterWeightHeight/2 + 6, counterWeightWidth - 12, 8);
+            // Detalles del contrapeso
+            ctx.fillStyle = '#2980b9';
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 3);
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 10, counterWeightWidth - 10, 3);
            
             // Etiqueta de contrapeso
             ctx.fillStyle = '#2c3e50';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
            
             // Dibujar cuerda del contrapeso
             ctx.beginPath();
-            ctx.moveTo(pulleyX, pulleyY + pulleyRadius);
+            ctx.moveTo(pulleyX - pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
             ctx.lineTo(pulleyX, counterWeightY - counterWeightHeight/2);
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
@@ -689,10 +686,13 @@
                 const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
                
                 if (pulleyConfig.type === 'fixed') {
+                    // Polea fija: cambia dirección pero no magnitud de la fuerza
                     netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
                 } else if (pulleyConfig.type === 'movable') {
+                    // Polea móvil: divide la fuerza a la mitad
                     netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 2;
                 } else if (pulleyConfig.type === 'compound') {
+                    // Sistema compuesto: combinación de poleas fijas y móviles
                     netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 3;
                 }
             }
@@ -714,11 +714,11 @@
            
             // Si la aceleración es muy pequeña o negativa cuando debería ser positiva, ajustar
             if (usePulley && acceleration < 0.01 && gravitationalForce > frictionForce + (pulleyConfig.counterMass * gravity * 0.5)) {
-                acceleration = 0.1;
+                acceleration = 0.1; // Valor mínimo para que el movimiento comience
             }
            
             // Actualizar velocidad y posición
-            const deltaTime = 0.016;
+            const deltaTime = 0.016; // Aproximadamente 60 FPS
            
             if (isRunning && !isPaused) {
                 velocity += acceleration * deltaTime;
@@ -831,6 +831,7 @@
                 isRunning = true;
                 isPaused = false;
                 pauseBtn.textContent = "Pausar";
+                // Reiniciar datos al iniciar nueva simulación
                 if (currentTime === 0) {
                     simulationData = [];
                 }
