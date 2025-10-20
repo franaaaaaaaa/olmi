@@ -941,15 +941,13 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto
+            // Dibujar objeto como CUADRADO
             const objectSize = 20 + mass / 3;
-            ctx.beginPath();
-            ctx.arc(objectX, objectY, objectSize, 0, Math.PI * 2);
             ctx.fillStyle = "#e63946";
-            ctx.fill();
+            ctx.fillRect(objectX - objectSize/2, objectY - objectSize/2, objectSize, objectSize);
             ctx.strokeStyle = "#c1121f";
             ctx.lineWidth = 2;
-            ctx.stroke();
+            ctx.strokeRect(objectX - objectSize/2, objectY - objectSize/2, objectSize, objectSize);
            
             // Dibujar ángulo
             ctx.beginPath();
@@ -970,16 +968,247 @@
             ctx.fillText(`${mass} kg`, objectX, objectY - objectSize - 5);
         }
        
-        // Dibujar sistema de poleas
+        // Dibujar sistema de poleas (versión mejorada y formal)
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
             // Posicionar la polea a la izquierda del plano pero más centrada
             const pulleyX = baseX - 80;
             const pulleyY = baseY - planeHeight - 30;
             const pulleyRadius = 20;
            
-            // Dibujar polea
+            // Dibujar soporte de la polea
+            ctx.beginPath();
+            ctx.moveTo(pulleyX - 30, pulleyY - 40);
+            ctx.lineTo(pulleyX + 30, pulleyY - 40);
+            ctx.lineTo(pulleyX + 30, pulleyY - pulleyRadius);
+            ctx.lineTo(pulleyX - 30, pulleyY - pulleyRadius);
+            ctx.closePath();
+            ctx.fillStyle = '#7f8c8d';
+            ctx.fill();
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+           
+            // Dibujar polea (más formal con detalles)
             ctx.beginPath();
             ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
-            ctx.strokeStyle = '#8e44ad';
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+           
+            // Detalles internos de la polea
+            ctx.beginPath();
+            ctx.arc(pulleyX, pulleyY, pulleyRadius - 8, 0, Math.PI * 2);
+            ctx.strokeStyle = '#95a5a6';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+           
+            // Eje de la polea
+            ctx.beginPath();
+            ctx.arc(pulleyX, pulleyY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#e74c3c';
+            ctx.fill();
+           
+            // Dibujar cuerda desde el objeto hasta la polea
+            ctx.beginPath();
+            ctx.moveTo(objectX, objectY);
+            ctx.lineTo(pulleyX + pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
+            ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
             ctx.stroke();
+           
+            // Dibujar cuerda desde la polea hasta el contrapeso
+            const counterWeightY = baseY;
+            const counterWeightSize = 15 + pulleyConfig.counterMass / 3;
+           
+            ctx.beginPath();
+            ctx.moveTo(pulleyX - pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
+            ctx.lineTo(pulleyX - 50, counterWeightY);
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+           
+            // Dibujar contrapeso como cuadrado
+            ctx.fillStyle = "#3498db";
+            ctx.fillRect(pulleyX - 50 - counterWeightSize/2, counterWeightY - counterWeightSize/2, counterWeightSize, counterWeightSize);
+            ctx.strokeStyle = "#2980b9";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(pulleyX - 50 - counterWeightSize/2, counterWeightY - counterWeightSize/2, counterWeightSize, counterWeightSize);
+           
+            // Etiqueta del contrapeso
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX - 50, counterWeightY - counterWeightSize - 5);
+        }
+       
+        // Iniciar simulación
+        function startSimulation() {
+            if (!validateParameters()) {
+                return;
+            }
+           
+            if (!isRunning) {
+                isRunning = true;
+                isPaused = false;
+                currentTime = 0;
+                position = 0;
+                velocity = initialVelocity;
+                simulationData = [];
+               
+                updateSimulation();
+            } else if (isPaused) {
+                isPaused = false;
+                updateSimulation();
+            }
+        }
+       
+        // Actualizar simulación
+        function updateSimulation() {
+            if (!isRunning || isPaused) return;
+           
+            // Calcular fuerzas
+            const angleRad = angle * Math.PI / 180;
+            const parallelForce = mass * gravity * Math.sin(angleRad);
+            const normalForce = mass * gravity * Math.cos(angleRad);
+            const frictionForce = friction * normalForce;
+           
+            // Calcular fuerza neta
+            netForce = parallelForce - frictionForce;
+           
+            // Aplicar fuerza de polea si está activada
+            if (usePulley) {
+                const pulleyForce = pulleyConfig.counterMass * gravity;
+                netForce -= pulleyForce;
+               
+                // Aplicar fricción de polea
+                netForce -= pulleyConfig.pulleyFriction * Math.abs(velocity);
+            }
+           
+            // Aplicar resistencia del aire
+            netForce -= airResistance * velocity * Math.abs(velocity);
+           
+            // Calcular aceleración
+            acceleration = netForce / mass;
+           
+            // Actualizar velocidad y posición
+            velocity += acceleration * timeStep;
+            position += velocity * timeStep;
+           
+            // Calcular energía
+            const kineticEnergy = 0.5 * mass * velocity * velocity;
+            const potentialEnergy = mass * gravity * (position * Math.sin(angleRad));
+            energy = kineticEnergy + potentialEnergy;
+           
+            // Actualizar tiempo
+            currentTime += timeStep;
+           
+            // Actualizar visualización
+            drawSimulation();
+            updateDataDisplay();
+           
+            // Guardar datos
+            simulationData.push({
+                time: currentTime,
+                position: position,
+                velocity: velocity,
+                acceleration: acceleration,
+                force: netForce,
+                energy: energy
+            });
+           
+            // Detener simulación si el objeto llega al final del plano o retrocede demasiado
+            if (position >= length || position < -0.5) {
+                stopSimulation();
+                return;
+            }
+           
+            animationId = requestAnimationFrame(updateSimulation);
+        }
+       
+        // Actualizar visualización de datos
+        function updateDataDisplay() {
+            timeValue.textContent = currentTime.toFixed(2) + ' s';
+            positionValue.textContent = position.toFixed(2) + ' m';
+            velocityValue.textContent = velocity.toFixed(2) + ' m/s';
+            accelerationValue.textContent = acceleration.toFixed(2) + ' m/s²';
+            forceValue.textContent = netForce.toFixed(2) + ' N';
+            energyValue.textContent = energy.toFixed(2) + ' J';
+        }
+       
+        // Pausar simulación
+        function pauseSimulation() {
+            isPaused = !isPaused;
+            if (!isPaused) {
+                updateSimulation();
+            } else {
+                cancelAnimationFrame(animationId);
+            }
+        }
+       
+        // Reiniciar simulación
+        function resetSimulation() {
+            isRunning = false;
+            isPaused = false;
+            currentTime = 0;
+            position = 0;
+            velocity = initialVelocity;
+            acceleration = 0;
+            netForce = 0;
+            energy = 0;
+           
+            cancelAnimationFrame(animationId);
+            drawSimulation();
+            updateDataDisplay();
+        }
+       
+        // Detener simulación
+        function stopSimulation() {
+            isRunning = false;
+            isPaused = false;
+            cancelAnimationFrame(animationId);
+        }
+       
+        // Exportar datos
+        function exportData() {
+            if (simulationData.length === 0) {
+                alert('No hay datos para exportar. Ejecute la simulación primero.');
+                return;
+            }
+           
+            let csvContent = "Tiempo (s),Posición (m),Velocidad (m/s),Aceleración (m/s²),Fuerza (N),Energía (J)\n";
+           
+            simulationData.forEach(data => {
+                csvContent += `${data.time},${data.position},${data.velocity},${data.acceleration},${data.force},${data.energy}\n`;
+            });
+           
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'datos_simulacion_plano_inclinado.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+       
+        // Event listeners
+        startBtn.addEventListener('click', startSimulation);
+        pauseBtn.addEventListener('click', pauseSimulation);
+        resetBtn.addEventListener('click', resetSimulation);
+        exportBtn.addEventListener('click', exportData);
+       
+        // Inicializar
+        window.addEventListener('load', function() {
+            setupCanvas();
+            drawSimulation();
+            updateDataDisplay();
+           
+            window.addEventListener('resize', function() {
+                setupCanvas();
+                drawSimulation();
+            });
+        });
+    </script>
+</body>
+</html>
