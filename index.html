@@ -137,7 +137,7 @@
             overflow: hidden;
             position: relative;
             margin-bottom: 20px;
-            min-height: 400px;
+            min-height: 500px;
             border: 1px solid #e9ecef;
         }
         canvas {
@@ -521,16 +521,16 @@
            
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
-            const planeHeight = Math.min(height * 0.5, width * 0.6 * Math.tan(angleRad));
+            const planeHeight = Math.min(height * 0.6, width * 0.7 * Math.tan(angleRad));
             const planeWidth = planeHeight / Math.tan(angleRad);
            
-            // Ajustar posición inicial del plano según si hay polea o no
-            const baseX = usePulley ? width * 0.3 : width * 0.2;
-            const baseY = height - 100;
+            // Ajustar posición inicial del plano
+            const baseX = width * 0.15;
+            const baseY = height * 0.8;
            
             // Calcular posición del objeto
             const objectX = baseX + (position / length) * planeWidth;
-            const objectY = baseY - planeHeight + (position / length) * planeHeight;
+            const objectY = baseY - (position / length) * planeHeight;
            
             ctx.clearRect(0, 0, width, height);
            
@@ -543,6 +543,19 @@
             ctx.fillStyle = "#a3c9a8";
             ctx.fill();
             ctx.strokeStyle = "#2c3e50";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+           
+            // Dibujar base del plano
+            ctx.beginPath();
+            ctx.moveTo(baseX, baseY);
+            ctx.lineTo(baseX + planeWidth, baseY);
+            ctx.lineTo(baseX + planeWidth, baseY + 15);
+            ctx.lineTo(baseX, baseY + 15);
+            ctx.closePath();
+            ctx.fillStyle = "#8c7b6b";
+            ctx.fill();
+            ctx.strokeStyle = "#5d4c3c";
             ctx.lineWidth = 2;
             ctx.stroke();
            
@@ -551,46 +564,51 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como CUADRADO
-            const objectSize = 20 + mass / 3;
+            // Dibujar objeto como RECTÁNGULO
+            const objectWidth = 40 + mass;
+            const objectHeight = 30 + mass / 2;
             ctx.fillStyle = "#e74c3c";
-            ctx.fillRect(objectX - objectSize/2, objectY - objectSize/2, objectSize, objectSize);
+            ctx.fillRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
             ctx.strokeStyle = "#c0392b";
             ctx.lineWidth = 2;
-            ctx.strokeRect(objectX - objectSize/2, objectY - objectSize/2, objectSize, objectSize);
+            ctx.strokeRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
+           
+            // Detalle del objeto
+            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+            ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 5, objectWidth - 10, 8);
            
             // Dibujar ángulo
             ctx.beginPath();
-            ctx.arc(baseX, baseY, 30, 0, -angleRad, true);
+            ctx.arc(baseX, baseY, 35, 0, -angleRad, true);
             ctx.strokeStyle = '#3498db';
             ctx.lineWidth = 2;
             ctx.stroke();
            
             // Etiqueta del ángulo
             ctx.fillStyle = '#3498db';
-            ctx.font = '16px Arial';
-            ctx.fillText(`${angle}°`, baseX + 20, baseY - 20);
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(`${angle}°`, baseX + 25, baseY - 20);
            
             // Etiqueta de masa
             ctx.fillStyle = '#2c3e50';
-            ctx.font = '14px Arial';
+            ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectSize - 5);
+            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 10);
         }
        
-        // Dibujar sistema de poleas corregido - CON MOVIMIENTO DEL CONTRAPESO Y DISEÑO FORMAL
+        // Dibujar sistema de poleas mejorado
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
-            // Posicionar la polea a la izquierda del plano pero más centrada
-            const pulleyX = baseX - 80;
-            const pulleyY = baseY - planeHeight - 30;
-            const pulleyRadius = 20;
+            // Posicionar la polea
+            const pulleyX = baseX - 100;
+            const pulleyY = baseY - planeHeight - 50;
+            const pulleyRadius = 25;
            
-            // Dibujar soporte de la polea (más formal)
+            // Dibujar soporte de la polea
             ctx.beginPath();
-            ctx.moveTo(pulleyX - 35, pulleyY - 40);
-            ctx.lineTo(pulleyX + 35, pulleyY - 40);
-            ctx.lineTo(pulleyX + 35, pulleyY - 15);
-            ctx.lineTo(pulleyX - 35, pulleyY - 15);
+            ctx.moveTo(pulleyX - 40, pulleyY - 50);
+            ctx.lineTo(pulleyX + 40, pulleyY - 50);
+            ctx.lineTo(pulleyX + 40, pulleyY - 20);
+            ctx.lineTo(pulleyX - 40, pulleyY - 20);
             ctx.closePath();
             ctx.fillStyle = '#7f8c8d';
             ctx.fill();
@@ -598,23 +616,27 @@
             ctx.lineWidth = 2;
             ctx.stroke();
            
-            // Dibujar polea (más formal con detalles)
+            // Detalles del soporte
+            ctx.fillStyle = '#95a5a6';
+            ctx.fillRect(pulleyX - 35, pulleyY - 45, 70, 5);
+           
+            // Dibujar polea
             ctx.beginPath();
             ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
             ctx.strokeStyle = '#2c3e50';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 5;
             ctx.stroke();
            
             // Detalles internos de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, pulleyRadius - 8, 0, Math.PI * 2);
+            ctx.arc(pulleyX, pulleyY, pulleyRadius - 10, 0, Math.PI * 2);
             ctx.strokeStyle = '#95a5a6';
             ctx.lineWidth = 2;
             ctx.stroke();
            
             // Eje de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, 4, 0, Math.PI * 2);
+            ctx.arc(pulleyX, pulleyY, 5, 0, Math.PI * 2);
             ctx.fillStyle = '#e74c3c';
             ctx.fill();
            
@@ -626,34 +648,39 @@
             ctx.lineWidth = 3;
             ctx.stroke();
            
-            // Calcular posición del contrapeso (se mueve en dirección opuesta al objeto)
-            const maxCounterWeightMovement = 200;
-            const counterWeightY = pulleyY + pulleyRadius + 20 + (position / length) * maxCounterWeightMovement;
+            // Calcular posición del contrapeso
+            const maxCounterWeightMovement = 250;
+            const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
            
-            // Dibujar contrapeso como CUADRADO
-            const counterWeightSize = 15 + pulleyConfig.counterMass / 3;
+            // Dibujar contrapeso como RECTÁNGULO
+            const counterWeightWidth = 35 + pulleyConfig.counterMass;
+            const counterWeightHeight = 25 + pulleyConfig.counterMass / 2;
             ctx.fillStyle = '#3498db';
-            ctx.fillRect(pulleyX - counterWeightSize/2, counterWeightY - counterWeightSize/2, counterWeightSize, counterWeightSize);
+            ctx.fillRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
             ctx.strokeStyle = '#2980b9';
             ctx.lineWidth = 2;
-            ctx.strokeRect(pulleyX - counterWeightSize/2, counterWeightY - counterWeightSize/2, counterWeightSize, counterWeightSize);
+            ctx.strokeRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
+           
+            // Detalle del contrapeso
+            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 6);
            
             // Etiqueta de contrapeso
             ctx.fillStyle = '#2c3e50';
-            ctx.font = '14px Arial';
+            ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightSize + 15);
+            ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
            
             // Dibujar cuerda del contrapeso
             ctx.beginPath();
             ctx.moveTo(pulleyX - pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
-            ctx.lineTo(pulleyX, counterWeightY - counterWeightSize/2);
+            ctx.lineTo(pulleyX, counterWeightY - counterWeightHeight/2);
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
             ctx.stroke();
         }
        
-        // Calcular física del plano inclinado - CORREGIDO CON POLEAS FUNCIONALES
+        // Calcular física del plano inclinado
         function calculatePhysics() {
             const angleRad = angle * Math.PI / 180;
            
@@ -674,8 +701,6 @@
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
                 const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
                
-                // CORRECCIÓN: La fuerza del contrapeso debe RESTARSE cuando el objeto baja
-                // (antes se estaba restando dos veces)
                 if (pulleyConfig.type === 'fixed') {
                     // Polea fija: cambia dirección pero no magnitud de la fuerza
                     netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
@@ -700,16 +725,16 @@
                 }
             }
            
-            // Aceleración - CORRECCIÓN: Asegurar que la aceleración no sea negativa cuando debería ser positiva
+            // Aceleración
             acceleration = netForceValue / effectiveMass;
            
             // Si la aceleración es muy pequeña o negativa cuando debería ser positiva, ajustar
             if (usePulley && acceleration < 0.01 && gravitationalForce > frictionForce + (pulleyConfig.counterMass * gravity * 0.5)) {
-                acceleration = 0.1; // Valor mínimo para que el movimiento comience
+                acceleration = 0.1;
             }
            
             // Actualizar velocidad y posición
-            const deltaTime = 0.016; // Aproximadamente 60 FPS
+            const deltaTime = 0.016;
            
             if (isRunning && !isPaused) {
                 velocity += acceleration * deltaTime;
@@ -816,7 +841,7 @@
             document.body.removeChild(link);
         }
        
-        // Controladores de botones CORREGIDOS
+        // Controladores de botones
         startBtn.addEventListener('click', function() {
             if (!isRunning) {
                 isRunning = true;
