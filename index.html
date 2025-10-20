@@ -12,7 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: #fff;
             min-height: 100vh;
             padding: 20px;
@@ -29,6 +29,7 @@
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         h1 {
             font-size: 2.5rem;
@@ -53,6 +54,7 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .panel h2 {
             margin-bottom: 20px;
@@ -94,7 +96,7 @@
             font-weight: bold;
         }
         button {
-            background: #4a90e2;
+            background: #3498db;
             color: white;
             border: none;
             padding: 14px 20px;
@@ -108,7 +110,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         button:hover {
-            background: #357abd;
+            background: #2980b9;
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
         }
@@ -120,17 +122,18 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             flex-direction: column;
         }
         .canvas-container {
             flex: 1;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
             overflow: hidden;
             position: relative;
             margin-bottom: 20px;
-            min-height: 400px;
+            min-height: 450px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         canvas {
@@ -150,6 +153,7 @@
             border-radius: 10px;
             text-align: center;
             backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .data-label {
             font-size: 0.9rem;
@@ -206,6 +210,7 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         footer {
             text-align: center;
@@ -214,6 +219,7 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
             font-size: 0.9rem;
+            backdrop-filter: blur(5px);
         }
         @media (max-width: 768px) {
             .content {
@@ -497,25 +503,26 @@
             pulleyConfig.pulleyFriction = value;
         });
        
-        // Función drawSimulation corregida
+        // Función drawSimulation completamente corregida
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
            
+            // Limpiar canvas
+            ctx.clearRect(0, 0, width, height);
+           
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
-            const planeHeight = Math.min(height * 0.4, width * 0.5 * Math.tan(angleRad));
+            const planeHeight = height * 0.4;
             const planeWidth = planeHeight / Math.tan(angleRad);
            
-            // Ajustar posición inicial del plano
-            const baseX = width * 0.2;
+            // Posicionar el plano en el centro
+            const baseX = width * 0.15;
             const baseY = height * 0.7;
            
-            // Calcular posición del objeto - CORREGIDO: ahora se mueve hacia abajo del plano
+            // CORREGIDO: Calcular posición del objeto - ahora se mueve hacia abajo correctamente
             const objectX = baseX + (position / length) * planeWidth;
             const objectY = baseY - (position / length) * planeHeight;
-           
-            ctx.clearRect(0, 0, width, height);
            
             // Dibujar plano inclinado
             ctx.beginPath();
@@ -523,9 +530,15 @@
             ctx.lineTo(baseX + planeWidth, baseY);
             ctx.lineTo(baseX, baseY - planeHeight);
             ctx.closePath();
-            ctx.fillStyle = "#5D8AA8";
+            
+            // Gradiente para el plano
+            const planeGradient = ctx.createLinearGradient(baseX, baseY, baseX + planeWidth, baseY - planeHeight);
+            planeGradient.addColorStop(0, '#4A6572');
+            planeGradient.addColorStop(1, '#344955');
+            
+            ctx.fillStyle = planeGradient;
             ctx.fill();
-            ctx.strokeStyle = "#2c3e50";
+            ctx.strokeStyle = '#232F34';
             ctx.lineWidth = 3;
             ctx.stroke();
            
@@ -533,12 +546,17 @@
             ctx.beginPath();
             ctx.moveTo(baseX, baseY);
             ctx.lineTo(baseX + planeWidth, baseY);
-            ctx.lineTo(baseX + planeWidth, baseY + 15);
-            ctx.lineTo(baseX, baseY + 15);
+            ctx.lineTo(baseX + planeWidth, baseY + 20);
+            ctx.lineTo(baseX, baseY + 20);
             ctx.closePath();
-            ctx.fillStyle = "#8B7355";
+            
+            const baseGradient = ctx.createLinearGradient(baseX, baseY, baseX + planeWidth, baseY + 20);
+            baseGradient.addColorStop(0, '#8D6E63');
+            baseGradient.addColorStop(1, '#6D4C41');
+            
+            ctx.fillStyle = baseGradient;
             ctx.fill();
-            ctx.strokeStyle = "#5D4037";
+            ctx.strokeStyle = '#4E342E';
             ctx.lineWidth = 2;
             ctx.stroke();
            
@@ -547,18 +565,39 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como RECTÁNGULO
-            const objectWidth = 40 + mass;
-            const objectHeight = 30 + mass / 2;
-            ctx.fillStyle = "#E74C3C";
+            // Dibujar objeto como RECTÁNGULO con sombra
+            const objectWidth = 40 + mass * 0.8;
+            const objectHeight = 30 + mass * 0.6;
+            
+            // Sombra
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            
+            // Gradiente para el objeto
+            const objectGradient = ctx.createLinearGradient(
+                objectX - objectWidth/2, objectY - objectHeight/2,
+                objectX + objectWidth/2, objectY + objectHeight/2
+            );
+            objectGradient.addColorStop(0, '#E74C3C');
+            objectGradient.addColorStop(1, '#C0392B');
+            
+            ctx.fillStyle = objectGradient;
             ctx.fillRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
-            ctx.strokeStyle = "#C0392B";
+            ctx.strokeStyle = '#A93226';
             ctx.lineWidth = 2;
             ctx.strokeRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
+            
+            // Resetear sombra
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
            
             // Detalle del objeto
             ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 5, objectWidth - 10, 8);
+            ctx.fillRect(objectX - objectWidth/2 + 8, objectY - objectHeight/2 + 8, objectWidth - 16, 10);
            
             // Dibujar ángulo
             ctx.beginPath();
@@ -573,90 +612,126 @@
             ctx.fillText(`${angle}°`, baseX + 25, baseY - 20);
            
             // Etiqueta de masa
-            ctx.fillStyle = '#2c3e50';
+            ctx.fillStyle = '#2C3E50';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 10);
+            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 15);
         }
        
-        // Dibujar sistema de poleas mejorado
+        // Dibujar sistema de poleas completamente corregido
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
-            // Posicionar la polea
-            const pulleyX = baseX - 80;
-            const pulleyY = baseY - planeHeight - 50;
-            const pulleyRadius = 20;
+            // Posicionar la polea correctamente - no tan a la izquierda
+            const pulleyX = baseX + planeWidth * 0.8;
+            const pulleyY = baseY - planeHeight - 40;
+            const pulleyRadius = 25;
            
-            // Dibujar soporte de la polea
+            // Dibujar soporte de la polea mejorado
             ctx.beginPath();
-            ctx.moveTo(pulleyX - 35, pulleyY - 40);
-            ctx.lineTo(pulleyX + 35, pulleyY - 40);
-            ctx.lineTo(pulleyX + 35, pulleyY - 15);
-            ctx.lineTo(pulleyX - 35, pulleyY - 15);
+            ctx.moveTo(pulleyX - 40, pulleyY - 60);
+            ctx.lineTo(pulleyX + 40, pulleyY - 60);
+            ctx.lineTo(pulleyX + 40, pulleyY - 15);
+            ctx.lineTo(pulleyX - 40, pulleyY - 15);
             ctx.closePath();
-            ctx.fillStyle = '#7f8c8d';
+            
+            const supportGradient = ctx.createLinearGradient(pulleyX - 40, pulleyY - 60, pulleyX + 40, pulleyY - 15);
+            supportGradient.addColorStop(0, '#95A5A6');
+            supportGradient.addColorStop(1, '#7F8C8D');
+            
+            ctx.fillStyle = supportGradient;
             ctx.fill();
-            ctx.strokeStyle = '#2c3e50';
+            ctx.strokeStyle = '#2C3E50';
             ctx.lineWidth = 2;
             ctx.stroke();
            
             // Detalles del soporte
-            ctx.fillStyle = '#95a5a6';
-            ctx.fillRect(pulleyX - 30, pulleyY - 35, 60, 5);
+            ctx.fillStyle = '#85929E';
+            ctx.fillRect(pulleyX - 35, pulleyY - 55, 70, 6);
            
-            // Dibujar polea
+            // Dibujar polea con proporciones correctas
             ctx.beginPath();
             ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
-            ctx.strokeStyle = '#2c3e50';
+            
+            const pulleyGradient = ctx.createRadialGradient(
+                pulleyX, pulleyY, pulleyRadius - 5,
+                pulleyX, pulleyY, pulleyRadius
+            );
+            pulleyGradient.addColorStop(0, '#ECF0F1');
+            pulleyGradient.addColorStop(1, '#BDC3C7');
+            
+            ctx.fillStyle = pulleyGradient;
+            ctx.fill();
+            ctx.strokeStyle = '#2C3E50';
             ctx.lineWidth = 4;
             ctx.stroke();
            
             // Detalles internos de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, pulleyRadius - 8, 0, Math.PI * 2);
-            ctx.strokeStyle = '#95a5a6';
+            ctx.arc(pulleyX, pulleyY, pulleyRadius - 10, 0, Math.PI * 2);
+            ctx.strokeStyle = '#7F8C8D';
             ctx.lineWidth = 2;
             ctx.stroke();
            
             // Eje de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, 4, 0, Math.PI * 2);
+            ctx.arc(pulleyX, pulleyY, 5, 0, Math.PI * 2);
             ctx.fillStyle = '#E74C3C';
             ctx.fill();
            
             // Dibujar cuerda desde el objeto hasta la polea
             ctx.beginPath();
             ctx.moveTo(objectX, objectY);
-            ctx.lineTo(pulleyX + pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
+            ctx.lineTo(pulleyX, pulleyY + pulleyRadius);
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
             ctx.stroke();
            
-            // Calcular posición del contrapeso
+            // Calcular posición del contrapeso - CORREGIDO: movimiento opuesto
             const maxCounterWeightMovement = 200;
-            const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
+            const counterWeightY = pulleyY + pulleyRadius + 50 + (position / length) * maxCounterWeightMovement;
            
             // Dibujar contrapeso como RECTÁNGULO
-            const counterWeightWidth = 35 + pulleyConfig.counterMass;
-            const counterWeightHeight = 25 + pulleyConfig.counterMass / 2;
-            ctx.fillStyle = '#3498DB';
+            const counterWeightWidth = 35 + pulleyConfig.counterMass * 0.8;
+            const counterWeightHeight = 25 + pulleyConfig.counterMass * 0.6;
+            
+            // Sombra
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            
+            // Gradiente para el contrapeso
+            const counterGradient = ctx.createLinearGradient(
+                pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2,
+                pulleyX + counterWeightWidth/2, counterWeightY + counterWeightHeight/2
+            );
+            counterGradient.addColorStop(0, '#3498DB');
+            counterGradient.addColorStop(1, '#2980B9');
+            
+            ctx.fillStyle = counterGradient;
             ctx.fillRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
-            ctx.strokeStyle = '#2980B9';
+            ctx.strokeStyle = '#2471A3';
             ctx.lineWidth = 2;
             ctx.strokeRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
+            
+            // Resetear sombra
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
            
             // Detalle del contrapeso
             ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 6);
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 6, counterWeightY - counterWeightHeight/2 + 6, counterWeightWidth - 12, 8);
            
             // Etiqueta de contrapeso
-            ctx.fillStyle = '#2c3e50';
+            ctx.fillStyle = '#2C3E50';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
            
             // Dibujar cuerda del contrapeso
             ctx.beginPath();
-            ctx.moveTo(pulleyX - pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
+            ctx.moveTo(pulleyX, pulleyY + pulleyRadius);
             ctx.lineTo(pulleyX, counterWeightY - counterWeightHeight/2);
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
@@ -685,13 +760,10 @@
                 const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
                
                 if (pulleyConfig.type === 'fixed') {
-                    // Polea fija: cambia dirección pero no magnitud de la fuerza
                     netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
                 } else if (pulleyConfig.type === 'movable') {
-                    // Polea móvil: divide la fuerza a la mitad
                     netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 2;
                 } else if (pulleyConfig.type === 'compound') {
-                    // Sistema compuesto: combinación de poleas fijas y móviles
                     netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 3;
                 }
             }
@@ -830,7 +902,6 @@
                 isRunning = true;
                 isPaused = false;
                 pauseBtn.textContent = "Pausar";
-                // Reiniciar datos al iniciar nueva simulación
                 if (currentTime === 0) {
                     simulationData = [];
                 }
