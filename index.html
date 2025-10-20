@@ -12,7 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
             color: #fff;
             min-height: 100vh;
             padding: 20px;
@@ -29,7 +29,6 @@
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         h1 {
             font-size: 2.5rem;
@@ -54,7 +53,6 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .panel h2 {
             margin-bottom: 20px;
@@ -122,7 +120,6 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             flex-direction: column;
         }
@@ -134,7 +131,6 @@
             position: relative;
             margin-bottom: 20px;
             min-height: 450px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         canvas {
             display: block;
@@ -153,7 +149,6 @@
             border-radius: 10px;
             text-align: center;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .data-label {
             font-size: 0.9rem;
@@ -210,7 +205,6 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             margin-top: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         footer {
             text-align: center;
@@ -219,7 +213,6 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
             font-size: 0.9rem;
-            backdrop-filter: blur(5px);
         }
         @media (max-width: 768px) {
             .content {
@@ -513,14 +506,14 @@
            
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
-            const planeHeight = height * 0.4;
+            const planeHeight = height * 0.35;
             const planeWidth = planeHeight / Math.tan(angleRad);
            
-            // Posicionar el plano en el centro
+            // Posicionar el plano
             const baseX = width * 0.15;
             const baseY = height * 0.7;
            
-            // CORREGIDO: Calcular posición del objeto - ahora se mueve hacia abajo correctamente
+            // Calcular posición del objeto - CORREGIDO: se mueve hacia abajo del plano
             const objectX = baseX + (position / length) * planeWidth;
             const objectY = baseY - (position / length) * planeHeight;
            
@@ -531,14 +524,9 @@
             ctx.lineTo(baseX, baseY - planeHeight);
             ctx.closePath();
             
-            // Gradiente para el plano
-            const planeGradient = ctx.createLinearGradient(baseX, baseY, baseX + planeWidth, baseY - planeHeight);
-            planeGradient.addColorStop(0, '#4A6572');
-            planeGradient.addColorStop(1, '#344955');
-            
-            ctx.fillStyle = planeGradient;
+            ctx.fillStyle = '#5D8AA8';
             ctx.fill();
-            ctx.strokeStyle = '#232F34';
+            ctx.strokeStyle = '#2c3e50';
             ctx.lineWidth = 3;
             ctx.stroke();
            
@@ -546,17 +534,12 @@
             ctx.beginPath();
             ctx.moveTo(baseX, baseY);
             ctx.lineTo(baseX + planeWidth, baseY);
-            ctx.lineTo(baseX + planeWidth, baseY + 20);
-            ctx.lineTo(baseX, baseY + 20);
+            ctx.lineTo(baseX + planeWidth, baseY + 15);
+            ctx.lineTo(baseX, baseY + 15);
             ctx.closePath();
-            
-            const baseGradient = ctx.createLinearGradient(baseX, baseY, baseX + planeWidth, baseY + 20);
-            baseGradient.addColorStop(0, '#8D6E63');
-            baseGradient.addColorStop(1, '#6D4C41');
-            
-            ctx.fillStyle = baseGradient;
+            ctx.fillStyle = '#8B7355';
             ctx.fill();
-            ctx.strokeStyle = '#4E342E';
+            ctx.strokeStyle = '#5D4037';
             ctx.lineWidth = 2;
             ctx.stroke();
            
@@ -565,35 +548,15 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como RECTÁNGULO con sombra
+            // Dibujar objeto como RECTÁNGULO
             const objectWidth = 40 + mass * 0.8;
             const objectHeight = 30 + mass * 0.6;
             
-            // Sombra
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 3;
-            ctx.shadowOffsetY = 3;
-            
-            // Gradiente para el objeto
-            const objectGradient = ctx.createLinearGradient(
-                objectX - objectWidth/2, objectY - objectHeight/2,
-                objectX + objectWidth/2, objectY + objectHeight/2
-            );
-            objectGradient.addColorStop(0, '#E74C3C');
-            objectGradient.addColorStop(1, '#C0392B');
-            
-            ctx.fillStyle = objectGradient;
+            ctx.fillStyle = '#E74C3C';
             ctx.fillRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
-            ctx.strokeStyle = '#A93226';
+            ctx.strokeStyle = '#C0392B';
             ctx.lineWidth = 2;
             ctx.strokeRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
-            
-            // Resetear sombra
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
            
             // Detalle del objeto
             ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
@@ -612,7 +575,7 @@
             ctx.fillText(`${angle}°`, baseX + 25, baseY - 20);
            
             // Etiqueta de masa
-            ctx.fillStyle = '#2C3E50';
+            ctx.fillStyle = '#2c3e50';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 15);
@@ -620,60 +583,46 @@
        
         // Dibujar sistema de poleas completamente corregido
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
-            // Posicionar la polea correctamente - no tan a la izquierda
+            // Posicionar la polea correctamente - no achatada
             const pulleyX = baseX + planeWidth * 0.8;
-            const pulleyY = baseY - planeHeight - 40;
+            const pulleyY = baseY - planeHeight - 60;
             const pulleyRadius = 25;
            
             // Dibujar soporte de la polea mejorado
             ctx.beginPath();
-            ctx.moveTo(pulleyX - 40, pulleyY - 60);
-            ctx.lineTo(pulleyX + 40, pulleyY - 60);
-            ctx.lineTo(pulleyX + 40, pulleyY - 15);
-            ctx.lineTo(pulleyX - 40, pulleyY - 15);
+            ctx.moveTo(pulleyX - 40, pulleyY - 50);
+            ctx.lineTo(pulleyX + 40, pulleyY - 50);
+            ctx.lineTo(pulleyX + 40, pulleyY - 20);
+            ctx.lineTo(pulleyX - 40, pulleyY - 20);
             ctx.closePath();
             
-            const supportGradient = ctx.createLinearGradient(pulleyX - 40, pulleyY - 60, pulleyX + 40, pulleyY - 15);
-            supportGradient.addColorStop(0, '#95A5A6');
-            supportGradient.addColorStop(1, '#7F8C8D');
-            
-            ctx.fillStyle = supportGradient;
+            ctx.fillStyle = '#7f8c8d';
             ctx.fill();
-            ctx.strokeStyle = '#2C3E50';
+            ctx.strokeStyle = '#2c3e50';
             ctx.lineWidth = 2;
             ctx.stroke();
            
             // Detalles del soporte
-            ctx.fillStyle = '#85929E';
-            ctx.fillRect(pulleyX - 35, pulleyY - 55, 70, 6);
+            ctx.fillStyle = '#95a5a6';
+            ctx.fillRect(pulleyX - 35, pulleyY - 45, 70, 5);
            
             // Dibujar polea con proporciones correctas
             ctx.beginPath();
             ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
-            
-            const pulleyGradient = ctx.createRadialGradient(
-                pulleyX, pulleyY, pulleyRadius - 5,
-                pulleyX, pulleyY, pulleyRadius
-            );
-            pulleyGradient.addColorStop(0, '#ECF0F1');
-            pulleyGradient.addColorStop(1, '#BDC3C7');
-            
-            ctx.fillStyle = pulleyGradient;
-            ctx.fill();
-            ctx.strokeStyle = '#2C3E50';
+            ctx.strokeStyle = '#2c3e50';
             ctx.lineWidth = 4;
             ctx.stroke();
            
             // Detalles internos de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, pulleyRadius - 10, 0, Math.PI * 2);
-            ctx.strokeStyle = '#7F8C8D';
+            ctx.arc(pulleyX, pulleyY, pulleyRadius - 8, 0, Math.PI * 2);
+            ctx.strokeStyle = '#95a5a6';
             ctx.lineWidth = 2;
             ctx.stroke();
            
             // Eje de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, 5, 0, Math.PI * 2);
+            ctx.arc(pulleyX, pulleyY, 4, 0, Math.PI * 2);
             ctx.fillStyle = '#E74C3C';
             ctx.fill();
            
@@ -693,38 +642,18 @@
             const counterWeightWidth = 35 + pulleyConfig.counterMass * 0.8;
             const counterWeightHeight = 25 + pulleyConfig.counterMass * 0.6;
             
-            // Sombra
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 3;
-            ctx.shadowOffsetY = 3;
-            
-            // Gradiente para el contrapeso
-            const counterGradient = ctx.createLinearGradient(
-                pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2,
-                pulleyX + counterWeightWidth/2, counterWeightY + counterWeightHeight/2
-            );
-            counterGradient.addColorStop(0, '#3498DB');
-            counterGradient.addColorStop(1, '#2980B9');
-            
-            ctx.fillStyle = counterGradient;
+            ctx.fillStyle = '#3498DB';
             ctx.fillRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
-            ctx.strokeStyle = '#2471A3';
+            ctx.strokeStyle = '#2980B9';
             ctx.lineWidth = 2;
             ctx.strokeRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
-            
-            // Resetear sombra
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
            
             // Detalle del contrapeso
             ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
             ctx.fillRect(pulleyX - counterWeightWidth/2 + 6, counterWeightY - counterWeightHeight/2 + 6, counterWeightWidth - 12, 8);
            
             // Etiqueta de contrapeso
-            ctx.fillStyle = '#2C3E50';
+            ctx.fillStyle = '#2c3e50';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
