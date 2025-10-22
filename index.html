@@ -596,6 +596,109 @@
             height: 18px;
             fill: currentColor;
         }
+        
+        /* Estilos para el sistema de notificaciones */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        
+        .notification {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid var(--accent-color);
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        .notification-message {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            line-height: 1.4;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+            padding: 0;
+            margin: 0;
+            width: auto;
+        }
+        
+        .notification-close:hover {
+            color: var(--danger-color);
+            transform: none;
+            box-shadow: none;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Estilos para la sección de resultados */
+        .results-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            margin-top: 25px;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .results-container:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        .results-explanation {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .results-explanation h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .results-explanation p {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -803,13 +906,26 @@
             </div>
         </div>
        
+        <!-- Nueva sección de Resultados -->
+        <div class="results-container">
+            <h2>Resultados y Explicación del Sistema</h2>
+            <div class="results-explanation">
+                <h4>Análisis del Movimiento</h4>
+                <p id="movement-analysis">El sistema está en reposo. Inicie la simulación para ver el análisis del movimiento.</p>
+                <h4>Comportamiento del Sistema</h4>
+                <p id="system-behavior">El objeto permanecerá en reposo o se moverá dependiendo de la relación entre la fuerza gravitatoria paralela al plano y la fuerza de fricción.</p>
+                <h4>Explicación del Desplazamiento</h4>
+                <p id="displacement-explanation">El desplazamiento del objeto está determinado por la fuerza neta que actúa sobre él. Si la componente gravitatoria paralela al plano supera la fuerza de fricción, el objeto acelerará hacia abajo del plano.</p>
+            </div>
+        </div>
+       
         <div class="info-panel">
             <h2>Fundamentos Teóricos</h2>
            
             <div class="tabs">
                 <div class="tab active" data-tab="theory">Teoría</div>
                 <div class="tab" data-tab="formulas">Fórmulas</div>
-                <div class="tab" data-tab="applications">Instrucciones</div>
+                <div class="tab" data-tab="instructions">Instrucciones</div>
             </div>
            
             <div class="tab-content active" id="theory-tab">
@@ -859,7 +975,7 @@
                 </div>
             </div>
            
-            <div class="tab-content" id="applications-tab">
+            <div class="tab-content" id="instructions-tab">
                 <div class="theory-content">
                     <p>Instrucciones del sistema:</p>
                    
@@ -878,6 +994,9 @@
             <p>© 2023 - Departamento de Física - Universidad Virtual</p>
         </footer>
     </div>
+
+    <!-- Contenedor para notificaciones -->
+    <div class="notification-container" id="notification-container"></div>
 
     <script>
         // Elementos del DOM
@@ -931,6 +1050,11 @@
         // Mensajes de validación
         const massValidation = document.getElementById('mass-validation');
         const counterMassValidation = document.getElementById('counter-mass-validation');
+        
+        // Elementos de resultados
+        const movementAnalysis = document.getElementById('movement-analysis');
+        const systemBehavior = document.getElementById('system-behavior');
+        const displacementExplanation = document.getElementById('displacement-explanation');
        
         // Variables de simulación
         let animationId;
@@ -967,7 +1091,77 @@
        
         // Inicializar el historial
         renderHistory();
-       
+        
+        // Función para mostrar notificaciones
+        function showNotification(title, message, type = 'info') {
+            const notificationContainer = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            let icon = 'ℹ️';
+            if (type === 'warning') icon = '⚠️';
+            if (type === 'error') icon = '❌';
+            if (type === 'success') icon = '✅';
+            
+            notification.innerHTML = `
+                <div class="notification-icon">${icon}</div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close">&times;</button>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            
+            // Cerrar notificación al hacer clic en la X
+            notification.querySelector('.notification-close').addEventListener('click', function() {
+                notification.remove();
+            });
+            
+            // Auto-eliminar después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Función para actualizar la sección de resultados
+        function updateResultsExplanation() {
+            const angleRad = angle * Math.PI / 180;
+            const gravitationalForce = mass * gravity * Math.sin(angleRad);
+            const normalForce = mass * gravity * Math.cos(angleRad);
+            const frictionForce = friction * normalForce;
+            let netForceValue = gravitationalForce - frictionForce;
+            
+            // Análisis del movimiento
+            if (netForceValue > 0) {
+                movementAnalysis.textContent = `El objeto se está moviendo hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2)} N).`;
+            } else if (netForceValue < 0) {
+                movementAnalysis.textContent = `El objeto se está moviendo hacia arriba del plano. La fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N).`;
+            } else {
+                movementAnalysis.textContent = `El objeto está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es igual a la fuerza de fricción (${frictionForce.toFixed(2)} N).`;
+            }
+            
+            // Comportamiento del sistema
+            if (usePulley) {
+                const counterWeightForce = pulleyConfig.counterMass * gravity;
+                systemBehavior.textContent = `El sistema de poleas está activado. El contrapeso de ${pulleyConfig.counterMass} kg ejerce una fuerza de ${counterWeightForce.toFixed(2)} N.`;
+            } else {
+                systemBehavior.textContent = `El sistema de poleas está desactivado. El movimiento está determinado únicamente por la gravedad y la fricción.`;
+            }
+            
+            // Explicación del desplazamiento
+            if (acceleration > 0) {
+                displacementExplanation.textContent = `El objeto está acelerando hacia abajo del plano con una aceleración de ${acceleration.toFixed(2)} m/s². La velocidad aumenta con el tiempo.`;
+            } else if (acceleration < 0) {
+                displacementExplanation.textContent = `El objeto está desacelerando (aceleración negativa de ${acceleration.toFixed(2)} m/s²). La velocidad disminuye con el tiempo.`;
+            } else {
+                displacementExplanation.textContent = `El objeto se mueve con velocidad constante o está en reposo. No hay aceleración neta.`;
+            }
+        }
+
         // Guardar configuración actual
         saveConfigBtn.addEventListener('click', function() {
             const configName = prompt("Ingrese un nombre para esta configuración:",
@@ -1006,7 +1200,7 @@
                 // Actualizar vista
                 renderHistory();
                
-                alert(`Configuración "${configName}" guardada correctamente.`);
+                showNotification('Configuración Guardada', `La configuración "${configName}" se ha guardado correctamente.`, 'success');
             }
         });
        
@@ -1120,7 +1314,7 @@
                 // Redibujar simulación
                 drawSimulation();
                
-                alert(`Configuración "${config.name}" cargada correctamente.`);
+                showNotification('Configuración Cargada', `La configuración "${config.name}" se ha cargado correctamente.`, 'success');
             }
         }
        
@@ -1130,6 +1324,7 @@
                 configHistory = configHistory.filter(c => c.id !== id);
                 localStorage.setItem('inclinedPlaneHistory', JSON.stringify(configHistory));
                 renderHistory();
+                showNotification('Configuración Eliminada', 'La configuración se ha eliminado correctamente.', 'success');
             }
         }
 
@@ -1164,18 +1359,23 @@
             if (isRunning) {
                 resetSimulation();
             }
+            updateResultsExplanation();
+            showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
         });
        
         frictionRange.addEventListener('input', function() {
             frictionValue.textContent = parseFloat(this.value).toFixed(2);
             frictionInput.value = this.value;
             friction = parseFloat(this.value);
+            updateResultsExplanation();
+            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
         });
        
         pulleyFrictionRange.addEventListener('input', function() {
             pulleyFrictionValue.textContent = parseFloat(this.value).toFixed(2);
             pulleyFrictionInput.value = this.value;
             pulleyConfig.pulleyFriction = parseFloat(this.value);
+            showNotification('Fricción de Polea Modificada', `La fricción en la polea se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la eficiencia del sistema de poleas.`, 'info');
         });
        
         // Validación de parámetros
@@ -1187,6 +1387,7 @@
                 massValidation.textContent = "La masa debe ser mayor que cero";
                 massValidation.style.display = 'block';
                 isValid = false;
+                showNotification('Error de Validación', 'La masa debe ser mayor que cero.', 'error');
             } else {
                 massValidation.style.display = 'none';
             }
@@ -1196,6 +1397,7 @@
                 counterMassValidation.textContent = "La masa del contrapeso debe ser mayor que cero";
                 counterMassValidation.style.display = 'block';
                 isValid = false;
+                showNotification('Error de Validación', 'La masa del contrapeso debe ser mayor que cero.', 'error');
             } else {
                 counterMassValidation.style.display = 'none';
             }
@@ -1214,6 +1416,8 @@
             if (isRunning) {
                 resetSimulation();
             }
+            updateResultsExplanation();
+            showNotification('Masa Modificada', `La masa del objeto se ha cambiado a ${value} kg. Esto afecta tanto la fuerza gravitatoria como la inercia del objeto.`, 'info');
         });
        
         angleInput.addEventListener('input', function() {
@@ -1228,6 +1432,8 @@
             if (isRunning) {
                 resetSimulation();
             }
+            updateResultsExplanation();
+            showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
         });
        
         frictionInput.addEventListener('input', function() {
@@ -1238,6 +1444,8 @@
             frictionRange.value = value;
             frictionValue.textContent = value.toFixed(2);
             friction = value;
+            updateResultsExplanation();
+            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${value.toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
         });
        
         lengthInput.addEventListener('input', function() {
@@ -1250,6 +1458,7 @@
             if (isRunning) {
                 resetSimulation();
             }
+            showNotification('Longitud Modificada', `La longitud del plano se ha cambiado a ${value} m. Esto afecta la distancia que recorrerá el objeto.`, 'info');
         });
        
         gravityInput.addEventListener('input', function() {
@@ -1258,6 +1467,8 @@
             if (value > 20) value = 20;
             this.value = value;
             gravity = value;
+            updateResultsExplanation();
+            showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
         // Configuración avanzada
@@ -1270,6 +1481,7 @@
             if (isRunning) {
                 resetSimulation();
             }
+            showNotification('Velocidad Inicial Modificada', `La velocidad inicial se ha cambiado a ${value} m/s.`, 'info');
         });
        
         timeStepInput.addEventListener('input', function() {
@@ -1278,6 +1490,7 @@
             if (value > 0.1) value = 0.1;
             this.value = value;
             timeStep = value;
+            showNotification('Paso de Tiempo Modificado', `El paso de tiempo se ha cambiado a ${value} s. Esto afecta la precisión de la simulación.`, 'info');
         });
        
         airResistanceInput.addEventListener('input', function() {
@@ -1286,6 +1499,7 @@
             if (value > 0.1) value = 0.1;
             this.value = value;
             airResistance = value;
+            showNotification('Resistencia del Aire Modificada', `La resistencia del aire se ha cambiado a ${value} kg/m.`, 'info');
         });
        
         // Configuración de poleas
@@ -1297,6 +1511,12 @@
             if (isRunning) {
                 resetSimulation();
             }
+            updateResultsExplanation();
+            if (usePulley) {
+                showNotification('Sistema de Poleas Activado', 'Se ha activado el sistema de poleas. El contrapeso ahora afectará el movimiento del objeto.', 'success');
+            } else {
+                showNotification('Sistema de Poleas Desactivado', 'Se ha desactivado el sistema de poleas.', 'info');
+            }
         });
        
         pulleyType.addEventListener('change', function() {
@@ -1305,6 +1525,8 @@
             if (isRunning) {
                 resetSimulation();
             }
+            updateResultsExplanation();
+            showNotification('Tipo de Polea Cambiado', `Se ha cambiado a polea ${this.value === 'fixed' ? 'fija' : this.value === 'movable' ? 'móvil' : 'compuesta'}.`, 'info');
         });
        
         counterMassInput.addEventListener('input', function() {
@@ -1317,6 +1539,8 @@
             if (isRunning) {
                 resetSimulation();
             }
+            updateResultsExplanation();
+            showNotification('Contrapeso Modificado', `La masa del contrapeso se ha cambiado a ${value} kg. Esto afecta la fuerza que contrarresta el movimiento del objeto.`, 'info');
         });
        
         pulleyFrictionInput.addEventListener('input', function() {
@@ -1327,6 +1551,7 @@
             pulleyFrictionRange.value = value;
             pulleyFrictionValue.textContent = value.toFixed(2);
             pulleyConfig.pulleyFriction = value;
+            showNotification('Fricción de Polea Modificada', `La fricción en la polea se ha cambiado a ${value.toFixed(2)}. Esto afecta la eficiencia del sistema de poleas.`, 'info');
         });
        
         // Función drawSimulation
@@ -1558,6 +1783,7 @@
                     velocity = 0;
                     position = length;
                     isRunning = false;
+                    showNotification('Simulación Completada', 'El objeto ha llegado al final del plano inclinado.', 'success');
                 } else {
                     position += velocity * deltaTime;
                 }
@@ -1580,6 +1806,9 @@
             accelerationValue.textContent = acceleration.toFixed(2) + " M/s²";
             forceValue.textContent = netForce.toFixed(2) + " N";
             energyValue.textContent = energy.toFixed(2) + " J";
+           
+            // Actualizar explicación de resultados
+            updateResultsExplanation();
            
             // Guardar datos para exportación
             if (isRunning && !isPaused) {
@@ -1623,12 +1852,14 @@
             energyValue.textContent = "0.00 J";
            
             drawSimulation();
+            updateResultsExplanation();
+            showNotification('Simulación Reiniciada', 'La simulación se ha reiniciado a su estado inicial.', 'info');
         }
        
         // Exportar datos a CSV
         function exportData() {
             if (simulationData.length === 0) {
-                alert("No hay datos para exportar. Ejecuta la simulación primero.");
+                showNotification('Sin Datos', 'No hay datos para exportar. Ejecuta la simulación primero.', 'warning');
                 return;
             }
            
@@ -1647,6 +1878,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            showNotification('Datos Exportados', 'Los datos de la simulación se han exportado correctamente a un archivo CSV.', 'success');
         }
        
         // Controladores de botones
@@ -1662,10 +1894,12 @@
                     simulationData = [];
                 }
                 animate();
+                showNotification('Simulación Iniciada', 'La simulación ha comenzado. El objeto se moverá según las fuerzas aplicadas.', 'success');
             } else if (isPaused) {
                 isPaused = false;
                 pauseBtn.textContent = "Pausar";
                 animate();
+                showNotification('Simulación Reanudada', 'La simulación ha sido reanudada.', 'info');
             }
         });
        
@@ -1675,6 +1909,9 @@
                 pauseBtn.textContent = isPaused ? "Continuar" : "Pausar";
                 if (!isPaused) {
                     animate();
+                    showNotification('Simulación Reanudada', 'La simulación ha sido reanudada.', 'info');
+                } else {
+                    showNotification('Simulación Pausada', 'La simulación ha sido pausada.', 'info');
                 }
             }
         });
@@ -1689,6 +1926,8 @@
         window.addEventListener('load', function() {
             setupCanvas();
             drawSimulation();
+            updateResultsExplanation();
+            showNotification('Bienvenido', 'El laboratorio virtual de plano inclinado está listo. Configure los parámetros y presione "Iniciar Simulación".', 'info');
         });
        
         window.addEventListener('resize', function() {
