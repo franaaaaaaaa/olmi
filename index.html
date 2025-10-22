@@ -766,39 +766,9 @@
                     </div>
                 </div>
                
-                <div class="tab-content" id="advanced-tab">
-                    <div class="input-group">
-                        <label for="initial-velocity">Velocidad inicial</label>
-                        <div class="input-container">
-                            <input type="number" id="initial-velocity" value="0" min="0" max="10" step="0.1">
-                            <span class="unit">M/s</span>
-                        </div>
-                    </div>
-                   
-                    <div class="input-group">
-                        <label for="time-step">Paso de tiempo</label>
-                        <div class="input-container">
-                            <input type="number" id="time-step" value="0.016" min="0.001" max="0.1" step="0.001">
-                            <span class="unit">s</span>
-                        </div>
-                    </div>
-                   
-                    <div class="input-group">
-                        <label for="air-resistance">Resistencia del aire</label>
-                        <div class="input-container">
-                            <input type="number" id="air-resistance" value="0" min="0" max="0.1" step="0.001">
-                            <span class="unit">Kg/M</span>
-                        </div>
-                    </div>
-                </div>
-               
                 <div class="tab-content" id="pulley-tab">
-                    <div class="pulley-toggle">
-                        <input type="checkbox" id="pulley-toggle">
-                        <label for="pulley-toggle">Usar sistema de poleas</label>
-                    </div>
-                   
-                    <div class="pulley-options" id="pulley-options" style="display: none;">
+                    <!-- Se eliminó el checkbox de activación de poleas -->
+                    <div class="pulley-options">
                         <div class="input-group">
                             <label for="pulley-type">Tipo de polea</label>
                             <select id="pulley-type">
@@ -1020,7 +990,6 @@
         const airResistanceInput = document.getElementById('air-resistance');
        
         // Configuración de poleas
-        const pulleyToggle = document.getElementById('pulley-toggle');
         const pulleyOptions = document.getElementById('pulley-options');
         const pulleyType = document.getElementById('pulley-type');
         const counterMassInput = document.getElementById('counter-mass-input');
@@ -1074,7 +1043,7 @@
         let friction = parseFloat(frictionInput.value);
         let length = parseFloat(lengthInput.value);
         let gravity = parseFloat(gravityInput.value);
-        let usePulley = false;
+        let usePulley = false; // Inicialmente sin poleas
         let pulleyConfig = {
             type: 'fixed',
             counterMass: parseFloat(counterMassInput.value),
@@ -1294,9 +1263,7 @@
                 airResistance = config.params.airResistance;
                
                 // Cargar configuración de poleas
-                pulleyToggle.checked = config.params.usePulley;
                 usePulley = config.params.usePulley;
-                pulleyOptions.style.display = usePulley ? 'block' : 'none';
                
                 if (config.params.usePulley) {
                     pulleyType.value = config.params.pulleyConfig.type;
@@ -1335,7 +1302,7 @@
             canvas.height = container.clientHeight;
         }
        
-        // Sistema de pestañas
+        // Sistema de pestañas - MODIFICADO para activar poleas automáticamente
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 const tabId = this.getAttribute('data-tab');
@@ -1347,6 +1314,18 @@
                 // Activar la pestaña seleccionada
                 this.classList.add('active');
                 document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Si se selecciona la pestaña de poleas, activar automáticamente el sistema de poleas
+                if (tabId === 'pulley') {
+                    usePulley = true;
+                    showNotification('Sistema de Poleas Activado', 'Se ha activado el sistema de poleas automáticamente al seleccionar esta pestaña.', 'info');
+                } else {
+                    usePulley = false;
+                }
+                
+                // Redibujar la simulación con la nueva configuración
+                drawSimulation();
+                updateResultsExplanation();
             });
         });
        
@@ -1378,16 +1357,17 @@
             showNotification('Fricción de Polea Modificada', `La fricción en la polea se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la eficiencia del sistema de poleas.`, 'info');
         });
        
-        // Validación de parámetros
+        // Validación de parámetros - MEJORADA con explicaciones detalladas
         function validateParameters() {
             let isValid = true;
+            let errorMessage = "";
            
             // Validar masa
             if (mass <= 0) {
                 massValidation.textContent = "La masa debe ser mayor que cero";
                 massValidation.style.display = 'block';
                 isValid = false;
-                showNotification('Error de Validación', 'La masa debe ser mayor que cero.', 'error');
+                errorMessage = "La masa debe ser mayor que cero para que exista un objeto físico.";
             } else {
                 massValidation.style.display = 'none';
             }
@@ -1397,9 +1377,43 @@
                 counterMassValidation.textContent = "La masa del contrapeso debe ser mayor que cero";
                 counterMassValidation.style.display = 'block';
                 isValid = false;
-                showNotification('Error de Validación', 'La masa del contrapeso debe ser mayor que cero.', 'error');
+                errorMessage = "La masa del contrapeso debe ser mayor que cero para que el sistema de poleas funcione correctamente.";
             } else {
                 counterMassValidation.style.display = 'none';
+            }
+            
+            // Validar que haya suficiente fuerza para mover el objeto
+            const angleRad = angle * Math.PI / 180;
+            const gravitationalForce = mass * gravity * Math.sin(angleRad);
+            const normalForce = mass * gravity * Math.cos(angleRad);
+            const frictionForce = friction * normalForce;
+            let netForceValue = gravitationalForce - frictionForce;
+            
+            // Si hay poleas, considerar también la fuerza del contrapeso
+            if (usePulley) {
+                const counterWeightForce = pulleyConfig.counterMass * gravity;
+                const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
+               
+                if (pulleyConfig.type === 'fixed') {
+                    netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
+                } else if (pulleyConfig.type === 'movable') {
+                    netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 2;
+                } else if (pulleyConfig.type === 'compound') {
+                    netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 3;
+                }
+            }
+            
+            // Verificar si el objeto puede moverse
+            if (Math.abs(netForceValue) < 0.001) {
+                isValid = false;
+                errorMessage = "La fuerza neta es casi cero. El objeto no se moverá porque las fuerzas están equilibradas. ";
+                errorMessage += usePulley ? 
+                    "Intente ajustar la masa del contrapeso o el coeficiente de fricción." : 
+                    "Intente aumentar el ángulo del plano o reducir el coeficiente de fricción.";
+            }
+           
+            if (!isValid && errorMessage) {
+                showNotification('No se puede realizar la simulación', errorMessage, 'error');
             }
            
             return isValid;
@@ -1502,23 +1516,7 @@
             showNotification('Resistencia del Aire Modificada', `La resistencia del aire se ha cambiado a ${value} kg/m.`, 'info');
         });
        
-        // Configuración de poleas
-        pulleyToggle.addEventListener('change', function() {
-            usePulley = this.checked;
-            pulleyOptions.style.display = usePulley ? 'block' : 'none';
-            validateParameters();
-            drawSimulation();
-            if (isRunning) {
-                resetSimulation();
-            }
-            updateResultsExplanation();
-            if (usePulley) {
-                showNotification('Sistema de Poleas Activado', 'Se ha activado el sistema de poleas. El contrapeso ahora afectará el movimiento del objeto.', 'success');
-            } else {
-                showNotification('Sistema de Poleas Desactivado', 'Se ha desactivado el sistema de poleas.', 'info');
-            }
-        });
-       
+        // Configuración de poleas - ELIMINADO el event listener del checkbox
         pulleyType.addEventListener('change', function() {
             pulleyConfig.type = this.value;
             drawSimulation();
