@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Virtual - Plano Inclinado con Poleas</title>
+    <title>Laboratorio Virtual - Plano Inclinado</title>
     <style>
         :root {
             --primary-color: #1a365d;
@@ -43,7 +43,7 @@
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 35px;
+            padding: 20px;
             border-radius: var(--border-radius);
             margin-bottom: 30px;
             box-shadow: var(--box-shadow);
@@ -62,19 +62,27 @@
             background: linear-gradient(90deg, var(--accent-color), var(--success-color));
         }
        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+       
+        .header-title {
+            flex: 1;
+        }
+       
         h1 {
-            font-size: 2.6rem;
-            margin-bottom: 12px;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
             font-weight: 600;
             letter-spacing: -0.5px;
         }
        
         .subtitle {
-            font-size: 1.25rem;
+            font-size: 0.9rem;
             opacity: 0.85;
             font-weight: 400;
-            max-width: 600px;
-            margin: 0 auto;
         }
        
         .content {
@@ -408,7 +416,7 @@
             border: 1px solid #e2e8f0;
         }
        
-        .graph-container {
+        .history-container {
             background: white;
             border-radius: var(--border-radius);
             padding: 25px;
@@ -418,21 +426,90 @@
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
        
-        .graph-container:hover {
+        .history-container:hover {
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
         }
        
-        .graph-placeholder {
-            width: 100%;
-            height: 250px;
-            background: #f8fafc;
+        .history-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #e2e8f0;
             border-radius: var(--border-radius);
+            padding: 10px;
+        }
+       
+        .history-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            border-left: 4px solid var(--accent-color);
+            transition: var(--transition);
+        }
+       
+        .history-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+       
+        .history-details {
+            flex: 1;
+        }
+       
+        .history-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+       
+        .history-params {
+            font-size: 0.85rem;
             color: var(--secondary-color);
-            border: 1px dashed #cbd5e0;
-            font-weight: 500;
+        }
+       
+        .history-date {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            margin-top: 3px;
+        }
+       
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+       
+        .history-btn-small {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+       
+        .history-btn-small:hover {
+            background: #2c5aa0;
+        }
+       
+        .history-btn-small.delete {
+            background: var(--danger-color);
+        }
+       
+        .history-btn-small.delete:hover {
+            background: #c53030;
+        }
+       
+        .empty-history {
+            text-align: center;
+            padding: 30px;
+            color: var(--secondary-color);
+            font-style: italic;
         }
        
         footer {
@@ -524,8 +601,12 @@
 <body>
     <div class="container">
         <header>
-            <h1>Laboratorio Virtual: Plano Inclinado con Poleas</h1>
-            <p class="subtitle">Simulador interactivo para el estudio de la física del movimiento en planos inclinados</p>
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>Laboratorio Virtual: Plano Inclinado</h1>
+                    <p class="subtitle">Simulador interactivo para el estudio de la física del movimiento</p>
+                </div>
+            </div>
         </header>
        
         <div class="content">
@@ -534,16 +615,15 @@
                
                 <div class="tabs">
                     <div class="tab active" data-tab="basic">Básico</div>
-                    <div class="tab" data-tab="advanced">Avanzado</div>
                     <div class="tab" data-tab="pulley">Poleas</div>
                 </div>
                
                 <div class="tab-content active" id="basic-tab">
                     <div class="input-group">
-                        <label for="mass-input">Masa del objeto (m)</label>
+                        <label for="mass-input">Masa del objeto (M)</label>
                         <div class="input-container">
-                            <input type="number" id="mass-input" min="0.1" max="50" value="5" step="0.1">
-                            <span class="unit">kg</span>
+                            <input type="number" id="mass-input" min="0.1" max="500" value="5" step="0.1">
+                            <span class="unit">Kg</span>
                         </div>
                         <div class="validation-message" id="mass-validation"></div>
                     </div>
@@ -551,26 +631,26 @@
                     <div class="input-group">
                         <label for="angle-input">Ángulo del plano (θ)</label>
                         <div class="range-container">
-                            <input type="range" id="angle-range" min="5" max="60" value="30" step="1">
+                            <input type="range" id="angle-range" min="1" max="90" value="30" step="1">
                             <span class="range-value" id="angle-value">30°</span>
                         </div>
-                        <input type="number" id="angle-input" min="5" max="60" value="30" step="1" style="display: none;">
+                        <input type="number" id="angle-input" min="1" max="90" value="30" step="1" style="display: none;">
                     </div>
                    
                     <div class="input-group">
                         <label for="friction-input">Coeficiente de fricción (μ)</label>
                         <div class="range-container">
-                            <input type="range" id="friction-range" min="0" max="0.5" value="0.1" step="0.01">
+                            <input type="range" id="friction-range" min="0" max="1" value="0.1" step="0.01">
                             <span class="range-value" id="friction-value">0.10</span>
                         </div>
-                        <input type="number" id="friction-input" min="0" max="0.5" value="0.1" step="0.01" style="display: none;">
+                        <input type="number" id="friction-input" min="0" max="1" value="0.1" step="0.01" style="display: none;">
                     </div>
                    
                     <div class="input-group">
                         <label for="length-input">Longitud del plano (L)</label>
                         <div class="input-container">
-                            <input type="number" id="length-input" min="1" max="15" value="8" step="0.5">
-                            <span class="unit">m</span>
+                            <input type="number" id="length-input" min="1" max="30" value="8" step="0.5">
+                            <span class="unit">M</span>
                         </div>
                     </div>
                    
@@ -578,7 +658,7 @@
                         <label for="gravity-input">Gravedad (g)</label>
                         <div class="input-container">
                             <input type="number" id="gravity-input" value="9.8" min="1" max="20" step="0.1">
-                            <span class="unit">m/s²</span>
+                            <span class="unit">M/s²</span>
                         </div>
                     </div>
                 </div>
@@ -588,7 +668,7 @@
                         <label for="initial-velocity">Velocidad inicial</label>
                         <div class="input-container">
                             <input type="number" id="initial-velocity" value="0" min="0" max="10" step="0.1">
-                            <span class="unit">m/s</span>
+                            <span class="unit">M/s</span>
                         </div>
                     </div>
                    
@@ -604,7 +684,7 @@
                         <label for="air-resistance">Resistencia del aire</label>
                         <div class="input-container">
                             <input type="number" id="air-resistance" value="0" min="0" max="0.1" step="0.001">
-                            <span class="unit">kg/m</span>
+                            <span class="unit">Kg/M</span>
                         </div>
                     </div>
                 </div>
@@ -626,7 +706,7 @@
                         </div>
                        
                         <div class="input-group">
-                            <label for="counter-mass-input">Masa contrapeso (m₂)</label>
+                            <label for="counter-mass-input">Masa contrapeso (M₂)</label>
                             <div class="input-container">
                                 <input type="number" id="counter-mass-input" min="0.1" max="50" value="3" step="0.1">
                                 <span class="unit">kg</span>
@@ -651,6 +731,12 @@
                     </svg>
                     Iniciar Simulación
                 </button>
+                <button id="save-config-btn" style="background: var(--success-color);">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                    </svg>
+                    Guardar Configuración
+                </button>
                 <button id="reset-btn" class="reset-btn">
                     <svg class="icon" viewBox="0 0 24 24">
                         <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
@@ -672,15 +758,15 @@
                     </div>
                     <div class="data-item">
                         <div class="data-label">Posición</div>
-                        <div class="data-value" id="position-value">0.00 m</div>
+                        <div class="data-value" id="position-value">0.00 M</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Velocidad</div>
-                        <div class="data-value" id="velocity-value">0.00 m/s</div>
+                        <div class="data-value" id="velocity-value">0.00 M/s</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Aceleración</div>
-                        <div class="data-value" id="acceleration-value">0.00 m/s²</div>
+                        <div class="data-value" id="acceleration-value">0.00 M/s²</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Fuerza Net</div>
@@ -707,10 +793,11 @@
                     </button>
                 </div>
                
-                <div class="graph-container">
-                    <h2>Gráficos en Tiempo Real</h2>
-                    <div class="graph-placeholder">
-                        Gráfico de posición, velocidad y aceleración vs tiempo
+                <!-- Reemplazo de gráficos por historial -->
+                <div class="history-container">
+                    <h2>Historial de Configuraciones</h2>
+                    <div class="history-list" id="history-list">
+                        <div class="empty-history" id="empty-history">No hay configuraciones guardadas. Guarda una configuración para verla aquí.</div>
                     </div>
                 </div>
             </div>
@@ -722,7 +809,7 @@
             <div class="tabs">
                 <div class="tab active" data-tab="theory">Teoría</div>
                 <div class="tab" data-tab="formulas">Fórmulas</div>
-                <div class="tab" data-tab="applications">Aplicaciones</div>
+                <div class="tab" data-tab="applications">Instrucciones</div>
             </div>
            
             <div class="tab-content active" id="theory-tab">
@@ -761,7 +848,7 @@
                     </div>
                    
                     <div class="formula">
-                        a = F<sub>neta</sub> / m
+                        a = F<sub>neta</sub> / M
                     </div>
                    
                     <p><strong>Con sistema de poleas:</strong></p>
@@ -774,21 +861,20 @@
            
             <div class="tab-content" id="applications-tab">
                 <div class="theory-content">
-                    <p>Los planos inclinados y sistemas de poleas tienen numerosas aplicaciones en la vida cotidiana y la ingeniería:</p>
+                    <p>Instrucciones del sistema:</p>
                    
                     <ul>
-                        <li><strong>Rampas de carga:</strong> Para subir objetos pesados a camiones o edificios.</li>
-                        <li><strong>Carreteras de montaña:</strong> Que suben gradualmente las laderas.</li>
-                        <li><strong>Sistemas de elevación:</strong> Grúas y montacargas que utilizan poleas.</li>
-                        <li><strong>Máquinas simples:</strong> Como parte de sistemas mecánicos más complejos.</li>
-                        <li><strong>Deportes:</strong> Pistas de ski, toboganes, etc.</li>
+                        <li><strong>Primer paso:</strong> Seleccionar el sistema que desee utilzar (Básico o con polea).</li>
+                        <li><strong>Segundo paso:</strong> Insertar datos correspondientes al sistema seleccionado y apretar el boton de iniciar simulación.</li>
+                        <li><strong>Tercer paso:</strong> Al detenerse, se puede utilizar la opción reiniciar o exportar datos, al exportarlos se entregará un documento.</li>
+                        <li><strong>Nueva función:</strong> Puede guardar configuraciones para usarlas posteriormente desde el panel de historial.</li>
                     </ul>
                 </div>
             </div>
         </div>
        
         <footer>
-            <p>Laboratorio Virtual de Física - Simulador de Plano Inclinado con Poleas</p>
+            <p>Laboratorio Virtual de Física - Simulador de Plano Inclinado con Poleas y sin poleas</p>
             <p>© 2023 - Departamento de Física - Universidad Virtual</p>
         </footer>
     </div>
@@ -828,6 +914,11 @@
         const pauseBtn = document.getElementById('pause-btn');
         const resetBtn = document.getElementById('reset-btn');
         const exportBtn = document.getElementById('export-btn');
+        const saveConfigBtn = document.getElementById('save-config-btn');
+       
+        // Historial
+        const historyList = document.getElementById('history-list');
+        const emptyHistory = document.getElementById('empty-history');
        
         // Valores de datos
         const timeValue = document.getElementById('time-value');
@@ -871,6 +962,177 @@
         let timeStep = parseFloat(timeStepInput.value);
         let airResistance = parseFloat(airResistanceInput.value);
        
+        // Historial de configuraciones
+        let configHistory = JSON.parse(localStorage.getItem('inclinedPlaneHistory')) || [];
+       
+        // Inicializar el historial
+        renderHistory();
+       
+        // Guardar configuración actual
+        saveConfigBtn.addEventListener('click', function() {
+            const configName = prompt("Ingrese un nombre para esta configuración:",
+                `Configuración ${new Date().toLocaleTimeString()}`);
+           
+            if (configName) {
+                const config = {
+                    id: Date.now(),
+                    name: configName,
+                    timestamp: new Date().toISOString(),
+                    params: {
+                        mass: mass,
+                        angle: angle,
+                        friction: friction,
+                        length: length,
+                        gravity: gravity,
+                        initialVelocity: initialVelocity,
+                        timeStep: timeStep,
+                        airResistance: airResistance,
+                        usePulley: usePulley,
+                        pulleyConfig: {...pulleyConfig}
+                    }
+                };
+               
+                // Agregar al inicio del array
+                configHistory.unshift(config);
+               
+                // Limitar a 10 configuraciones
+                if (configHistory.length > 10) {
+                    configHistory = configHistory.slice(0, 10);
+                }
+               
+                // Guardar en localStorage
+                localStorage.setItem('inclinedPlaneHistory', JSON.stringify(configHistory));
+               
+                // Actualizar vista
+                renderHistory();
+               
+                alert(`Configuración "${configName}" guardada correctamente.`);
+            }
+        });
+       
+        // Renderizar historial
+        function renderHistory() {
+            if (configHistory.length === 0) {
+                emptyHistory.style.display = 'block';
+                historyList.innerHTML = '';
+                historyList.appendChild(emptyHistory);
+                return;
+            }
+           
+            emptyHistory.style.display = 'none';
+            historyList.innerHTML = '';
+           
+            configHistory.forEach(config => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+               
+                const date = new Date(config.timestamp);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+               
+                let paramsText = `Masa: ${config.params.mass}kg, Ángulo: ${config.params.angle}°, Fricción: ${config.params.friction}`;
+                if (config.params.usePulley) {
+                    paramsText += `, Polea: ${config.params.pulleyConfig.type}, Contrapeso: ${config.params.pulleyConfig.counterMass}kg`;
+                }
+               
+                item.innerHTML = `
+                    <div class="history-details">
+                        <div class="history-title">${config.name}</div>
+                        <div class="history-params">${paramsText}</div>
+                        <div class="history-date">${dateStr}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="history-btn-small load" data-id="${config.id}">Cargar</button>
+                        <button class="history-btn-small delete" data-id="${config.id}">Eliminar</button>
+                    </div>
+                `;
+               
+                historyList.appendChild(item);
+            });
+           
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.history-btn-small.load').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    loadConfig(id);
+                });
+            });
+           
+            document.querySelectorAll('.history-btn-small.delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    deleteConfig(id);
+                });
+            });
+        }
+       
+        // Cargar configuración
+        function loadConfig(id) {
+            const config = configHistory.find(c => c.id === id);
+            if (config) {
+                // Cargar parámetros básicos
+                massInput.value = config.params.mass;
+                mass = config.params.mass;
+               
+                angleInput.value = config.params.angle;
+                angleRange.value = config.params.angle;
+                angleValue.textContent = config.params.angle + '°';
+                angle = config.params.angle;
+               
+                frictionInput.value = config.params.friction;
+                frictionRange.value = config.params.friction;
+                frictionValue.textContent = config.params.friction.toFixed(2);
+                friction = config.params.friction;
+               
+                lengthInput.value = config.params.length;
+                length = config.params.length;
+               
+                gravityInput.value = config.params.gravity;
+                gravity = config.params.gravity;
+               
+                // Cargar parámetros avanzados
+                initialVelocityInput.value = config.params.initialVelocity;
+                initialVelocity = config.params.initialVelocity;
+               
+                timeStepInput.value = config.params.timeStep;
+                timeStep = config.params.timeStep;
+               
+                airResistanceInput.value = config.params.airResistance;
+                airResistance = config.params.airResistance;
+               
+                // Cargar configuración de poleas
+                pulleyToggle.checked = config.params.usePulley;
+                usePulley = config.params.usePulley;
+                pulleyOptions.style.display = usePulley ? 'block' : 'none';
+               
+                if (config.params.usePulley) {
+                    pulleyType.value = config.params.pulleyConfig.type;
+                    pulleyConfig.type = config.params.pulleyConfig.type;
+                   
+                    counterMassInput.value = config.params.pulleyConfig.counterMass;
+                    pulleyConfig.counterMass = config.params.pulleyConfig.counterMass;
+                   
+                    pulleyFrictionInput.value = config.params.pulleyConfig.pulleyFriction;
+                    pulleyFrictionRange.value = config.params.pulleyConfig.pulleyFriction;
+                    pulleyFrictionValue.textContent = config.params.pulleyConfig.pulleyFriction.toFixed(2);
+                    pulleyConfig.pulleyFriction = config.params.pulleyConfig.pulleyFriction;
+                }
+               
+                // Redibujar simulación
+                drawSimulation();
+               
+                alert(`Configuración "${config.name}" cargada correctamente.`);
+            }
+        }
+       
+        // Eliminar configuración
+        function deleteConfig(id) {
+            if (confirm('¿Está seguro de que desea eliminar esta configuración?')) {
+                configHistory = configHistory.filter(c => c.id !== id);
+                localStorage.setItem('inclinedPlaneHistory', JSON.stringify(configHistory));
+                renderHistory();
+            }
+        }
+
         // Configuración del canvas
         function setupCanvas() {
             const container = canvas.parentElement;
@@ -1313,9 +1575,9 @@
            
             // Actualizar valores en pantalla
             timeValue.textContent = currentTime.toFixed(2) + " s";
-            positionValue.textContent = position.toFixed(2) + " m";
-            velocityValue.textContent = velocity.toFixed(2) + " m/s";
-            accelerationValue.textContent = acceleration.toFixed(2) + " m/s²";
+            positionValue.textContent = position.toFixed(2) + " M";
+            velocityValue.textContent = velocity.toFixed(2) + " M/s";
+            accelerationValue.textContent = acceleration.toFixed(2) + " M/s²";
             forceValue.textContent = netForce.toFixed(2) + " N";
             energyValue.textContent = energy.toFixed(2) + " J";
            
@@ -1354,9 +1616,9 @@
             simulationData = [];
            
             timeValue.textContent = "0.00 s";
-            positionValue.textContent = "0.00 m";
-            velocityValue.textContent = velocity.toFixed(2) + " m/s";
-            accelerationValue.textContent = "0.00 m/s²";
+            positionValue.textContent = "0.00 M";
+            velocityValue.textContent = velocity.toFixed(2) + " M/s";
+            accelerationValue.textContent = "0.00 M/s²";
             forceValue.textContent = "0.00 N";
             energyValue.textContent = "0.00 J";
            
@@ -1370,7 +1632,7 @@
                 return;
             }
            
-            let csvContent = "Tiempo (s),Posición (m),Velocidad (m/s),Aceleración (m/s²),Fuerza (N),Energía (J)\n";
+            let csvContent = "Tiempo (s),Posición (M),Velocidad (M/s),Aceleración (M/s²),Fuerza (N),Energía (J)\n";
            
             simulationData.forEach(data => {
                 csvContent += `${data.time.toFixed(2)},${data.position.toFixed(2)},${data.velocity.toFixed(2)},${data.acceleration.toFixed(2)},${data.force.toFixed(2)},${data.energy.toFixed(2)}\n`;
@@ -1390,7 +1652,7 @@
         // Controladores de botones
         startBtn.addEventListener('click', function() {
             if (!validateParameters()) return;
-            
+           
             if (!isRunning) {
                 isRunning = true;
                 isPaused = false;
