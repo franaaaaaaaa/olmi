@@ -43,9 +43,9 @@
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 20px;
+            padding: 15px; /* Reducido de 20px */
             border-radius: var(--border-radius);
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Reducido de 30px */
             box-shadow: var(--box-shadow);
             text-align: center;
             position: relative;
@@ -73,14 +73,14 @@
         }
        
         h1 {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+            font-size: 1.2rem; /* Reducido de 1.5rem */
+            margin-bottom: 5px; /* Reducido de 8px */
             font-weight: 600;
             letter-spacing: -0.5px;
         }
        
         .subtitle {
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Reducido de 0.9rem */
             opacity: 0.85;
             font-weight: 400;
         }
@@ -734,10 +734,10 @@
                     <div class="input-group">
                         <label for="angle-input">Ángulo del plano (θ)</label>
                         <div class="range-container">
-                            <input type="range" id="angle-range" min="1" max="90" value="30" step="1">
-                            <span class="range-value" id="angle-value">30°</span>
+                            <input type="range" id="angle-range" min="1" max="90" value="90" step="1">
+                            <span class="range-value" id="angle-value">90°</span>
                         </div>
-                        <input type="number" id="angle-input" min="1" max="90" value="30" step="1" style="display: none;">
+                        <input type="number" id="angle-input" min="1" max="90" value="90" step="1" style="display: none;">
                     </div>
                    
                     <div class="input-group">
@@ -766,65 +766,75 @@
                     </div>
                 </div>
                
-                <div class="tab-content" id="advanced-tab">
-                    <div class="input-group">
-                        <label for="initial-velocity">Velocidad inicial</label>
-                        <div class="input-container">
-                            <input type="number" id="initial-velocity" value="0" min="0" max="10" step="0.1">
-                            <span class="unit">M/s</span>
-                        </div>
-                    </div>
-                   
-                    <div class="input-group">
-                        <label for="time-step">Paso de tiempo</label>
-                        <div class="input-container">
-                            <input type="number" id="time-step" value="0.016" min="0.001" max="0.1" step="0.001">
-                            <span class="unit">s</span>
-                        </div>
-                    </div>
-                   
-                    <div class="input-group">
-                        <label for="air-resistance">Resistencia del aire</label>
-                        <div class="input-container">
-                            <input type="number" id="air-resistance" value="0" min="0" max="0.1" step="0.001">
-                            <span class="unit">Kg/M</span>
-                        </div>
-                    </div>
-                </div>
-               
                 <div class="tab-content" id="pulley-tab">
-                    <div class="pulley-toggle">
-                        <input type="checkbox" id="pulley-toggle">
-                        <label for="pulley-toggle">Usar sistema de poleas</label>
+                    <div class="input-group">
+                        <label for="mass-input-pulley">Masa del objeto (M)</label>
+                        <div class="input-container">
+                            <input type="number" id="mass-input-pulley" min="0.1" max="500" value="5" step="0.1">
+                            <span class="unit">Kg</span>
+                        </div>
+                        <div class="validation-message" id="mass-validation-pulley"></div>
                     </div>
                    
-                    <div class="pulley-options" id="pulley-options" style="display: none;">
-                        <div class="input-group">
-                            <label for="pulley-type">Tipo de polea</label>
-                            <select id="pulley-type">
-                                <option value="fixed">Polea fija</option>
-                                <option value="movable">Polea móvil</option>
-                                <option value="compound">Sistema compuesto</option>
-                            </select>
+                    <div class="input-group">
+                        <label for="angle-input-pulley">Ángulo del plano (θ)</label>
+                        <div class="range-container">
+                            <input type="range" id="angle-range-pulley" min="1" max="90" value="90" step="1">
+                            <span class="range-value" id="angle-value-pulley">90°</span>
                         </div>
-                       
-                        <div class="input-group">
-                            <label for="counter-mass-input">Masa contrapeso (M₂)</label>
-                            <div class="input-container">
-                                <input type="number" id="counter-mass-input" min="0.1" max="50" value="3" step="0.1">
-                                <span class="unit">kg</span>
-                            </div>
-                            <div class="validation-message" id="counter-mass-validation"></div>
+                        <input type="number" id="angle-input-pulley" min="1" max="90" value="90" step="1" style="display: none;">
+                    </div>
+                   
+                    <div class="input-group">
+                        <label for="friction-input-pulley">Coeficiente de fricción (μ)</label>
+                        <div class="range-container">
+                            <input type="range" id="friction-range-pulley" min="0" max="1" value="0.1" step="0.01">
+                            <span class="range-value" id="friction-value-pulley">0.10</span>
                         </div>
-                       
-                        <div class="input-group">
-                            <label for="pulley-friction-input">Fricción en polea</label>
-                            <div class="range-container">
-                                <input type="range" id="pulley-friction-range" min="0" max="0.2" value="0.05" step="0.01">
-                                <span class="range-value" id="pulley-friction-value">0.05</span>
-                            </div>
-                            <input type="number" id="pulley-friction-input" min="0" max="0.2" value="0.05" step="0.01" style="display: none;">
+                        <input type="number" id="friction-input-pulley" min="0" max="1" value="0.1" step="0.01" style="display: none;">
+                    </div>
+                   
+                    <div class="input-group">
+                        <label for="length-input-pulley">Longitud del plano (L)</label>
+                        <div class="input-container">
+                            <input type="number" id="length-input-pulley" min="1" max="30" value="8" step="0.5">
+                            <span class="unit">M</span>
                         </div>
+                    </div>
+                   
+                    <div class="input-group">
+                        <label for="gravity-input-pulley">Gravedad (g)</label>
+                        <div class="input-container">
+                            <input type="number" id="gravity-input-pulley" value="9.8" min="1" max="20" step="0.1">
+                            <span class="unit">M/s²</span>
+                        </div>
+                    </div>
+                   
+                    <div class="input-group">
+                        <label for="pulley-type">Tipo de polea</label>
+                        <select id="pulley-type">
+                            <option value="fixed">Polea fija</option>
+                            <option value="movable">Polea móvil</option>
+                            <option value="compound">Sistema compuesto</option>
+                        </select>
+                    </div>
+                   
+                    <div class="input-group">
+                        <label for="counter-mass-input">Masa contrapeso (M₂)</label>
+                        <div class="input-container">
+                            <input type="number" id="counter-mass-input" min="0.1" max="50" value="3" step="0.1">
+                            <span class="unit">kg</span>
+                        </div>
+                        <div class="validation-message" id="counter-mass-validation"></div>
+                    </div>
+                   
+                    <div class="input-group">
+                        <label for="pulley-friction-input">Fricción en polea</label>
+                        <div class="range-container">
+                            <input type="range" id="pulley-friction-range" min="0" max="0.2" value="0.05" step="0.01">
+                            <span class="range-value" id="pulley-friction-value">0.05</span>
+                        </div>
+                        <input type="number" id="pulley-friction-input" min="0" max="0.2" value="0.05" step="0.01" style="display: none;">
                     </div>
                 </div>
                
@@ -1014,14 +1024,18 @@
         const lengthInput = document.getElementById('length-input');
         const gravityInput = document.getElementById('gravity-input');
        
-        // Configuración avanzada
-        const initialVelocityInput = document.getElementById('initial-velocity');
-        const timeStepInput = document.getElementById('time-step');
-        const airResistanceInput = document.getElementById('air-resistance');
+        // Inputs de la pestaña Poleas
+        const massInputPulley = document.getElementById('mass-input-pulley');
+        const angleInputPulley = document.getElementById('angle-input-pulley');
+        const angleRangePulley = document.getElementById('angle-range-pulley');
+        const angleValuePulley = document.getElementById('angle-value-pulley');
+        const frictionInputPulley = document.getElementById('friction-input-pulley');
+        const frictionRangePulley = document.getElementById('friction-range-pulley');
+        const frictionValuePulley = document.getElementById('friction-value-pulley');
+        const lengthInputPulley = document.getElementById('length-input-pulley');
+        const gravityInputPulley = document.getElementById('gravity-input-pulley');
        
         // Configuración de poleas
-        const pulleyToggle = document.getElementById('pulley-toggle');
-        const pulleyOptions = document.getElementById('pulley-options');
         const pulleyType = document.getElementById('pulley-type');
         const counterMassInput = document.getElementById('counter-mass-input');
         const pulleyFrictionInput = document.getElementById('pulley-friction-input');
@@ -1049,6 +1063,7 @@
        
         // Mensajes de validación
         const massValidation = document.getElementById('mass-validation');
+        const massValidationPulley = document.getElementById('mass-validation-pulley');
         const counterMassValidation = document.getElementById('counter-mass-validation');
         
         // Elementos de resultados
@@ -1080,11 +1095,6 @@
             counterMass: parseFloat(counterMassInput.value),
             pulleyFriction: parseFloat(pulleyFrictionInput.value)
         };
-       
-        // Configuración avanzada
-        let initialVelocity = parseFloat(initialVelocityInput.value);
-        let timeStep = parseFloat(timeStepInput.value);
-        let airResistance = parseFloat(airResistanceInput.value);
        
         // Historial de configuraciones
         let configHistory = JSON.parse(localStorage.getItem('inclinedPlaneHistory')) || [];
@@ -1178,9 +1188,6 @@
                         friction: friction,
                         length: length,
                         gravity: gravity,
-                        initialVelocity: initialVelocity,
-                        timeStep: timeStep,
-                        airResistance: airResistance,
                         usePulley: usePulley,
                         pulleyConfig: {...pulleyConfig}
                     }
@@ -1283,20 +1290,8 @@
                 gravityInput.value = config.params.gravity;
                 gravity = config.params.gravity;
                
-                // Cargar parámetros avanzados
-                initialVelocityInput.value = config.params.initialVelocity;
-                initialVelocity = config.params.initialVelocity;
-               
-                timeStepInput.value = config.params.timeStep;
-                timeStep = config.params.timeStep;
-               
-                airResistanceInput.value = config.params.airResistance;
-                airResistance = config.params.airResistance;
-               
                 // Cargar configuración de poleas
-                pulleyToggle.checked = config.params.usePulley;
                 usePulley = config.params.usePulley;
-                pulleyOptions.style.display = usePulley ? 'block' : 'none';
                
                 if (config.params.usePulley) {
                     pulleyType.value = config.params.pulleyConfig.type;
@@ -1347,6 +1342,22 @@
                 // Activar la pestaña seleccionada
                 this.classList.add('active');
                 document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Actualizar si estamos usando poleas
+                usePulley = (tabId === 'pulley');
+                
+                // Si cambiamos a la pestaña de poleas, sincronizar valores
+                if (usePulley) {
+                    massInputPulley.value = mass;
+                    angleInputPulley.value = angle;
+                    angleRangePulley.value = angle;
+                    angleValuePulley.textContent = angle + '°';
+                    frictionInputPulley.value = friction;
+                    frictionRangePulley.value = friction;
+                    frictionValuePulley.textContent = friction.toFixed(2);
+                    lengthInputPulley.value = length;
+                    gravityInputPulley.value = gravity;
+                }
             });
         });
        
@@ -1376,6 +1387,27 @@
             pulleyFrictionInput.value = this.value;
             pulleyConfig.pulleyFriction = parseFloat(this.value);
             showNotification('Fricción de Polea Modificada', `La fricción en la polea se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la eficiencia del sistema de poleas.`, 'info');
+        });
+       
+        // Sincronización para la pestaña de poleas
+        angleRangePulley.addEventListener('input', function() {
+            angleValuePulley.textContent = this.value + '°';
+            angleInputPulley.value = this.value;
+            angle = parseFloat(this.value);
+            drawSimulation();
+            if (isRunning) {
+                resetSimulation();
+            }
+            updateResultsExplanation();
+            showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+        });
+       
+        frictionRangePulley.addEventListener('input', function() {
+            frictionValuePulley.textContent = parseFloat(this.value).toFixed(2);
+            frictionInputPulley.value = this.value;
+            friction = parseFloat(this.value);
+            updateResultsExplanation();
+            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
         });
        
         // Validación de parámetros
@@ -1471,54 +1503,73 @@
             showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
-        // Configuración avanzada
-        initialVelocityInput.addEventListener('input', function() {
+        // Actualizar valores de los inputs de la pestaña de poleas
+        massInputPulley.addEventListener('input', function() {
             let value = parseFloat(this.value);
-            if (value < 0) value = 0;
-            if (value > 10) value = 10;
+            if (value < 0.1) value = 0.1;
+            if (value > 50) value = 50;
             this.value = value;
-            initialVelocity = value;
+            mass = value;
+            validateParameters();
             if (isRunning) {
                 resetSimulation();
             }
-            showNotification('Velocidad Inicial Modificada', `La velocidad inicial se ha cambiado a ${value} m/s.`, 'info');
+            updateResultsExplanation();
+            showNotification('Masa Modificada', `La masa del objeto se ha cambiado a ${value} kg. Esto afecta tanto la fuerza gravitatoria como la inercia del objeto.`, 'info');
         });
        
-        timeStepInput.addEventListener('input', function() {
+        angleInputPulley.addEventListener('input', function() {
             let value = parseFloat(this.value);
-            if (value < 0.001) value = 0.001;
-            if (value > 0.1) value = 0.1;
+            if (value < 5) value = 5;
+            if (value > 60) value = 60;
             this.value = value;
-            timeStep = value;
-            showNotification('Paso de Tiempo Modificado', `El paso de tiempo se ha cambiado a ${value} s. Esto afecta la precisión de la simulación.`, 'info');
-        });
-       
-        airResistanceInput.addEventListener('input', function() {
-            let value = parseFloat(this.value);
-            if (value < 0) value = 0;
-            if (value > 0.1) value = 0.1;
-            this.value = value;
-            airResistance = value;
-            showNotification('Resistencia del Aire Modificada', `La resistencia del aire se ha cambiado a ${value} kg/m.`, 'info');
-        });
-       
-        // Configuración de poleas
-        pulleyToggle.addEventListener('change', function() {
-            usePulley = this.checked;
-            pulleyOptions.style.display = usePulley ? 'block' : 'none';
-            validateParameters();
+            angleRangePulley.value = value;
+            angleValuePulley.textContent = value + '°';
+            angle = value;
             drawSimulation();
             if (isRunning) {
                 resetSimulation();
             }
             updateResultsExplanation();
-            if (usePulley) {
-                showNotification('Sistema de Poleas Activado', 'Se ha activado el sistema de poleas. El contrapeso ahora afectará el movimiento del objeto.', 'success');
-            } else {
-                showNotification('Sistema de Poleas Desactivado', 'Se ha desactivado el sistema de poleas.', 'info');
-            }
+            showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
         });
        
+        frictionInputPulley.addEventListener('input', function() {
+            let value = parseFloat(this.value);
+            if (value < 0) value = 0;
+            if (value > 0.5) value = 0.5;
+            this.value = value;
+            frictionRangePulley.value = value;
+            frictionValuePulley.textContent = value.toFixed(2);
+            friction = value;
+            updateResultsExplanation();
+            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${value.toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+        });
+       
+        lengthInputPulley.addEventListener('input', function() {
+            let value = parseFloat(this.value);
+            if (value < 1) value = 1;
+            if (value > 15) value = 15;
+            this.value = value;
+            length = value;
+            drawSimulation();
+            if (isRunning) {
+                resetSimulation();
+            }
+            showNotification('Longitud Modificada', `La longitud del plano se ha cambiado a ${value} m. Esto afecta la distancia que recorrerá el objeto.`, 'info');
+        });
+       
+        gravityInputPulley.addEventListener('input', function() {
+            let value = parseFloat(this.value);
+            if (value < 1) value = 1;
+            if (value > 20) value = 20;
+            this.value = value;
+            gravity = value;
+            updateResultsExplanation();
+            showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
+        });
+       
+        // Configuración de poleas
         pulleyType.addEventListener('change', function() {
             pulleyConfig.type = this.value;
             drawSimulation();
@@ -1838,7 +1889,7 @@
             isPaused = false;
             currentTime = 0;
             position = 0;
-            velocity = initialVelocity;
+            velocity = 0;
             acceleration = 0;
             netForce = 0;
             energy = 0;
@@ -1846,7 +1897,7 @@
            
             timeValue.textContent = "0.00 s";
             positionValue.textContent = "0.00 M";
-            velocityValue.textContent = velocity.toFixed(2) + " M/s";
+            velocityValue.textContent = "0.00 M/s";
             accelerationValue.textContent = "0.00 M/s²";
             forceValue.textContent = "0.00 N";
             energyValue.textContent = "0.00 J";
