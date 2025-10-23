@@ -734,10 +734,10 @@
                     <div class="input-group">
                         <label for="angle-input">Ángulo del plano (θ)</label>
                         <div class="range-container">
-                            <input type="range" id="angle-range" min="1" max="90" value="90" step="1">
-                            <span class="range-value" id="angle-value">90°</span>
+                            <input type="range" id="angle-range" min="1" max="90" value="30" step="1">
+                            <span class="range-value" id="angle-value">30°</span>
                         </div>
-                        <input type="number" id="angle-input" min="1" max="90" value="90" step="1" style="display: none;">
+                        <input type="number" id="angle-input" min="1" max="90" value="30" step="1" style="display: none;">
                     </div>
                    
                     <div class="input-group">
@@ -779,10 +779,10 @@
                     <div class="input-group">
                         <label for="angle-input-pulley">Ángulo del plano (θ)</label>
                         <div class="range-container">
-                            <input type="range" id="angle-range-pulley" min="1" max="90" value="90" step="1">
-                            <span class="range-value" id="angle-value-pulley">90°</span>
+                            <input type="range" id="angle-range-pulley" min="1" max="90" value="30" step="1">
+                            <span class="range-value" id="angle-value-pulley">30°</span>
                         </div>
-                        <input type="number" id="angle-input-pulley" min="1" max="90" value="90" step="1" style="display: none;">
+                        <input type="number" id="angle-input-pulley" min="1" max="90" value="30" step="1" style="display: none;">
                     </div>
                    
                     <div class="input-group">
@@ -955,32 +955,40 @@
            
             <div class="tab-content" id="formulas-tab">
                 <div class="theory-content">
-                    <p><strong>Fuerzas en un plano inclinado:</strong></p>
+                    <p><strong>Fuerzas en un plano inclinado (Serway):</strong></p>
                    
                     <div class="formula">
-                        F<sub>paralela</sub> = mg · sin(θ)
+                        F<sub>gx</sub> = mg sen θ
                     </div>
                    
                     <div class="formula">
-                        F<sub>normal</sub> = mg · cos(θ)
+                        F<sub>gy</sub> = mg cos θ
                     </div>
                    
                     <div class="formula">
-                        F<sub>fricción</sub> = μ · F<sub>normal</sub> = μ · mg · cos(θ)
+                        F<sub>n</sub> = mg cos θ
                     </div>
                    
                     <div class="formula">
-                        F<sub>neta</sub> = F<sub>paralela</sub> - F<sub>fricción</sub>
+                        f<sub>k</sub> = μ<sub>k</sub> F<sub>n</sub> = μ<sub>k</sub> mg cos θ
                     </div>
                    
                     <div class="formula">
-                        a = F<sub>neta</sub> / M
+                        F<sub>neta</sub> = mg sen θ - f<sub>k</sub>
+                    </div>
+                   
+                    <div class="formula">
+                        a = F<sub>neta</sub> / m
                     </div>
                    
                     <p><strong>Con sistema de poleas:</strong></p>
                    
                     <div class="formula">
-                        F<sub>neta</sub> = F<sub>paralela</sub> - F<sub>fricción</sub> - F<sub>polea</sub>
+                        F<sub>neta</sub> = mg sen θ - f<sub>k</sub> - T
+                    </div>
+                   
+                    <div class="formula">
+                        T = m<sub>2</sub>g - m<sub>2</sub>a
                     </div>
                 </div>
             </div>
@@ -1358,6 +1366,9 @@
                     lengthInputPulley.value = length;
                     gravityInputPulley.value = gravity;
                 }
+                
+                // Redibujar la simulación inmediatamente
+                drawSimulation();
             });
         });
        
@@ -1605,7 +1616,7 @@
             showNotification('Fricción de Polea Modificada', `La fricción en la polea se ha cambiado a ${value.toFixed(2)}. Esto afecta la eficiencia del sistema de poleas.`, 'info');
         });
        
-        // Función drawSimulation
+        // Función drawSimulation - MODIFICADA para mostrar el ángulo en la punta del triángulo
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1656,17 +1667,31 @@
             ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 5, objectWidth - 10, 3);
             ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 10, objectWidth - 10, 3);
            
-            // Dibujar ángulo
+            // Dibujar ángulo en la PUNTA del triángulo (parte superior)
+            const angleArcRadius = 30;
+            const angleArcX = baseX;
+            const angleArcY = baseY - planeHeight;
+            
             ctx.beginPath();
-            ctx.arc(baseX, baseY, 30, 0, -angleRad, true);
+            ctx.moveTo(angleArcX, angleArcY);
+            ctx.lineTo(angleArcX + angleArcRadius, angleArcY);
+            ctx.lineTo(angleArcX, angleArcY - angleArcRadius * Math.tan(angleRad));
+            ctx.closePath();
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Dibujar arco del ángulo
+            ctx.beginPath();
+            ctx.arc(angleArcX, angleArcY, angleArcRadius, -Math.PI/2, -Math.PI/2 + angleRad, false);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
            
-            // Etiqueta del ángulo
+            // Etiqueta del ángulo en la punta
             ctx.fillStyle = '#e74c3c';
             ctx.font = '16px Arial';
-            ctx.fillText(`${angle}°`, baseX + 20, baseY - 20);
+            ctx.fillText(`${angle}°`, angleArcX + 15, angleArcY - 15);
            
             // Etiqueta de masa
             ctx.fillStyle = '#000';
