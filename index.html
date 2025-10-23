@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorio Virtual - Plano Inclinado</title>
     <style>
+        /* Estilos existentes se mantienen igual */
         :root {
             --primary-color: #1a365d;
             --secondary-color: #2d3748;
@@ -43,9 +44,9 @@
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 15px; /* Reducido de 20px */
+            padding: 15px;
             border-radius: var(--border-radius);
-            margin-bottom: 20px; /* Reducido de 30px */
+            margin-bottom: 20px;
             box-shadow: var(--box-shadow);
             text-align: center;
             position: relative;
@@ -73,14 +74,14 @@
         }
        
         h1 {
-            font-size: 1.2rem; /* Reducido de 1.5rem */
-            margin-bottom: 5px; /* Reducido de 8px */
+            font-size: 1.2rem;
+            margin-bottom: 5px;
             font-weight: 600;
             letter-spacing: -0.5px;
         }
        
         .subtitle {
-            font-size: 0.8rem; /* Reducido de 0.9rem */
+            font-size: 0.8rem;
             opacity: 0.85;
             font-weight: 400;
         }
@@ -818,24 +819,6 @@
                             <span class="unit">M/s²</span>
                         </div>
                     </div>
-                   
-                    <div class="input-group">
-                        <label for="pulley-type">Tipo de polea</label>
-                        <select id="pulley-type">
-                            <option value="fixed">Polea fija</option>
-                            <option value="movable">Polea móvil</option>
-                            <option value="compound">Sistema compuesto</option>
-                        </select>
-                    </div>
-                   
-                    <div class="input-group">
-                        <label for="pulley-friction-input">Fricción en polea</label>
-                        <div class="range-container">
-                            <input type="range" id="pulley-friction-range" min="0" max="0.2" value="0.05" step="0.01">
-                            <span class="range-value" id="pulley-friction-value">0.05</span>
-                        </div>
-                        <input type="number" id="pulley-friction-input" min="0" max="0.2" value="0.05" step="0.01" style="display: none;">
-                    </div>
                 </div>
                
                 <button id="start-btn">
@@ -1044,11 +1027,7 @@
         const gravityInputPulley = document.getElementById('gravity-input-pulley');
        
         // Configuración de poleas
-        const pulleyType = document.getElementById('pulley-type');
         const counterMassInput = document.getElementById('counter-mass-input');
-        const pulleyFrictionInput = document.getElementById('pulley-friction-input');
-        const pulleyFrictionRange = document.getElementById('pulley-friction-range');
-        const pulleyFrictionValue = document.getElementById('pulley-friction-value');
        
         // Botones
         const startBtn = document.getElementById('start-btn');
@@ -1099,9 +1078,7 @@
         let gravity = parseFloat(gravityInput.value);
         let usePulley = false;
         let pulleyConfig = {
-            type: 'fixed',
-            counterMass: parseFloat(counterMassInput.value),
-            pulleyFriction: parseFloat(pulleyFrictionInput.value)
+            counterMass: parseFloat(counterMassInput.value)
         };
        
         // Historial de configuraciones
@@ -1240,7 +1217,7 @@
                
                 let paramsText = `Masa: ${config.params.mass}kg, Ángulo: ${config.params.angle}°, Fricción: ${config.params.friction}`;
                 if (config.params.usePulley) {
-                    paramsText += `, Polea: ${config.params.pulleyConfig.type}, Contrapeso: ${config.params.pulleyConfig.counterMass}kg`;
+                    paramsText += `, Contrapeso: ${config.params.pulleyConfig.counterMass}kg`;
                 }
                
                 item.innerHTML = `
@@ -1302,16 +1279,8 @@
                 usePulley = config.params.usePulley;
                
                 if (config.params.usePulley) {
-                    pulleyType.value = config.params.pulleyConfig.type;
-                    pulleyConfig.type = config.params.pulleyConfig.type;
-                   
                     counterMassInput.value = config.params.pulleyConfig.counterMass;
                     pulleyConfig.counterMass = config.params.pulleyConfig.counterMass;
-                   
-                    pulleyFrictionInput.value = config.params.pulleyConfig.pulleyFriction;
-                    pulleyFrictionRange.value = config.params.pulleyConfig.pulleyFriction;
-                    pulleyFrictionValue.textContent = config.params.pulleyConfig.pulleyFriction.toFixed(2);
-                    pulleyConfig.pulleyFriction = config.params.pulleyConfig.pulleyFriction;
                 }
                
                 // Redibujar simulación
@@ -1417,13 +1386,6 @@
             }
         });
        
-        pulleyFrictionRange.addEventListener('input', function() {
-            pulleyFrictionValue.textContent = parseFloat(this.value).toFixed(2);
-            pulleyFrictionInput.value = this.value;
-            pulleyConfig.pulleyFriction = parseFloat(this.value);
-            showNotification('Fricción de Polea Modificada', `La fricción en la polea se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la eficiencia del sistema de poleas.`, 'info');
-        });
-       
         // Sincronización para la pestaña de poleas
         angleRangePulley.addEventListener('input', function() {
             angleValuePulley.textContent = this.value + '°';
@@ -1441,9 +1403,8 @@
             const normalForce = mass * gravity * Math.cos(angleRad);
             const frictionForce = friction * normalForce;
             const counterWeightForce = pulleyConfig.counterMass * gravity;
-            const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
             
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
+            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
             
             if (netForceValue <= 0) {
                 showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza del contrapeso y la fricción superan la componente gravitatoria. Aumente el ángulo, reduzca la fricción o ajuste el contrapeso.`, 'warning');
@@ -1464,9 +1425,8 @@
             const normalForce = mass * gravity * Math.cos(angleRad);
             const frictionForce = friction * normalForce;
             const counterWeightForce = pulleyConfig.counterMass * gravity;
-            const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
             
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
+            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
             
             if (netForceValue <= 0) {
                 showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) junto con el contrapeso superan la componente gravitatoria. Reduzca la fricción o ajuste el contrapeso.`, 'warning');
@@ -1599,9 +1559,8 @@
             const normalForce = mass * gravity * Math.cos(angleRad);
             const frictionForce = friction * normalForce;
             const counterWeightForce = pulleyConfig.counterMass * gravity;
-            const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
             
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
+            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
             
             if (netForceValue <= 0) {
                 showNotification('Objeto en Reposo', `El objeto no se mueve porque el contrapeso y la fricción superan la componente gravitatoria. Aumente la masa del objeto o reduzca el contrapeso.`, 'warning');
@@ -1662,16 +1621,6 @@
         });
        
         // Configuración de poleas
-        pulleyType.addEventListener('change', function() {
-            pulleyConfig.type = this.value;
-            drawSimulation();
-            if (isRunning) {
-                resetSimulation();
-            }
-            updateResultsExplanation();
-            showNotification('Tipo de Polea Cambiado', `Se ha cambiado a polea ${this.value === 'fixed' ? 'fija' : this.value === 'movable' ? 'móvil' : 'compuesta'}.`, 'info');
-        });
-       
         counterMassInput.addEventListener('input', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
@@ -1690,9 +1639,8 @@
             const normalForce = mass * gravity * Math.cos(angleRad);
             const frictionForce = friction * normalForce;
             const counterWeightForce = pulleyConfig.counterMass * gravity;
-            const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
             
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
+            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
             
             if (netForceValue <= 0) {
                 showNotification('Objeto en Reposo', `El objeto no se mueve porque el contrapeso de ${value} kg es demasiado pesado. Reduzca la masa del contrapeso para permitir el movimiento.`, 'warning');
@@ -1701,18 +1649,7 @@
             }
         });
        
-        pulleyFrictionInput.addEventListener('input', function() {
-            let value = parseFloat(this.value);
-            if (value < 0) value = 0;
-            if (value > 0.2) value = 0.2;
-            this.value = value;
-            pulleyFrictionRange.value = value;
-            pulleyFrictionValue.textContent = value.toFixed(2);
-            pulleyConfig.pulleyFriction = value;
-            showNotification('Fricción de Polea Modificada', `La fricción en la polea se ha cambiado a ${value.toFixed(2)}. Esto afecta la eficiencia del sistema de poleas.`, 'info');
-        });
-       
-        // Función drawSimulation - MODIFICADA para mostrar θ y 90°
+        // Función drawSimulation - MODIFICADA para mostrar θ y 90° en la esquina inferior izquierda
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1749,24 +1686,42 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como RECTÁNGULO
+            // Dibujar objeto como RECTÁNGULO INCLINADO según el plano
             const objectWidth = 25 + mass / 2;
             const objectHeight = 15 + mass / 3;
+            
+            // Guardar el estado actual del contexto
+            ctx.save();
+            
+            // Trasladar y rotar el contexto para dibujar el objeto inclinado
+            ctx.translate(objectX, objectY);
+            ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
+            
+            // Dibujar el objeto como un rectángulo
             ctx.fillStyle = "#e63946";
-            ctx.fillRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
+            ctx.fillRect(-objectWidth/2, -objectHeight/2, objectWidth, objectHeight);
             ctx.strokeStyle = "#c1121f";
             ctx.lineWidth = 2;
-            ctx.strokeRect(objectX - objectWidth/2, objectY - objectHeight/2, objectWidth, objectHeight);
-           
+            ctx.strokeRect(-objectWidth/2, -objectHeight/2, objectWidth, objectHeight);
+            
             // Detalles del objeto
             ctx.fillStyle = "#c1121f";
-            ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 5, objectWidth - 10, 3);
-            ctx.fillRect(objectX - objectWidth/2 + 5, objectY - objectHeight/2 + 10, objectWidth - 10, 3);
+            ctx.fillRect(-objectWidth/2 + 5, -objectHeight/2 + 5, objectWidth - 10, 3);
+            ctx.fillRect(-objectWidth/2 + 5, -objectHeight/2 + 10, objectWidth - 10, 3);
+            
+            // Restaurar el estado del contexto
+            ctx.restore();
            
-            // Dibujar ángulo θ en la PUNTA del triángulo (entre cateto adyacente e hipotenusa)
+            // Etiqueta de masa
+            ctx.fillStyle = '#000';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 10);
+           
+            // Dibujar ángulo θ en la ESQUINA INFERIOR IZQUIERDA del triángulo
             const angleArcRadius = 30;
             const angleArcX = baseX;
-            const angleArcY = baseY - planeHeight;
+            const angleArcY = baseY;
             
             // Arco para θ
             ctx.beginPath();
@@ -1775,7 +1730,7 @@
             ctx.lineWidth = 2;
             ctx.stroke();
            
-            // Etiqueta θ en la punta (entre cateto adyacente e hipotenusa)
+            // Etiqueta θ en la esquina inferior izquierda
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
             const thetaX = angleArcX + angleArcRadius * 0.7 * Math.cos(-Math.PI/2 + angleRad/2);
@@ -1799,15 +1754,9 @@
             ctx.fillStyle = '#2c3e50';
             ctx.font = 'bold 14px Arial';
             ctx.fillText('90°', squareX - 10, squareY + 5);
-           
-            // Etiqueta de masa
-            ctx.fillStyle = '#000';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 10);
         }
        
-        // Dibujar sistema de poleas mejorado
+        // Dibujar sistema de poleas mejorado con cuerda recta
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
             // Posicionar la polea a la izquierda del plano
             const pulleyX = baseX - 100;
@@ -1855,10 +1804,10 @@
             ctx.fillStyle = '#e74c3c';
             ctx.fill();
            
-            // Dibujar cuerda desde el objeto hasta la polea
+            // Dibujar cuerda desde el objeto hasta la polea (RECTA)
             ctx.beginPath();
             ctx.moveTo(objectX, objectY);
-            ctx.lineTo(pulleyX + pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
+            ctx.lineTo(pulleyX, pulleyY);
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
             ctx.stroke();
@@ -1887,9 +1836,9 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
            
-            // Dibujar cuerda del contrapeso
+            // Dibujar cuerda del contrapeso (RECTA)
             ctx.beginPath();
-            ctx.moveTo(pulleyX - pulleyRadius * Math.cos(Math.PI/4), pulleyY + pulleyRadius * Math.sin(Math.PI/4));
+            ctx.moveTo(pulleyX, pulleyY);
             ctx.lineTo(pulleyX, counterWeightY - counterWeightHeight/2);
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
@@ -1915,30 +1864,15 @@
             // Aplicar sistema de poleas si está activado
             if (usePulley) {
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
-                const pulleyEfficiency = 1 - pulleyConfig.pulleyFriction;
                
-                if (pulleyConfig.type === 'fixed') {
-                    // Polea fija: cambia dirección pero no magnitud de la fuerza
-                    netForceValue = gravitationalForce - frictionForce - counterWeightForce * pulleyEfficiency;
-                } else if (pulleyConfig.type === 'movable') {
-                    // Polea móvil: divide la fuerza a la mitad
-                    netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 2;
-                } else if (pulleyConfig.type === 'compound') {
-                    // Sistema compuesto: combinación de poleas fijas y móviles
-                    netForceValue = gravitationalForce - frictionForce - (counterWeightForce * pulleyEfficiency) / 3;
-                }
+                // Sistema de polea simple: cambia dirección pero no magnitud de la fuerza
+                netForceValue = gravitationalForce - frictionForce - counterWeightForce;
             }
            
             // Calcular masa efectiva para sistemas con poleas
             let effectiveMass = mass;
             if (usePulley) {
-                if (pulleyConfig.type === 'movable') {
-                    effectiveMass = mass + pulleyConfig.counterMass / 2;
-                } else if (pulleyConfig.type === 'compound') {
-                    effectiveMass = mass + pulleyConfig.counterMass / 3;
-                } else {
-                    effectiveMass = mass + pulleyConfig.counterMass;
-                }
+                effectiveMass = mass + pulleyConfig.counterMass;
             }
            
             // Aceleración
