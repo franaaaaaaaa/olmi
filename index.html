@@ -1739,23 +1739,29 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
            
-            // Dibujar ángulo θ DENTRO del triángulo en la esquina inferior izquierda
-            const angleArcRadius = 25;
-            const angleArcX = baseX + 30; // Más adentro desde la esquina
-            const angleArcY = baseY - 30; // Más adentro desde la base
-            
+             // Posición del ángulo (esquina inferior izquierda)
+            const angleArcRadius = 40; // Radio del arco, ajustado para ser más visible en la esquina.
+            const angleArcX = baseX;    // La base X es el vértice
+            const angleArcY = baseY;    // La base Y es el vértice
+                       
             // Arco para θ
             ctx.beginPath();
-            ctx.arc(angleArcX, angleArcY, angleArcRadius, -Math.PI/2, -Math.PI/2 + angleRad, false);
+            // Inicia en la base (ángulo 0 o Math.PI * 2) y termina en el plano inclinado (angleRad)
+            // Dibuja el arco en sentido antihorario (true para el último argumento)
+            ctx.arc(angleArcX, angleArcY, angleArcRadius, 0, -angleRad, true); 
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
-           
-            // Etiqueta θ DENTRO del triángulo
+           
+            // Etiqueta θ DENTRO del arco
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
-            const thetaX = angleArcX + angleArcRadius * 0.7 * Math.cos(-Math.PI/2 + angleRad/2);
-            const thetaY = angleArcY + angleArcRadius * 0.7 * Math.sin(-Math.PI/2 + angleRad/2);
+
+            // Calcular posición para el texto θ (a la mitad del ángulo y a una distancia fija)
+            const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
+            const thetaX = angleArcX + thetaTextRadius * Math.cos(angleRad / 2);
+            const thetaY = angleArcY - thetaTextRadius * Math.sin(angleRad / 2); // ' - ' porque el arco está en el cuadrante superior derecho
+
             ctx.fillText('θ', thetaX, thetaY);
             
             // Dibujar cuadrado de 90° en la base (entre cateto adyacente y opuesto)
