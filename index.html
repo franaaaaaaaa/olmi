@@ -1133,18 +1133,13 @@
             const frictionForce = friction * normalForce;
             let netForceValue = gravitationalForce - frictionForce;
            
-            if (usePulley) {
-                const counterWeightForce = pulleyConfig.counterMass * gravity;
-                netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-            }
-           
             // Análisis del movimiento
             if (netForceValue > 0) {
-                movementAnalysis.textContent = `El objeto se está moviendo hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''}.`;
+                movementAnalysis.textContent = `El objeto se está moviendo hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2)} N).`;
             } else if (netForceValue < 0) {
-                movementAnalysis.textContent = `El objeto se está moviendo hacia arriba del plano. La fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''} son mayores que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N).`;
+                movementAnalysis.textContent = `El objeto se está moviendo hacia arriba del plano. La fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N).`;
             } else {
-                movementAnalysis.textContent = `El objeto está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es igual a la fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''}.`;
+                movementAnalysis.textContent = `El objeto está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es igual a la fuerza de fricción (${frictionForce.toFixed(2)} N).`;
             }
            
             // Comportamiento del sistema
@@ -1289,12 +1284,6 @@
                 if (config.params.usePulley) {
                     counterMassInput.value = config.params.pulleyConfig.counterMass;
                     pulleyConfig.counterMass = config.params.pulleyConfig.counterMass;
-                   
-                    // Cambiar a pestaña de poleas si es necesario
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    document.querySelector('[data-tab="pulley"]').classList.add('active');
-                    document.getElementById('pulley-tab').classList.add('active');
                 }
                
                 // Redibujar simulación
@@ -1352,11 +1341,10 @@
                
                 // Redibujar la simulación inmediatamente
                 drawSimulation();
-                updateResultsExplanation();
             });
         });
        
-        // Sincronización de inputs de rango y número
+        // Sincronización de inputs de rango y número - MODIFICADO para notificar solo al soltar
         angleRange.addEventListener('input', function() {
             angleValue.textContent = this.value + '°';
             angleInput.value = this.value;
@@ -1371,19 +1359,15 @@
 
         angleRange.addEventListener('change', function() {
             if (angleChanged) {
+                // Explicación física del ángulo
                 const angleRad = angle * Math.PI / 180;
                 const gravitationalForce = mass * gravity * Math.sin(angleRad);
                 const normalForce = mass * gravity * Math.cos(angleRad);
                 const frictionForce = friction * normalForce;
-                let netForceValue = gravitationalForce - frictionForce;
-               
-                if (usePulley) {
-                    const counterWeightForce = pulleyConfig.counterMass * gravity;
-                    netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-                }
+                const netForceValue = gravitationalForce - frictionForce;
                
                 if (netForceValue <= 0 && angle < 90) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''} son mayores o iguales que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Aumente el ángulo o reduzca la fricción${usePulley ? ' o ajuste el contrapeso' : ''}.`, 'warning');
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Aumente el ángulo o reduzca la fricción.`, 'warning');
                 } else {
                     showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
                 }
@@ -1401,19 +1385,15 @@
 
         frictionRange.addEventListener('change', function() {
             if (frictionChanged) {
+                // Explicación física de la fricción
                 const angleRad = angle * Math.PI / 180;
                 const gravitationalForce = mass * gravity * Math.sin(angleRad);
                 const normalForce = mass * gravity * Math.cos(angleRad);
                 const frictionForce = friction * normalForce;
-                let netForceValue = gravitationalForce - frictionForce;
-               
-                if (usePulley) {
-                    const counterWeightForce = pulleyConfig.counterMass * gravity;
-                    netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-                }
+                const netForceValue = gravitationalForce - frictionForce;
                
                 if (netForceValue <= 0) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''} son mayores o iguales que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Reduzca la fricción o aumente el ángulo${usePulley ? ' o ajuste el contrapeso' : ''}.`, 'warning');
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Reduzca la fricción o aumente el ángulo.`, 'warning');
                 } else {
                     showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
                 }
@@ -1421,7 +1401,7 @@
             }
         });
        
-        // Sincronización para la pestaña de poleas
+        // Sincronización para la pestaña de poleas - MODIFICADO para notificar solo al soltar
         angleRangePulley.addEventListener('input', function() {
             angleValuePulley.textContent = this.value + '°';
             angleInputPulley.value = this.value;
@@ -1436,6 +1416,7 @@
 
         angleRangePulley.addEventListener('change', function() {
             if (angleChanged) {
+                // Explicación física del ángulo con poleas
                 const angleRad = angle * Math.PI / 180;
                 const gravitationalForce = mass * gravity * Math.sin(angleRad);
                 const normalForce = mass * gravity * Math.cos(angleRad);
@@ -1463,6 +1444,7 @@
 
         frictionRangePulley.addEventListener('change', function() {
             if (frictionChanged) {
+                // Explicación física de la fricción con poleas
                 const angleRad = angle * Math.PI / 180;
                 const gravitationalForce = mass * gravity * Math.sin(angleRad);
                 const normalForce = mass * gravity * Math.cos(angleRad);
@@ -1507,7 +1489,7 @@
             return isValid;
         }
        
-        // Actualizar valores de los inputs
+        // Actualizar valores de los inputs - MODIFICADO para notificar solo al cambiar
         massInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
@@ -1519,16 +1501,12 @@
             }
             updateResultsExplanation();
            
+            // Explicación física de la masa
             const angleRad = angle * Math.PI / 180;
             const gravitationalForce = mass * gravity * Math.sin(angleRad);
             const normalForce = mass * gravity * Math.cos(angleRad);
             const frictionForce = friction * normalForce;
-            let netForceValue = gravitationalForce - frictionForce;
-           
-            if (usePulley) {
-                const counterWeightForce = pulleyConfig.counterMass * gravity;
-                netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-            }
+            const netForceValue = gravitationalForce - frictionForce;
            
             if (netForceValue <= 0) {
                 showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción supera la componente gravitatoria. La masa afecta ambas fuerzas por igual, por lo que no cambia el equilibrio.`, 'warning');
@@ -1586,7 +1564,7 @@
             showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
-        // Actualizar valores de los inputs de la pestaña de poleas
+        // Actualizar valores de los inputs de la pestaña de poleas - MODIFICADO para notificar solo al cambiar
         massInputPulley.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
@@ -1598,6 +1576,7 @@
             }
             updateResultsExplanation();
            
+            // Explicación física de la masa con poleas
             const angleRad = angle * Math.PI / 180;
             const gravitationalForce = mass * gravity * Math.sin(angleRad);
             const normalForce = mass * gravity * Math.cos(angleRad);
@@ -1662,7 +1641,7 @@
             showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
-        // Configuración de poleas
+        // Configuración de poleas - MODIFICADO para notificar solo al cambiar
         counterMassInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
@@ -1674,6 +1653,7 @@
             }
             updateResultsExplanation();
            
+            // Explicación física del contrapeso
             const angleRad = angle * Math.PI / 180;
             const gravitationalForce = mass * gravity * Math.sin(angleRad);
             const normalForce = mass * gravity * Math.cos(angleRad);
@@ -1689,7 +1669,7 @@
             }
         });
        
-        // Función drawSimulation - CORREGIDA con sistemas separados
+        // Función drawSimulation - MODIFICADA para mostrar θ DENTRO del triángulo y la base del rectángulo sobre el plano
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1721,34 +1701,74 @@
             ctx.lineWidth = 2;
             ctx.stroke();
            
-            // Dibujar poleas si están activadas - SISTEMA COMPLETAMENTE NUEVO
+            // Dibujar poleas si están activadas
             if (usePulley) {
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
-            } else {
-                // SISTEMA BÁSICO - solo el objeto en el plano
-                drawBasicSystem(objectX, objectY, angleRad);
             }
            
-            // Dibujar ángulo θ DENTRO del triángulo en la esquina inferior izquierda
-            const angleArcRadius = 30;
-            const angleArcX = baseX + 15;
-            const angleArcY = baseY - 15;
+            // Dibujar objeto como RECTÁNGULO con la BASE sobre el plano (como en Serway)
+            const objectWidth = 40 + mass / 2;  // Ancho del objeto
+            const objectHeight = 25 + mass / 4; // Alto del objeto
            
+            // Guardar el estado actual del contexto
+            ctx.save();
+           
+            // Trasladar y rotar el contexto para dibujar el objeto con la base sobre el plano
+            ctx.translate(objectX, objectY);
+            ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
+           
+            // Dibujar el objeto como un rectángulo con la base sobre el plano
+            ctx.fillStyle = "#e63946";
+            ctx.fillRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
+            ctx.strokeStyle = "#c1121f";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
+           
+            // Detalles del objeto (líneas horizontales para simular textura)
+            ctx.fillStyle = "#c1121f";
+            for (let i = 1; i <= 2; i++) {
+                ctx.fillRect(-objectWidth/2 + 5, -objectHeight + i * (objectHeight/3), objectWidth - 10, 2);
+            }
+           
+            // Restaurar el estado del contexto
+            ctx.restore();
+           
+            // Etiqueta de masa
+            ctx.fillStyle = '#000';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
+           
+          // Posición del ángulo (esquina inferior DERECHA)
+            const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
+            const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
+            const angleArcY = baseY;              // La Y del vértice (la base horizontal)
+                       
             // Arco para θ
             ctx.beginPath();
-            ctx.arc(angleArcX, angleArcY, angleArcRadius, 0, angleRad, false);
+            // El ángulo se mide desde la base (Math.PI) hacia la hipotenusa (Math.PI - angleRad).
+            // Dibuja el arco desde Math.PI - angleRad hasta Math.PI (sentido antihorario = false)
+            ctx.arc(angleArcX, angleArcY, angleArcRadius, Math.PI - angleRad, Math.PI, false);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
-           
-            // Etiqueta θ DENTRO del triángulo
+                       
+            // Etiqueta θ DENTRO del arco
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
-            const thetaX = angleArcX + angleArcRadius * 0.7 * Math.cos(angleRad/2);
-            const thetaY = angleArcY + angleArcRadius * 0.7 * Math.sin(angleRad/2);
+           
+            // Calcular posición para el texto θ (a la mitad del ángulo y más cerca del vértice)
+            const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
+           
+            // Ángulo para el centro del texto: Math.PI - angleRad / 2
+            const centerAngle = Math.PI - angleRad / 2;
+           
+            const thetaX = angleArcX + thetaTextRadius * Math.cos(centerAngle);
+            const thetaY = angleArcY + thetaTextRadius * Math.sin(centerAngle);
+           
             ctx.fillText('θ', thetaX, thetaY);
            
-            // Dibujar cuadrado de 90° en la base
+            // Dibujar cuadrado de 90° en la base (entre cateto adyacente y opuesto)
             const squareSize = 15;
             const squareX = baseX + squareSize/2;
             const squareY = baseY - squareSize/2;
@@ -1761,87 +1781,20 @@
             ctx.lineWidth = 2;
             ctx.stroke();
         }
-
-        // SISTEMA BÁSICO - solo objeto en el plano
-        function drawBasicSystem(objectX, objectY, angleRad) {
-            // Dibujar objeto como RECTÁNGULO con la BASE sobre el plano
-            const objectWidth = 40 + mass / 2;
-            const objectHeight = 25 + mass / 4;
-           
-            // Guardar el estado actual del contexto
-            ctx.save();
-           
-            // Trasladar y rotar el contexto para dibujar el objeto con la base sobre el plano
-            ctx.translate(objectX, objectY);
-            ctx.rotate(-angleRad);
-           
-            // Dibujar el objeto como un rectángulo con la base sobre el plano
-            ctx.fillStyle = "#e63946";
-            ctx.fillRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
-            ctx.strokeStyle = "#c1121f";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
-           
-            // Detalles del objeto
-            ctx.fillStyle = "#c1121f";
-            for (let i = 1; i <= 2; i++) {
-                ctx.fillRect(-objectWidth/2 + 5, -objectHeight + i * (objectHeight/3), objectWidth - 10, 2);
-            }
-           
-            // Restaurar el estado del contexto
-            ctx.restore();
-           
-            // Etiqueta de masa del objeto principal
-            ctx.fillStyle = '#000';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
-        }
-
-        // SISTEMA DE POLEAS COMPLETO - objeto en plano + contrapeso
+       
+        // Dibujar sistema de poleas mejorado con cuerda recta
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
-            // Dibujar objeto principal en el plano inclinado
-            const angleRad = angle * Math.PI / 180;
-            const objectWidth = 40 + mass / 2;
-            const objectHeight = 25 + mass / 4;
-           
-            // Guardar el estado actual del contexto
-            ctx.save();
-            ctx.translate(objectX, objectY);
-            ctx.rotate(-angleRad);
-           
-            // Dibujar el objeto principal en el plano
-            ctx.fillStyle = "#e63946";
-            ctx.fillRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
-            ctx.strokeStyle = "#c1121f";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
-           
-            // Detalles del objeto principal
-            ctx.fillStyle = "#c1121f";
-            for (let i = 1; i <= 2; i++) {
-                ctx.fillRect(-objectWidth/2 + 5, -objectHeight + i * (objectHeight/3), objectWidth - 10, 2);
-            }
-           
-            ctx.restore();
-           
-            // Etiqueta de masa del objeto principal
-            ctx.fillStyle = '#000';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
-           
-            // POSICIONAMIENTO DE LA POLEA (a la izquierda del plano)
-            const pulleyX = baseX - 80;
-            const pulleyY = baseY - planeHeight - 30;
-            const pulleyRadius = 20;
+            // Posicionar la polea a la izquierda del plano
+            const pulleyX = baseX - 100;
+            const pulleyY = baseY - planeHeight - 50;
+            const pulleyRadius = 25;
            
             // Dibujar soporte de la polea
             ctx.beginPath();
-            ctx.moveTo(pulleyX - 30, pulleyY - 40);
-            ctx.lineTo(pulleyX + 30, pulleyY - 40);
-            ctx.lineTo(pulleyX + 30, pulleyY - 10);
-            ctx.lineTo(pulleyX - 30, pulleyY - 10);
+            ctx.moveTo(pulleyX - 40, pulleyY - 50);
+            ctx.lineTo(pulleyX + 40, pulleyY - 50);
+            ctx.lineTo(pulleyX + 40, pulleyY - 20);
+            ctx.lineTo(pulleyX - 40, pulleyY - 20);
             ctx.closePath();
             ctx.fillStyle = '#7f8c8d';
             ctx.fill();
@@ -1851,8 +1804,8 @@
            
             // Detalles del soporte
             ctx.beginPath();
-            ctx.moveTo(pulleyX - 25, pulleyY - 35);
-            ctx.lineTo(pulleyX + 25, pulleyY - 35);
+            ctx.moveTo(pulleyX - 35, pulleyY - 45);
+            ctx.lineTo(pulleyX + 35, pulleyY - 45);
             ctx.strokeStyle = '#95a5a6';
             ctx.lineWidth = 1;
             ctx.stroke();
@@ -1861,66 +1814,64 @@
             ctx.beginPath();
             ctx.arc(pulleyX, pulleyY, pulleyRadius, 0, Math.PI * 2);
             ctx.strokeStyle = '#2c3e50';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 4;
             ctx.stroke();
            
             // Detalles internos de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, pulleyRadius - 6, 0, Math.PI * 2);
+            ctx.arc(pulleyX, pulleyY, pulleyRadius - 8, 0, Math.PI * 2);
             ctx.strokeStyle = '#95a5a6';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 2;
             ctx.stroke();
            
             // Eje de la polea
             ctx.beginPath();
-            ctx.arc(pulleyX, pulleyY, 3, 0, Math.PI * 2);
+            ctx.arc(pulleyX, pulleyY, 4, 0, Math.PI * 2);
             ctx.fillStyle = '#e74c3c';
             ctx.fill();
            
-            // Dibujar cuerda desde el objeto hasta la polea
+            // Dibujar cuerda desde el objeto hasta la polea (RECTA)
             ctx.beginPath();
             ctx.moveTo(objectX, objectY);
             ctx.lineTo(pulleyX, pulleyY);
             ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.stroke();
            
             // Calcular posición del contrapeso (se mueve en dirección opuesta al objeto)
-            const maxCounterWeightMovement = 150;
-            const counterWeightY = pulleyY + pulleyRadius + 20 + (position / length) * maxCounterWeightMovement;
+            const maxCounterWeightMovement = 200;
+            const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
            
-            // Dibujar contrapeso como RECTÁNGULO SEPARADO
-            const counterWeightWidth = 25 + pulleyConfig.counterMass;
-            const counterWeightHeight = 20 + pulleyConfig.counterMass / 2;
-            
-            // Dibujar contrapeso
+            // Dibujar contrapeso como RECTÁNGULO
+            const counterWeightWidth = 20 + pulleyConfig.counterMass / 2;
+            const counterWeightHeight = 15 + pulleyConfig.counterMass / 3;
             ctx.fillStyle = '#3498db';
-            ctx.fillRect(pulleyX - counterWeightWidth/2, counterWeightY, counterWeightWidth, counterWeightHeight);
+            ctx.fillRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
             ctx.strokeStyle = '#2980b9';
             ctx.lineWidth = 2;
-            ctx.strokeRect(pulleyX - counterWeightWidth/2, counterWeightY, counterWeightWidth, counterWeightHeight);
+            ctx.strokeRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
            
             // Detalles del contrapeso
             ctx.fillStyle = '#2980b9';
-            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY + 5, counterWeightWidth - 10, 3);
-            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY + 10, counterWeightWidth - 10, 3);
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 3);
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 10, counterWeightWidth - 10, 3);
            
-            // Etiqueta del contrapeso
+            // Etiqueta de contrapeso
             ctx.fillStyle = '#2c3e50';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight + 15);
+            ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
            
-            // Dibujar cuerda del contrapeso
+            // Dibujar cuerda del contrapeso (RECTA)
             ctx.beginPath();
             ctx.moveTo(pulleyX, pulleyY);
-            ctx.lineTo(pulleyX, counterWeightY);
+            ctx.lineTo(pulleyX, counterWeightY - counterWeightHeight/2);
             ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.stroke();
         }
        
-        // Calcular física del plano inclinado
+        // Calcular física del plano inclinado - CORREGIDA para funcionamiento correcto
         function calculatePhysics() {
             const angleRad = angle * Math.PI / 180;
            
