@@ -1669,7 +1669,6 @@
             }
         });
 
-        // Función drawSimulation - MODIFICADA para mostrar θ DENTRO del triángulo y la base del rectángulo sobre el plano
         // Función drawSimulation - MODIFICADA para mostrar θ DENTRO del triángulo y el bloque centrado y perpendicular
         function drawSimulation() {
             const width = canvas.width;
@@ -1684,7 +1683,6 @@
             const baseX = usePulley ? width * 0.4 : width * 0.2;
             const baseY = height - 100;
 
-            // Calcular posición del objeto - CORREGIDO para que la base del rectángulo esté sobre el plano
             // Calcular posición del objeto - CENTRADO sobre el plano
             const objectX = baseX + (position / length) * planeWidth;
             const objectY = baseY - planeHeight + (position / length) * planeHeight;
@@ -1708,7 +1706,6 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
 
-            // Dibujar objeto como RECTÁNGULO con la BASE sobre el plano (como en Serway)
             // Dibujar objeto como RECTÁNGULO PERPENDICULAR al plano (centrado)
             const objectWidth = 40 + mass / 2;  // Ancho del objeto
             const objectHeight = 25 + mass / 4; // Alto del objeto
@@ -1716,13 +1713,10 @@
             // Guardar el estado actual del contexto
             ctx.save();
 
-            // Trasladar y rotar el contexto para dibujar el objeto con la base sobre el plano
             // Trasladar y rotar el contexto para dibujar el objeto PERPENDICULAR al plano
             ctx.translate(objectX, objectY);
             ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
 
-            // Dibujar el objeto como un rectángulo con la base sobre el plano
-            // CORRECCIÓN: La base del rectángulo debe estar exactamente sobre el plano
             // Dibujar el objeto como un rectángulo centrado sobre el plano
             ctx.fillStyle = "#e63946";
             ctx.fillRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
@@ -1745,23 +1739,40 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
 
-            // Dibujar ángulo θ DENTRO del triángulo en la esquina inferior izquierda
-            const angleArcRadius = 25;
-            const angleArcX = baseX + 30; // Más adentro desde la esquina
-            const angleArcY = baseY - 30; // Más adentro desde la base
+           // Posición del ángulo (esquina inferior DERECHA)
+            const angleArcRadius = 40; // Radio del arco
+         // Posición del ángulo (esquina inferior DERECHA)
+            const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
+            const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
+            const angleArcY = baseY;              // La Y del vértice (la base horizontal)
 
             // Arco para θ
             ctx.beginPath();
-            ctx.arc(angleArcX, angleArcY, angleArcRadius, -Math.PI/2, -Math.PI/2 + angleRad, false);
+            // El plano inclinado está a un ángulo de Math.PI - angleRad
+            // Inicia en el plano inclinado y termina en la base horizontal (Math.PI)
+            // El ángulo se mide desde la base (Math.PI) hacia la hipotenusa (Math.PI - angleRad).
+            // Dibuja el arco desde Math.PI - angleRad hasta Math.PI (sentido antihorario = false)
+            ctx.arc(angleArcX, angleArcY, angleArcRadius, Math.PI - angleRad, Math.PI, false); 
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Etiqueta θ DENTRO del triángulo
+            // Etiqueta θ DENTRO del arco
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
-            const thetaX = angleArcX + angleArcRadius * 0.7 * Math.cos(-Math.PI/2 + angleRad/2);
-            const thetaY = angleArcY + angleArcRadius * 0.7 * Math.sin(-Math.PI/2 + angleRad/2);
+
+            // Calcular posición para el texto θ (a la mitad del ángulo y a una distancia fija)
+            // Calcular posición para el texto θ (a la mitad del ángulo y más cerca del vértice)
+            const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
+
+            // Ángulo para el centro del texto: (Math.PI - angleRad) más la mitad del ángulo (angleRad / 2)
+            const centerAngle = Math.PI - angleRad + angleRad / 2; // O simplemente: Math.PI - angleRad / 2
+            // Ángulo para el centro del texto: Math.PI - angleRad / 2
+            const centerAngle = Math.PI - angleRad / 2; 
+
+            const thetaX = angleArcX + thetaTextRadius * Math.cos(centerAngle);
+            const thetaY = angleArcY + thetaTextRadius * Math.sin(centerAngle); 
+
             ctx.fillText('θ', thetaX, thetaY);
 
             // Dibujar cuadrado de 90° en la base (entre cateto adyacente y opuesto)
