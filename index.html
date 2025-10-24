@@ -1669,7 +1669,7 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA para mostrar θ DENTRO del triángulo y la base del rectángulo sobre el plano
+        // Función drawSimulation - MODIFICADA para mostrar θ DENTRO del triángulo y el bloque centrado y perpendicular
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1683,7 +1683,7 @@
             const baseX = usePulley ? width * 0.4 : width * 0.2;
             const baseY = height - 100;
            
-            // Calcular posición del objeto - CORREGIDO para que la base del rectángulo esté sobre el plano
+            // Calcular posición del objeto - CENTRADO sobre el plano
             const objectX = baseX + (position / length) * planeWidth;
             const objectY = baseY - planeHeight + (position / length) * planeHeight;
            
@@ -1706,19 +1706,18 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como RECTÁNGULO con la BASE sobre el plano (como en Serway)
+            // Dibujar objeto como RECTÁNGULO PERPENDICULAR al plano (centrado)
             const objectWidth = 40 + mass / 2;  // Ancho del objeto
             const objectHeight = 25 + mass / 4; // Alto del objeto
             
             // Guardar el estado actual del contexto
             ctx.save();
             
-            // Trasladar y rotar el contexto para dibujar el objeto con la base sobre el plano
+            // Trasladar y rotar el contexto para dibujar el objeto PERPENDICULAR al plano
             ctx.translate(objectX, objectY);
             ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
             
-            // Dibujar el objeto como un rectángulo con la base sobre el plano
-            // CORRECCIÓN: La base del rectángulo debe estar exactamente sobre el plano
+            // Dibujar el objeto como un rectángulo centrado sobre el plano
             ctx.fillStyle = "#e63946";
             ctx.fillRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
             ctx.strokeStyle = "#c1121f";
