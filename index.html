@@ -1669,7 +1669,7 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA para mostrar θ DENTRO del triángulo y el bloque centrado y perpendicular
+        // Función drawSimulation - CORREGIDA para mostrar θ en la posición original (esquina inferior izquierda)
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1739,32 +1739,29 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
            
-         // Posición del ángulo (esquina inferior DERECHA)
-            const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
-            const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
-            const angleArcY = baseY;              // La Y del vértice (la base horizontal)
-                       
-            // Arco para θ
+            // POSICIÓN ORIGINAL DEL ÁNGULO (ESQUINA INFERIOR IZQUIERDA) - CORREGIDA
+            const angleArcRadius = 30;
+            const angleArcX = baseX; // Vértice izquierdo (esquina inferior izquierda)
+            const angleArcY = baseY; // Base del plano
+            
+            // Arco para θ (en la esquina inferior izquierda)
             ctx.beginPath();
-            // El ángulo se mide desde la base (Math.PI) hacia la hipotenusa (Math.PI - angleRad).
-            // Dibuja el arco desde Math.PI - angleRad hasta Math.PI (sentido antihorario = false)
-            ctx.arc(angleArcX, angleArcY, angleArcRadius, Math.PI - angleRad, Math.PI, false); 
+            // El ángulo se mide desde la base horizontal (0 radianes) hacia la hipotenusa (angleRad)
+            ctx.arc(angleArcX, angleArcY, angleArcRadius, 0, angleRad, false);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
-                       
-            // Etiqueta θ DENTRO del arco
+            
+            // Etiqueta θ DENTRO del arco (en la esquina inferior izquierda)
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
             
-            // Calcular posición para el texto θ (a la mitad del ángulo y más cerca del vértice)
-            const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
-            
-            // Ángulo para el centro del texto: Math.PI - angleRad / 2
-            const centerAngle = Math.PI - angleRad / 2; 
+            // Calcular posición para el texto θ
+            const thetaTextRadius = angleArcRadius * 0.6;
+            const centerAngle = angleRad / 2; // Mitad del ángulo
             
             const thetaX = angleArcX + thetaTextRadius * Math.cos(centerAngle);
-            const thetaY = angleArcY + thetaTextRadius * Math.sin(centerAngle); 
+            const thetaY = angleArcY + thetaTextRadius * Math.sin(centerAngle);
             
             ctx.fillText('θ', thetaX, thetaY);
             
