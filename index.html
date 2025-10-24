@@ -1079,6 +1079,14 @@
         let pulleyConfig = {
             counterMass: parseFloat(counterMassInput.value)
         };
+
+        // Variables para controlar notificaciones
+        let angleChanged = false;
+        let frictionChanged = false;
+        let massChanged = false;
+        let lengthChanged = false;
+        let gravityChanged = false;
+        let counterMassChanged = false;
        
         // Historial de configuraciones
         let configHistory = JSON.parse(localStorage.getItem('inclinedPlaneHistory')) || [];
@@ -1340,7 +1348,7 @@
             });
         });
        
-        // Sincronización de inputs de rango y número
+        // Sincronización de inputs de rango y número - MODIFICADO para notificar solo al soltar
         angleRange.addEventListener('input', function() {
             angleValue.textContent = this.value + '°';
             angleInput.value = this.value;
@@ -1350,18 +1358,24 @@
                 resetSimulation();
             }
             updateResultsExplanation();
-            
-            // Explicación física del ángulo
-            const angleRad = angle * Math.PI / 180;
-            const gravitationalForce = mass * gravity * Math.sin(angleRad);
-            const normalForce = mass * gravity * Math.cos(angleRad);
-            const frictionForce = friction * normalForce;
-            const netForceValue = gravitationalForce - frictionForce;
-            
-            if (netForceValue <= 0 && angle < 90) {
-                showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Aumente el ángulo o reduzca la fricción.`, 'warning');
-            } else {
-                showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+            angleChanged = true;
+        });
+
+        angleRange.addEventListener('change', function() {
+            if (angleChanged) {
+                // Explicación física del ángulo
+                const angleRad = angle * Math.PI / 180;
+                const gravitationalForce = mass * gravity * Math.sin(angleRad);
+                const normalForce = mass * gravity * Math.cos(angleRad);
+                const frictionForce = friction * normalForce;
+                const netForceValue = gravitationalForce - frictionForce;
+                
+                if (netForceValue <= 0 && angle < 90) {
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Aumente el ángulo o reduzca la fricción.`, 'warning');
+                } else {
+                    showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+                }
+                angleChanged = false;
             }
         });
        
@@ -1370,22 +1384,28 @@
             frictionInput.value = this.value;
             friction = parseFloat(this.value);
             updateResultsExplanation();
-            
-            // Explicación física de la fricción
-            const angleRad = angle * Math.PI / 180;
-            const gravitationalForce = mass * gravity * Math.sin(angleRad);
-            const normalForce = mass * gravity * Math.cos(angleRad);
-            const frictionForce = friction * normalForce;
-            const netForceValue = gravitationalForce - frictionForce;
-            
-            if (netForceValue <= 0) {
-                showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Reduzca la fricción o aumente el ángulo.`, 'warning');
-            } else {
-                showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+            frictionChanged = true;
+        });
+
+        frictionRange.addEventListener('change', function() {
+            if (frictionChanged) {
+                // Explicación física de la fricción
+                const angleRad = angle * Math.PI / 180;
+                const gravitationalForce = mass * gravity * Math.sin(angleRad);
+                const normalForce = mass * gravity * Math.cos(angleRad);
+                const frictionForce = friction * normalForce;
+                const netForceValue = gravitationalForce - frictionForce;
+                
+                if (netForceValue <= 0) {
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Reduzca la fricción o aumente el ángulo.`, 'warning');
+                } else {
+                    showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+                }
+                frictionChanged = false;
             }
         });
        
-        // Sincronización para la pestaña de poleas
+        // Sincronización para la pestaña de poleas - MODIFICADO para notificar solo al soltar
         angleRangePulley.addEventListener('input', function() {
             angleValuePulley.textContent = this.value + '°';
             angleInputPulley.value = this.value;
@@ -1395,20 +1415,26 @@
                 resetSimulation();
             }
             updateResultsExplanation();
-            
-            // Explicación física del ángulo con poleas
-            const angleRad = angle * Math.PI / 180;
-            const gravitationalForce = mass * gravity * Math.sin(angleRad);
-            const normalForce = mass * gravity * Math.cos(angleRad);
-            const frictionForce = friction * normalForce;
-            const counterWeightForce = pulleyConfig.counterMass * gravity;
-            
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-            
-            if (netForceValue <= 0) {
-                showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza del contrapeso y la fricción superan la componente gravitatoria. Aumente el ángulo, reduzca la fricción o ajuste el contrapeso.`, 'warning');
-            } else {
-                showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+            angleChanged = true;
+        });
+
+        angleRangePulley.addEventListener('change', function() {
+            if (angleChanged) {
+                // Explicación física del ángulo con poleas
+                const angleRad = angle * Math.PI / 180;
+                const gravitationalForce = mass * gravity * Math.sin(angleRad);
+                const normalForce = mass * gravity * Math.cos(angleRad);
+                const frictionForce = friction * normalForce;
+                const counterWeightForce = pulleyConfig.counterMass * gravity;
+                
+                let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
+                
+                if (netForceValue <= 0) {
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza del contrapeso y la fricción superan la componente gravitatoria. Aumente el ángulo, reduzca la fricción o ajuste el contrapeso.`, 'warning');
+                } else {
+                    showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+                }
+                angleChanged = false;
             }
         });
        
@@ -1417,20 +1443,26 @@
             frictionInputPulley.value = this.value;
             friction = parseFloat(this.value);
             updateResultsExplanation();
-            
-            // Explicación física de la fricción con poleas
-            const angleRad = angle * Math.PI / 180;
-            const gravitationalForce = mass * gravity * Math.sin(angleRad);
-            const normalForce = mass * gravity * Math.cos(angleRad);
-            const frictionForce = friction * normalForce;
-            const counterWeightForce = pulleyConfig.counterMass * gravity;
-            
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-            
-            if (netForceValue <= 0) {
-                showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) junto con el contrapeso superan la componente gravitatoria. Reduzca la fricción o ajuste el contrapeso.`, 'warning');
-            } else {
-                showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+            frictionChanged = true;
+        });
+
+        frictionRangePulley.addEventListener('change', function() {
+            if (frictionChanged) {
+                // Explicación física de la fricción con poleas
+                const angleRad = angle * Math.PI / 180;
+                const gravitationalForce = mass * gravity * Math.sin(angleRad);
+                const normalForce = mass * gravity * Math.cos(angleRad);
+                const frictionForce = friction * normalForce;
+                const counterWeightForce = pulleyConfig.counterMass * gravity;
+                
+                let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
+                
+                if (netForceValue <= 0) {
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) junto con el contrapeso superan la componente gravitatoria. Reduzca la fricción o ajuste el contrapeso.`, 'warning');
+                } else {
+                    showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+                }
+                frictionChanged = false;
             }
         });
        
@@ -1461,8 +1493,8 @@
             return isValid;
         }
        
-        // Actualizar valores de los inputs
-        massInput.addEventListener('input', function() {
+        // Actualizar valores de los inputs - MODIFICADO para notificar solo al cambiar
+        massInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
             this.value = value;
@@ -1487,7 +1519,7 @@
             }
         });
        
-        angleInput.addEventListener('input', function() {
+        angleInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 5) value = 5;
             if (value > 60) value = 60;
@@ -1503,7 +1535,7 @@
             showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
         });
        
-        frictionInput.addEventListener('input', function() {
+        frictionInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0) value = 0;
             if (value > 0.5) value = 0.5;
@@ -1515,7 +1547,7 @@
             showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${value.toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
         });
        
-        lengthInput.addEventListener('input', function() {
+        lengthInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 1) value = 1;
             this.value = value;
@@ -1527,7 +1559,7 @@
             showNotification('Longitud Modificada', `La longitud del plano se ha cambiado a ${value} m. Esto afecta la distancia que recorrerá el objeto.`, 'info');
         });
        
-        gravityInput.addEventListener('input', function() {
+        gravityInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 1) value = 1;
             this.value = value;
@@ -1536,8 +1568,8 @@
             showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
-        // Actualizar valores de los inputs de la pestaña de poleas
-        massInputPulley.addEventListener('input', function() {
+        // Actualizar valores de los inputs de la pestaña de poleas - MODIFICADO para notificar solo al cambiar
+        massInputPulley.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
             this.value = value;
@@ -1564,7 +1596,7 @@
             }
         });
        
-        angleInputPulley.addEventListener('input', function() {
+        angleInputPulley.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 5) value = 5;
             if (value > 60) value = 60;
@@ -1580,7 +1612,7 @@
             showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
         });
        
-        frictionInputPulley.addEventListener('input', function() {
+        frictionInputPulley.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0) value = 0;
             if (value > 0.5) value = 0.5;
@@ -1592,7 +1624,7 @@
             showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${value.toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
         });
        
-        lengthInputPulley.addEventListener('input', function() {
+        lengthInputPulley.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 1) value = 1;
             this.value = value;
@@ -1604,7 +1636,7 @@
             showNotification('Longitud Modificada', `La longitud del plano se ha cambiado a ${value} m. Esto afecta la distancia que recorrerá el objeto.`, 'info');
         });
        
-        gravityInputPulley.addEventListener('input', function() {
+        gravityInputPulley.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 1) value = 1;
             this.value = value;
@@ -1613,8 +1645,8 @@
             showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
-        // Configuración de poleas
-        counterMassInput.addEventListener('input', function() {
+        // Configuración de poleas - MODIFICADO para notificar solo al cambiar
+        counterMassInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
             this.value = value;
@@ -1641,7 +1673,7 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA para mostrar θ en la esquina inferior derecha
+        // Función drawSimulation - MODIFICADA para mostrar θ ADENTRO en la esquina inferior derecha
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1678,28 +1710,29 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como RECTÁNGULO INCLINADO hacia la derecha según el plano
-            const objectWidth = 25 + mass / 2;
-            const objectHeight = 15 + mass / 3;
+            // Dibujar objeto como RECTÁNGULO ACOSTADO sobre el plano
+            const objectWidth = 40 + mass / 2;  // Más ancho para que quede acostado
+            const objectHeight = 20 + mass / 5; // Más bajo para que quede acostado
             
             // Guardar el estado actual del contexto
             ctx.save();
             
-            // Trasladar y rotar el contexto para dibujar el objeto inclinado hacia la derecha
+            // Trasladar y rotar el contexto para dibujar el objeto acostado sobre el plano
             ctx.translate(objectX, objectY);
             ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
             
-            // Dibujar el objeto como un rectángulo
+            // Dibujar el objeto como un rectángulo acostado
             ctx.fillStyle = "#e63946";
             ctx.fillRect(-objectWidth/2, -objectHeight/2, objectWidth, objectHeight);
             ctx.strokeStyle = "#c1121f";
             ctx.lineWidth = 2;
             ctx.strokeRect(-objectWidth/2, -objectHeight/2, objectWidth, objectHeight);
             
-            // Detalles del objeto
+            // Detalles del objeto (líneas horizontales para simular textura)
             ctx.fillStyle = "#c1121f";
-            ctx.fillRect(-objectWidth/2 + 5, -objectHeight/2 + 5, objectWidth - 10, 3);
-            ctx.fillRect(-objectWidth/2 + 5, -objectHeight/2 + 10, objectWidth - 10, 3);
+            for (let i = 1; i <= 3; i++) {
+                ctx.fillRect(-objectWidth/2 + 5, -objectHeight/2 + i * (objectHeight/4), objectWidth - 10, 2);
+            }
             
             // Restaurar el estado del contexto
             ctx.restore();
@@ -1710,10 +1743,10 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight/2 - 10);
            
-            // Dibujar ángulo θ en la ESQUINA INFERIOR DERECHA del triángulo
-            const angleArcRadius = 30;
-            const angleArcX = baseX + planeWidth; // Esquina inferior derecha
-            const angleArcY = baseY;
+            // Dibujar ángulo θ ADENTRO en la esquina inferior derecha del triángulo
+            const angleArcRadius = 25;
+            const angleArcX = baseX + planeWidth - 30; // Más adentro
+            const angleArcY = baseY - 30; // Más adentro
             
             // Arco para θ
             ctx.beginPath();
@@ -1722,7 +1755,7 @@
             ctx.lineWidth = 2;
             ctx.stroke();
            
-            // Etiqueta θ en la esquina inferior derecha
+            // Etiqueta θ en la esquina inferior derecha ADENTRO
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
             const thetaX = angleArcX - angleArcRadius * 0.7 * Math.cos(Math.PI - angleRad/2);
