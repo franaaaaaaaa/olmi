@@ -1739,29 +1739,33 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
            
-             // Posición del ángulo (esquina inferior izquierda)
-            const angleArcRadius = 40; // Radio del arco, ajustado para ser más visible en la esquina.
-            const angleArcX = baseX;    // La base X es el vértice
-            const angleArcY = baseY;    // La base Y es el vértice
+           // Posición del ángulo (esquina inferior DERECHA)
+            const angleArcRadius = 40; // Radio del arco
+            const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
+            const angleArcY = baseY;              // La Y del vértice (la base horizontal)
                        
             // Arco para θ
             ctx.beginPath();
-            // Inicia en la base (ángulo 0 o Math.PI * 2) y termina en el plano inclinado (angleRad)
-            // Dibuja el arco en sentido antihorario (true para el último argumento)
-            ctx.arc(angleArcX, angleArcY, angleArcRadius, 0, -angleRad, true); 
+            // El plano inclinado está a un ángulo de Math.PI - angleRad
+            // Inicia en el plano inclinado y termina en la base horizontal (Math.PI)
+            ctx.arc(angleArcX, angleArcY, angleArcRadius, Math.PI - angleRad, Math.PI, false); 
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
-           
+                       
             // Etiqueta θ DENTRO del arco
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
-
+            
             // Calcular posición para el texto θ (a la mitad del ángulo y a una distancia fija)
             const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
-            const thetaX = angleArcX + thetaTextRadius * Math.cos(angleRad / 2);
-            const thetaY = angleArcY - thetaTextRadius * Math.sin(angleRad / 2); // ' - ' porque el arco está en el cuadrante superior derecho
-
+            
+            // Ángulo para el centro del texto: (Math.PI - angleRad) más la mitad del ángulo (angleRad / 2)
+            const centerAngle = Math.PI - angleRad + angleRad / 2; // O simplemente: Math.PI - angleRad / 2
+            
+            const thetaX = angleArcX + thetaTextRadius * Math.cos(centerAngle);
+            const thetaY = angleArcY + thetaTextRadius * Math.sin(centerAngle); 
+            
             ctx.fillText('θ', thetaX, thetaY);
             
             // Dibujar cuadrado de 90° en la base (entre cateto adyacente y opuesto)
