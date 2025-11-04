@@ -1670,7 +1670,7 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA para mostrar θ DENTRO del triángulo y la base del rectángulo sobre el plano
+        // Función drawSimulation - MODIFICADA para que el objeto tenga su lado LARGO paralelo al plano
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1707,28 +1707,28 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como RECTÁNGULO con la BASE sobre el plano (como en Serway)
-            const objectWidth = 40 + mass / 2;  // Ancho del objeto
-            const objectHeight = 25 + mass / 4; // Alto del objeto
+            // Dibujar objeto como RECTÁNGULO con el LADO LARGO paralelo al plano
+            const objectLength = 60 + mass / 2;  // Lado LARGO del objeto (paralelo al plano)
+            const objectHeight = 25 + mass / 4;  // Lado CORTO del objeto (perpendicular al plano)
            
             // Guardar el estado actual del contexto
             ctx.save();
            
-            // Trasladar y rotar el contexto para dibujar el objeto con la base sobre el plano
+            // Trasladar y rotar el contexto para dibujar el objeto con el lado largo paralelo al plano
             ctx.translate(objectX, objectY);
             ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
            
-            // Dibujar el objeto como un rectángulo con la base sobre el plano
+            // Dibujar el objeto como un rectángulo con el lado LARGO paralelo al plano
             ctx.fillStyle = "#e63946";
-            ctx.fillRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
+            ctx.fillRect(-objectLength/2, -objectHeight/2, objectLength, objectHeight);
             ctx.strokeStyle = "#c1121f";
             ctx.lineWidth = 2;
-            ctx.strokeRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
+            ctx.strokeRect(-objectLength/2, -objectHeight/2, objectLength, objectHeight);
            
-            // Detalles del objeto (líneas horizontales para simular textura)
+            // Detalles del objeto (líneas paralelas al plano para simular textura)
             ctx.fillStyle = "#c1121f";
             for (let i = 1; i <= 2; i++) {
-                ctx.fillRect(-objectWidth/2 + 5, -objectHeight + i * (objectHeight/3), objectWidth - 10, 2);
+                ctx.fillRect(-objectLength/2 + 5, -objectHeight/2 + i * (objectHeight/3), objectLength - 10, 2);
             }
            
             // Restaurar el estado del contexto
@@ -1740,7 +1740,7 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
            
-          // Posición del ángulo (esquina inferior DERECHA)
+            // Posición del ángulo (esquina inferior DERECHA)
             const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
             const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
             const angleArcY = baseY;              // La Y del vértice (la base horizontal)
