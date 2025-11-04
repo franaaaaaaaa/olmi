@@ -6,6 +6,7 @@
     <title>Laboratorio Virtual - Plano Inclinado</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* Todos los estilos anteriores se mantienen igual */
         :root {
             --primary-color: #1a365d;
             --secondary-color: #2d3748;
@@ -1670,7 +1671,7 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA para que el objeto tenga su lado LARGO paralelo al plano
+        // Función drawSimulation - CORREGIDA para que el objeto deslice desde el BORDE
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1684,8 +1685,14 @@
             const baseX = usePulley ? width * 0.4 : width * 0.2;
             const baseY = height - 100;
            
-            // Calcular posición del objeto
-            const objectX = baseX + (position / length) * planeWidth;
+            // Dimensiones del objeto
+            const objectLength = 60 + mass / 2;  // Lado LARGO del objeto (paralelo al plano)
+            const objectHeight = 25 + mass / 4;  // Lado CORTO del objeto (perpendicular al plano)
+           
+            // Calcular posición del objeto - CORREGIDO: desliza desde el BORDE
+            // La posición se calcula desde el inicio del plano + el largo del objeto
+            const availableLength = planeWidth - objectLength;
+            const objectX = baseX + (position / length) * availableLength;
             const objectY = baseY - planeHeight + (position / length) * planeHeight;
            
             ctx.clearRect(0, 0, width, height);
@@ -1704,12 +1711,8 @@
            
             // Dibujar poleas si están activadas
             if (usePulley) {
-                drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
+                drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY, objectLength);
             }
-           
-            // Dibujar objeto como RECTÁNGULO con el LADO LARGO paralelo al plano
-            const objectLength = 60 + mass / 2;  // Lado LARGO del objeto (paralelo al plano)
-            const objectHeight = 25 + mass / 4;  // Lado CORTO del objeto (perpendicular al plano)
            
             // Guardar el estado actual del contexto
             ctx.save();
@@ -1719,36 +1722,37 @@
             ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
            
             // Dibujar el objeto como un rectángulo con el lado LARGO paralelo al plano
+            // CORREGIDO: el objeto se dibuja desde el borde, no centrado
             ctx.fillStyle = "#e63946";
-            ctx.fillRect(-objectLength/2, -objectHeight/2, objectLength, objectHeight);
+            ctx.fillRect(0, -objectHeight/2, objectLength, objectHeight);
             ctx.strokeStyle = "#c1121f";
             ctx.lineWidth = 2;
-            ctx.strokeRect(-objectLength/2, -objectHeight/2, objectLength, objectHeight);
+            ctx.strokeRect(0, -objectHeight/2, objectLength, objectHeight);
            
             // Detalles del objeto (líneas paralelas al plano para simular textura)
             ctx.fillStyle = "#c1121f";
             for (let i = 1; i <= 2; i++) {
-                ctx.fillRect(-objectLength/2 + 5, -objectHeight/2 + i * (objectHeight/3), objectLength - 10, 2);
+                ctx.fillRect(5, -objectHeight/2 + i * (objectHeight/3), objectLength - 10, 2);
             }
            
             // Restaurar el estado del contexto
             ctx.restore();
            
-            // Etiqueta de masa
+            // Etiqueta de masa - CORREGIDA posición
             ctx.fillStyle = '#000';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 10);
+            const labelX = objectX + objectLength/2 * Math.cos(-angleRad);
+            const labelY = objectY + objectLength/2 * Math.sin(-angleRad) - 15;
+            ctx.fillText(`${mass} kg`, labelX, labelY);
            
             // Posición del ángulo (esquina inferior DERECHA)
-            const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
-            const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
-            const angleArcY = baseY;              // La Y del vértice (la base horizontal)
+            const angleArcRadius = 30;
+            const angleArcX = baseX + planeWidth;
+            const angleArcY = baseY;
                        
             // Arco para θ
             ctx.beginPath();
-            // El ángulo se mide desde la base (Math.PI) hacia la hipotenusa (Math.PI - angleRad).
-            // Dibuja el arco desde Math.PI - angleRad hasta Math.PI (sentido antihorario = false)
             ctx.arc(angleArcX, angleArcY, angleArcRadius, Math.PI - angleRad, Math.PI, false);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
@@ -1758,18 +1762,14 @@
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
            
-            // Calcular posición para el texto θ (a la mitad del ángulo y más cerca del vértice)
-            const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
-           
-            // Ángulo para el centro del texto: Math.PI - angleRad / 2
+            const thetaTextRadius = angleArcRadius * 0.6;
             const centerAngle = Math.PI - angleRad / 2;
-           
             const thetaX = angleArcX + thetaTextRadius * Math.cos(centerAngle);
             const thetaY = angleArcY + thetaTextRadius * Math.sin(centerAngle);
            
             ctx.fillText('θ', thetaX, thetaY);
            
-            // Dibujar cuadrado de 90° en la base (entre cateto adyacente y opuesto)
+            // Dibujar cuadrado de 90° en la base
             const squareSize = 15;
             const squareX = baseX + squareSize/2;
             const squareY = baseY - squareSize/2;
@@ -1783,8 +1783,8 @@
             ctx.stroke();
         }
        
-        // Dibujar sistema de poleas mejorado con cuerda recta
-        function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
+        // Dibujar sistema de poleas - ACTUALIZADO para nueva posición del objeto
+        function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY, objectLength) {
             // Posicionar la polea a la izquierda del plano
             const pulleyX = baseX - 100;
             const pulleyY = baseY - planeHeight - 50;
@@ -1831,9 +1831,13 @@
             ctx.fillStyle = '#e74c3c';
             ctx.fill();
            
-            // Dibujar cuerda desde el objeto hasta la polea (RECTA)
+            // Dibujar cuerda desde el objeto hasta la polea (RECTA) - CORREGIDO: desde el borde del objeto
+            const angleRad = angle * Math.PI / 180;
+            const ropeStartX = objectX;
+            const ropeStartY = objectY;
+           
             ctx.beginPath();
-            ctx.moveTo(objectX, objectY);
+            ctx.moveTo(ropeStartX, ropeStartY);
             ctx.lineTo(pulleyX, pulleyY);
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
@@ -1923,9 +1927,13 @@
                 }
                
                 // No permitir que el objeto sobrepase la longitud del plano
-                if (position >= length && velocity > 0) {
+                // CORREGIDO: considerar el largo del objeto
+                const objectLength = 60 + mass / 2;
+                const availableLength = length - (objectLength / 100); // Ajustar por escala
+               
+                if (position >= availableLength && velocity > 0) {
                     velocity = 0;
-                    position = length;
+                    position = availableLength;
                     isRunning = false;
                     showNotification('Simulación Completada', 'El objeto ha llegado al final del plano inclinado.', 'success');
                 } else {
