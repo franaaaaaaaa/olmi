@@ -1670,7 +1670,7 @@
             }
         });
        
-        // Función drawSimulation - MEJORADA para mostrar la masa de forma más realista
+        // Función drawSimulation - MODIFICADA para mostrar la masa como en el segundo código
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1707,70 +1707,54 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
             }
            
-            // Dibujar objeto como BLOQUE TRIDIMENSIONAL con la BASE sobre el plano
-            const objectWidth = 40 + mass / 2;  // Ancho del objeto
-            const objectHeight = 25 + mass / 4; // Alto del objeto
+            // --- DIBUJO DE LA MASA (Sistema de coordenadas ROTADO) ---
            
-            // Guardar el estado actual del contexto
             ctx.save();
+            // 1. Mover el origen al punto de inicio del plano inclinado (Vértice Superior Izquierdo, V1)
+            const inclineXStart = baseX;
+            const inclineYStart = baseY - planeHeight;
+            ctx.translate(inclineXStart, inclineYStart);
+            // 2. Rotar el canvas para alinear el eje X con la hipotenusa (incline)
+            ctx.rotate(angleRad);
            
-            // Trasladar y rotar el contexto para dibujar el objeto con la base sobre el plano
-            ctx.translate(objectX, objectY);
-            ctx.rotate(-angleRad); // Rotar en sentido contrario al ángulo del plano
+            // Posición a lo largo del plano inclinado (eje X rotado)
+            // Posición de dibujo para que position=0 esté en el BOTTOM RIGHT y position=length esté en el TOP LEFT
+            const inclineLengthCanvas = planeWidth / Math.cos(angleRad); // Longitud de la hipotenusa en píxeles
+            const distanceMovedFromTop = (position / length) * inclineLengthCanvas;
+            const massDrawX = inclineLengthCanvas - distanceMovedFromTop - 40; // 40 es el ancho del bloque
+            const massDrawY = 0; // El plano inclinado es ahora el eje X
            
-            // Dibujar el objeto como un bloque tridimensional
-            // Cara frontal (base sobre el plano)
-            ctx.fillStyle = "#e63946";
-            ctx.fillRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
-            ctx.strokeStyle = "#c1121f";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(-objectWidth/2, -objectHeight, objectWidth, objectHeight);
+            // 1. Dibuja el cuerpo (rectángulo)
+            const massWidth = 40;
+            const massHeight = 25;
+            ctx.fillStyle = "rgba(211, 211, 211, 0.9)"; // Gris claro
+            ctx.strokeStyle = "#333"; // Gris oscuro para el borde
+            ctx.lineWidth = 1.5;
            
-            // Cara superior (sombreada)
-            ctx.fillStyle = "#c1121f";
+            // Dibuja el rectángulo desde la esquina superior izquierda (ajustado para sentarse en el eje X)
+            ctx.fillRect(massDrawX, massDrawY - massHeight, massWidth, massHeight);
+            ctx.strokeRect(massDrawX, massDrawY - massHeight, massWidth, massHeight);
+           
+            // 2. Dibuja el centro de masa (círculo rojo)
+            const massCenterX = massDrawX + massWidth / 2;
+            const massCenterY = massDrawY - massHeight / 2; // Centro vertical
+           
             ctx.beginPath();
-            ctx.moveTo(-objectWidth/2, -objectHeight);
-            ctx.lineTo(-objectWidth/2 + 8, -objectHeight - 8);
-            ctx.lineTo(objectWidth/2 + 8, -objectHeight - 8);
-            ctx.lineTo(objectWidth/2, -objectHeight);
-            ctx.closePath();
+            ctx.arc(massCenterX, massCenterY, 3.5, 0, 2 * Math.PI); // Radio de 3.5px para el punto
+            ctx.fillStyle = "#e53e3e"; // Rojo
             ctx.fill();
+            ctx.strokeStyle = '#000'; // Pequeño borde negro para contraste
+            ctx.lineWidth = 0.5;
             ctx.stroke();
            
-            // Cara lateral (sombreada)
-            ctx.fillStyle = "#a4161a";
-            ctx.beginPath();
-            ctx.moveTo(objectWidth/2, -objectHeight);
-            ctx.lineTo(objectWidth/2 + 8, -objectHeight - 8);
-            ctx.lineTo(objectWidth/2 + 8, objectHeight - 8);
-            ctx.lineTo(objectWidth/2, objectHeight);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-           
-            // Detalles del objeto (líneas horizontales para simular textura)
-            ctx.fillStyle = "#ffffff";
-            for (let i = 1; i <= 2; i++) {
-                ctx.fillRect(-objectWidth/2 + 5, -objectHeight + i * (objectHeight/3), objectWidth - 10, 2);
-            }
-           
-            // Centro de masa (punto rojo)
-            ctx.beginPath();
-            ctx.arc(0, -objectHeight/2, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "#ff0000";
-            ctx.fill();
-            ctx.strokeStyle = "#ffffff";
-            ctx.lineWidth = 1;
-            ctx.stroke();
-           
-            // Restaurar el estado del contexto
             ctx.restore();
+            // --- FIN DIBUJO DE LA MASA ---
            
             // Etiqueta de masa
             ctx.fillStyle = '#000';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - objectHeight - 15);
+            ctx.fillText(`${mass} kg`, objectX, objectY - massHeight - 15);
            
             // Posición del ángulo (esquina inferior DERECHA)
             const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
@@ -1875,51 +1859,23 @@
             const maxCounterWeightMovement = 200;
             const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
            
-            // Dibujar contrapeso como BLOQUE TRIDIMENSIONAL
+            // Dibujar contrapeso como RECTÁNGULO
             const counterWeightWidth = 20 + pulleyConfig.counterMass / 2;
             const counterWeightHeight = 15 + pulleyConfig.counterMass / 3;
-           
-            // Cara frontal
             ctx.fillStyle = '#3498db';
             ctx.fillRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
             ctx.strokeStyle = '#2980b9';
             ctx.lineWidth = 2;
             ctx.strokeRect(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2, counterWeightWidth, counterWeightHeight);
            
-            // Cara superior
+            // Detalles del contrapeso
             ctx.fillStyle = '#2980b9';
-            ctx.beginPath();
-            ctx.moveTo(pulleyX - counterWeightWidth/2, counterWeightY - counterWeightHeight/2);
-            ctx.lineTo(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 - 5);
-            ctx.lineTo(pulleyX + counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 - 5);
-            ctx.lineTo(pulleyX + counterWeightWidth/2, counterWeightY - counterWeightHeight/2);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-           
-            // Cara lateral
-            ctx.fillStyle = '#1f618d';
-            ctx.beginPath();
-            ctx.moveTo(pulleyX + counterWeightWidth/2, counterWeightY - counterWeightHeight/2);
-            ctx.lineTo(pulleyX + counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 - 5);
-            ctx.lineTo(pulleyX + counterWeightWidth/2 + 5, counterWeightY + counterWeightHeight/2 - 5);
-            ctx.lineTo(pulleyX + counterWeightWidth/2, counterWeightY + counterWeightHeight/2);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-           
-            // Centro de masa del contrapeso
-            ctx.beginPath();
-            ctx.arc(pulleyX, counterWeightY, 3, 0, Math.PI * 2);
-            ctx.fillStyle = "#ff0000";
-            ctx.fill();
-            ctx.strokeStyle = "#ffffff";
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 3);
+            ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 10, counterWeightWidth - 10, 3);
            
             // Etiqueta de contrapeso
             ctx.fillStyle = '#2c3e50';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
            
