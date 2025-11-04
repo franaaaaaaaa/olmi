@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorio Virtual - Plano Inclinado</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary-color: #1a365d;
@@ -1999,31 +2000,157 @@
             showNotification('Simulación Reiniciada', 'La simulación se ha reiniciado a su estado inicial.', 'info');
         }
        
-        // Exportar datos a CSV
+        // Función para exportar datos a Excel mejorada
         function exportData() {
             if (simulationData.length === 0) {
                 showNotification('Sin Datos', 'No hay datos para exportar. Ejecuta la simulación primero.', 'warning');
                 return;
             }
-           
-            let csvContent = "Tiempo (s),Posición (M),Velocidad (M/s),Aceleración (M/s²),Fuerza (N),Energía (J)\n";
-           
+
+            // Crear contenido CSV estructurado
+            let csvContent = "";
+            
+            // Encabezado con información del experimento
+            csvContent += "LABORATORIO VIRTUAL - PLANO INCLINADO\n";
+            csvContent += "Resultados de Simulación\n\n";
+            
+            // Información de configuración
+            csvContent += "CONFIGURACIÓN DEL EXPERIMENTO\n";
+            csvContent += `Masa del objeto: ${mass} kg\n`;
+            csvContent += `Ángulo del plano: ${angle}°\n`;
+            csvContent += `Coeficiente de fricción: ${friction}\n`;
+            csvContent += `Longitud del plano: ${length} m\n`;
+            csvContent += `Gravedad: ${gravity} m/s²\n`;
+            csvContent += `Sistema de poleas: ${usePulley ? "Activado" : "Desactivado"}\n`;
+            if (usePulley) {
+                csvContent += `Masa del contrapeso: ${pulleyConfig.counterMass} kg\n`;
+            }
+            csvContent += `Fecha de simulación: ${new Date().toLocaleString()}\n\n`;
+            
+            // Resumen de resultados
+            csvContent += "RESUMEN DE RESULTADOS\n";
+            const finalTime = simulationData[simulationData.length - 1].time;
+            const finalPosition = simulationData[simulationData.length - 1].position;
+            const maxVelocity = Math.max(...simulationData.map(d => Math.abs(d.velocity)));
+            const maxAcceleration = Math.max(...simulationData.map(d => Math.abs(d.acceleration)));
+            
+            csvContent += `Tiempo total de simulación: ${finalTime.toFixed(2)} s\n`;
+            csvContent += `Distancia recorrida: ${finalPosition.toFixed(2)} m\n`;
+            csvContent += `Velocidad máxima: ${maxVelocity.toFixed(2)} m/s\n`;
+            csvContent += `Aceleración máxima: ${maxAcceleration.toFixed(2)} m/s²\n`;
+            csvContent += `Estado final: ${finalPosition >= length ? "Completado" : "En progreso"}\n\n`;
+            
+            // Datos detallados
+            csvContent += "DATOS DETALLADOS DE LA SIMULACIÓN\n";
+            csvContent += "Tiempo (s),Posición (m),Velocidad (m/s),Aceleración (m/s²),Fuerza Neta (N),Energía (J)\n";
+            
             simulationData.forEach(data => {
-                csvContent += `${data.time.toFixed(2)},${data.position.toFixed(2)},${data.velocity.toFixed(2)},${data.acceleration.toFixed(2)},${data.force.toFixed(2)},${data.energy.toFixed(2)}\n`;
+                csvContent += `${data.time.toFixed(3)},${data.position.toFixed(3)},${data.velocity.toFixed(3)},${data.acceleration.toFixed(3)},${data.force.toFixed(3)},${data.energy.toFixed(3)}\n`;
             });
-           
+            
+            // Crear y descargar archivo
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", "datos_simulacion_plano_inclinado.csv");
+            link.setAttribute("download", `simulacion_plano_inclinado_${new Date().toISOString().slice(0,10)}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showNotification('Datos Exportados', 'Los datos de la simulación se han exportado correctamente a un archivo CSV.', 'success');
+            
+            showNotification('Datos Exportados', 'Los datos de la simulación se han exportado correctamente a un archivo CSV estructurado.', 'success');
         }
-       
+
+        // Función para exportar datos a Excel (XLSX) usando SheetJS
+        function exportToExcel() {
+            if (simulationData.length === 0) {
+                showNotification('Sin Datos', 'No hay datos para exportar. Ejecuta la simulación primero.', 'warning');
+                return;
+            }
+
+            // Verificar si SheetJS está disponible
+            if (typeof XLSX === 'undefined') {
+                showNotification('Error', 'La funcionalidad de exportación a Excel requiere la biblioteca SheetJS. Exportando como CSV en su lugar.', 'error');
+                exportData();
+                return;
+            }
+
+            try {
+                // Crear un nuevo libro de trabajo
+                const wb = XLSX.utils.book_new();
+                
+                // Hoja de configuración
+                const configData = [
+                    ["LABORATORIO VIRTUAL - PLANO INCLINADO"],
+                    ["Resultados de Simulación"],
+                    [""],
+                    ["CONFIGURACIÓN DEL EXPERIMENTO"],
+                    ["Masa del objeto:", mass, "kg"],
+                    ["Ángulo del plano:", angle, "°"],
+                    ["Coeficiente de fricción:", friction, ""],
+                    ["Longitud del plano:", length, "m"],
+                    ["Gravedad:", gravity, "m/s²"],
+                    ["Sistema de poleas:", usePulley ? "Activado" : "Desactivado", ""],
+                    ...(usePulley ? [["Masa del contrapeso:", pulleyConfig.counterMass, "kg"]] : []),
+                    ["Fecha de simulación:", new Date().toLocaleString(), ""],
+                    [""]
+                ];
+                
+                const configWs = XLSX.utils.aoa_to_sheet(configData);
+                XLSX.utils.book_append_sheet(wb, configWs, "Configuración");
+                
+                // Hoja de resumen
+                const finalTime = simulationData[simulationData.length - 1].time;
+                const finalPosition = simulationData[simulationData.length - 1].position;
+                const maxVelocity = Math.max(...simulationData.map(d => Math.abs(d.velocity)));
+                const maxAcceleration = Math.max(...simulationData.map(d => Math.abs(d.acceleration)));
+                
+                const summaryData = [
+                    ["RESUMEN DE RESULTADOS"],
+                    ["Tiempo total de simulación:", finalTime.toFixed(2), "s"],
+                    ["Distancia recorrida:", finalPosition.toFixed(2), "m"],
+                    ["Velocidad máxima:", maxVelocity.toFixed(2), "m/s"],
+                    ["Aceleración máxima:", maxAcceleration.toFixed(2), "m/s²"],
+                    ["Estado final:", finalPosition >= length ? "Completado" : "En progreso", ""],
+                    [""],
+                    ["ANÁLISIS FÍSICO"],
+                    ["Fuerza gravitatoria paralela:", (mass * gravity * Math.sin(angle * Math.PI / 180)).toFixed(2), "N"],
+                    ["Fuerza normal:", (mass * gravity * Math.cos(angle * Math.PI / 180)).toFixed(2), "N"],
+                    ["Fuerza de fricción:", (friction * mass * gravity * Math.cos(angle * Math.PI / 180)).toFixed(2), "N"],
+                    ...(usePulley ? [["Fuerza del contrapeso:", (pulleyConfig.counterMass * gravity).toFixed(2), "N"]] : []),
+                    ["Fuerza neta inicial:", simulationData[0]?.force.toFixed(2) || "0.00", "N"]
+                ];
+                
+                const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, summaryWs, "Resumen");
+                
+                // Hoja de datos detallados
+                const headers = ["Tiempo (s)", "Posición (m)", "Velocidad (m/s)", "Aceleración (m/s²)", "Fuerza Neta (N)", "Energía (J)"];
+                const detailedData = simulationData.map(data => [
+                    data.time,
+                    data.position,
+                    data.velocity,
+                    data.acceleration,
+                    data.force,
+                    data.energy
+                ]);
+                
+                detailedData.unshift(headers);
+                const detailedWs = XLSX.utils.aoa_to_sheet(detailedData);
+                XLSX.utils.book_append_sheet(wb, detailedWs, "Datos Detallados");
+                
+                // Generar y descargar archivo
+                XLSX.writeFile(wb, `simulacion_plano_inclinado_${new Date().toISOString().slice(0,10)}.xlsx`);
+                
+                showNotification('Excel Exportado', 'Los datos se han exportado correctamente a un archivo Excel con varias hojas.', 'success');
+            } catch (error) {
+                console.error('Error al exportar a Excel:', error);
+                showNotification('Error', 'No se pudo exportar a Excel. Exportando como CSV en su lugar.', 'error');
+                exportData();
+            }
+        }
+
         // Controladores de botones
         startBtn.addEventListener('click', function() {
             if (!validateParameters()) return;
@@ -2063,7 +2190,54 @@
             resetSimulation();
         });
        
-        exportBtn.addEventListener('click', exportData);
+        // Actualizar el botón de exportación para usar la nueva función
+        exportBtn.addEventListener('click', function() {
+            // Verificar si SheetJS está disponible para ofrecer ambas opciones
+            if (typeof XLSX !== 'undefined') {
+                // Crear un menú desplegable para elegir el formato
+                const exportMenu = document.createElement('div');
+                exportMenu.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                    min-width: 250px;
+                `;
+                
+                exportMenu.innerHTML = `
+                    <h3 style="margin-bottom: 15px; color: var(--primary-color);">Exportar Datos</h3>
+                    <p style="margin-bottom: 15px; color: var(--secondary-color);">Seleccione el formato de exportación:</p>
+                    <button id="excel-export" style="background: var(--success-color); margin-bottom: 10px; width: 100%; padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer;">Excel (.xlsx)</button>
+                    <button id="csv-export" style="background: var(--accent-color); width: 100%; padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer;">CSV (.csv)</button>
+                    <button id="cancel-export" style="background: var(--danger-color); margin-top: 10px; width: 100%; padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer;">Cancelar</button>
+                `;
+                
+                document.body.appendChild(exportMenu);
+                
+                // Event listeners para los botones
+                document.getElementById('excel-export').addEventListener('click', function() {
+                    document.body.removeChild(exportMenu);
+                    exportToExcel();
+                });
+                
+                document.getElementById('csv-export').addEventListener('click', function() {
+                    document.body.removeChild(exportMenu);
+                    exportData();
+                });
+                
+                document.getElementById('cancel-export').addEventListener('click', function() {
+                    document.body.removeChild(exportMenu);
+                });
+            } else {
+                // Si SheetJS no está disponible, usar CSV por defecto
+                exportData();
+            }
+        });
        
         // Inicialización
         window.addEventListener('load', function() {
