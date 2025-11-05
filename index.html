@@ -967,11 +967,11 @@
                     <p><strong>Con sistema de poleas:</strong></p>
                    
                     <div class="formula">
-                        F<sub>neta</sub> = mg sen θ - f<sub>k</sub> - T
+                        F<sub>neta</sub> = mg sen θ - f<sub>k</sub> - m<sub>2</sub>g
                     </div>
                    
                     <div class="formula">
-                        T = m<sub>2</sub>g - m<sub>2</sub>a
+                        a = F<sub>neta</sub> / (m + m<sub>2</sub>)
                     </div>
                 </div>
             </div>
@@ -1134,19 +1134,24 @@
             const frictionForce = friction * normalForce;
             let netForceValue = gravitationalForce - frictionForce;
            
+            if (usePulley) {
+                const counterWeightForce = pulleyConfig.counterMass * gravity;
+                netForceValue = gravitationalForce - frictionForce - counterWeightForce;
+            }
+           
             // Análisis del movimiento
             if (netForceValue > 0) {
-                movementAnalysis.textContent = `El objeto se está moviendo hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2)} N).`;
+                movementAnalysis.textContent = `El objeto se está moviendo hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''}.`;
             } else if (netForceValue < 0) {
-                movementAnalysis.textContent = `El objeto se está moviendo hacia arriba del plano. La fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N).`;
+                movementAnalysis.textContent = `El objeto se está moviendo hacia arriba del plano. La fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''} son mayores que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N).`;
             } else {
-                movementAnalysis.textContent = `El objeto está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es igual a la fuerza de fricción (${frictionForce.toFixed(2)} N).`;
+                movementAnalysis.textContent = `El objeto está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es igual a ${usePulley ? 'la suma de la fricción y el contrapeso' : 'la fuerza de fricción'} (${frictionForce.toFixed(2)} N${usePulley ? ` + ${(pulleyConfig.counterMass * gravity).toFixed(2)} N` : ''}).`;
             }
            
             // Comportamiento del sistema
             if (usePulley) {
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
-                systemBehavior.textContent = `El sistema de poleas está activado. El contrapeso de ${pulleyConfig.counterMass} kg ejerce una fuerza de ${counterWeightForce.toFixed(2)} N.`;
+                systemBehavior.textContent = `El sistema de poleas está activado. El contrapeso de ${pulleyConfig.counterMass} kg ejerce una fuerza de ${counterWeightForce.toFixed(2)} N. Cuando el objeto baja, el contrapeso sube.`;
             } else {
                 systemBehavior.textContent = `El sistema de poleas está desactivado. El movimiento está determinado únicamente por la gravedad y la fricción.`;
             }
@@ -1859,7 +1864,7 @@
             ctx.lineWidth = 3;
             ctx.stroke();
            
-            // Calcular posición del contrapeso (se mueve en dirección opuesta al objeto)
+            // CORRECCIÓN: El contrapeso se mueve en dirección opuesta al objeto
             const maxCounterWeightMovement = 200;
             const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
            
@@ -1908,24 +1913,25 @@
             // Fuerza neta inicial
             let netForceValue = gravitationalForce - frictionForce;
            
-            // Aplicar sistema de poleas si está activado
+            // CORRECCIÓN: Física del sistema de poleas
             if (usePulley) {
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
                
-                // CORRECCIÓN: La fuerza del contrapeso se resta cuando el objeto baja
+                // En un sistema de poleas simple, la fuerza neta es:
+                // Fuerza del objeto en el plano - Fuerza del contrapeso
                 netForceValue = gravitationalForce - frictionForce - counterWeightForce;
+               
+                // La masa efectiva es la suma de ambas masas
+                const effectiveMass = mass + pulleyConfig.counterMass;
+               
+                // Aceleración del sistema
+                acceleration = netForceValue / effectiveMass;
+            } else {
+                // Sistema sin poleas
+                acceleration = netForceValue / mass;
             }
            
-            // Calcular masa efectiva para sistemas con poleas
-            let effectiveMass = mass;
-            if (usePulley) {
-                effectiveMass = mass + pulleyConfig.counterMass;
-            }
-           
-            // Aceleración
-            acceleration = netForceValue / effectiveMass;
-           
-            // Si la aceleración es muy pequeña o negativa cuando debería ser positiva, ajustar
+            // Si la aceleración es muy pequeña, ajustar a cero
             if (Math.abs(acceleration) < 0.01) {
                 acceleration = 0;
             }
