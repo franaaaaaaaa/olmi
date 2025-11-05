@@ -1670,7 +1670,7 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA para mostrar la masa como en el segundo código
+        // Función drawSimulation - MODIFICADA para mostrar la masa correctamente
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1683,10 +1683,6 @@
             // Ajustar posición inicial del plano según si hay polea o no
             const baseX = usePulley ? width * 0.4 : width * 0.2;
             const baseY = height - 100;
-           
-            // Calcular posición del objeto
-            const objectX = baseX + (position / length) * planeWidth;
-            const objectY = baseY - planeHeight + (position / length) * planeHeight;
            
             ctx.clearRect(0, 0, width, height);
            
@@ -1704,13 +1700,12 @@
            
             // Dibujar poleas si están activadas
             if (usePulley) {
-                drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY);
+                drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight);
             }
            
-            // --- DIBUJO DE LA MASA (Sistema de coordenadas ROTADO) ---
-           
+            // --- DIBUJO DE LA MASA ---
             ctx.save();
-            // 1. Mover el origen al punto de inicio del plano inclinado (Vértice Superior Izquierdo, V1)
+            // 1. Mover el origen al punto de inicio del plano inclinado (Vértice Superior Izquierdo)
             const inclineXStart = baseX;
             const inclineYStart = baseY - planeHeight;
             ctx.translate(inclineXStart, inclineYStart);
@@ -1718,10 +1713,10 @@
             ctx.rotate(angleRad);
            
             // Posición a lo largo del plano inclinado (eje X rotado)
-            // Posición de dibujo para que position=0 esté en el BOTTOM RIGHT y position=length esté en el TOP LEFT
+            // Posición de dibujo para que position=0 esté en la parte superior y position=length esté en la base
             const inclineLengthCanvas = planeWidth / Math.cos(angleRad); // Longitud de la hipotenusa en píxeles
             const distanceMovedFromTop = (position / length) * inclineLengthCanvas;
-            const massDrawX = inclineLengthCanvas - distanceMovedFromTop - 40; // 40 es el ancho del bloque
+            const massDrawX = distanceMovedFromTop; // CORRECCIÓN: Ahora comienza en la parte superior
             const massDrawY = 0; // El plano inclinado es ahora el eje X
            
             // 1. Dibuja el cuerpo (rectángulo)
@@ -1749,6 +1744,10 @@
            
             ctx.restore();
             // --- FIN DIBUJO DE LA MASA ---
+           
+            // Calcular posición del objeto para etiquetas
+            const objectX = baseX + (position / length) * planeWidth;
+            const objectY = baseY - planeHeight + (position / length) * planeHeight;
            
             // Etiqueta de masa
             ctx.fillStyle = '#000';
@@ -1800,7 +1799,7 @@
         }
        
         // Dibujar sistema de poleas mejorado con cuerda recta
-        function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight, objectX, objectY) {
+        function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight) {
             // Posicionar la polea a la izquierda del plano
             const pulleyX = baseX - 100;
             const pulleyY = baseY - planeHeight - 50;
@@ -1846,6 +1845,11 @@
             ctx.arc(pulleyX, pulleyY, 4, 0, Math.PI * 2);
             ctx.fillStyle = '#e74c3c';
             ctx.fill();
+           
+            // Calcular posición del objeto para la cuerda
+            const angleRad = angle * Math.PI / 180;
+            const objectX = baseX + (position / length) * planeWidth;
+            const objectY = baseY - planeHeight + (position / length) * planeHeight;
            
             // Dibujar cuerda desde el objeto hasta la polea (RECTA)
             ctx.beginPath();
@@ -1908,7 +1912,7 @@
             if (usePulley) {
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
                
-                // Sistema de polea simple: cambia dirección pero no magnitud de la fuerza
+                // CORRECCIÓN: La fuerza del contrapeso se resta cuando el objeto baja
                 netForceValue = gravitationalForce - frictionForce - counterWeightForce;
             }
            
@@ -2078,7 +2082,7 @@
             showNotification('Datos Exportados', 'Los datos de la simulación se han exportado correctamente a un archivo CSV estructurado.', 'success');
         }
 
-        // Función para exportar datos a Excel (XLSX) usando SheetJS
+        // Función para exportar datos a Excel (XLSX) usando SheetJS - MEJORADA
         function exportToExcel() {
             if (simulationData.length === 0) {
                 showNotification('Sin Datos', 'No hay datos para exportar. Ejecuta la simulación primero.', 'warning');
@@ -2154,6 +2158,56 @@
                
                 detailedData.unshift(headers);
                 const detailedWs = XLSX.utils.aoa_to_sheet(detailedData);
+               
+                // Aplicar formato a la hoja de datos detallados
+                if (detailedWs['!ref']) {
+                    const range = XLSX.utils.decode_range(detailedWs['!ref']);
+                   
+                    // Aplicar formato a los encabezados
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cell_address = XLSX.utils.encode_cell({r:0, c:C});
+                        if (!detailedWs[cell_address]) continue;
+                        detailedWs[cell_address].s = {
+                            font: { bold: true, color: { rgb: "FFFFFF" } },
+                            fill: { fgColor: { rgb: "4F81BD" } },
+                            alignment: { horizontal: "center" }
+                        };
+                    }
+                   
+                    // Aplicar formato a las filas alternas
+                    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                        for (let C = range.s.c; C <= range.e.c; ++C) {
+                            const cell_address = XLSX.utils.encode_cell({r:R, c:C});
+                            if (!detailedWs[cell_address]) continue;
+                           
+                            // Formato para filas alternas
+                            if (R % 2 === 0) {
+                                detailedWs[cell_address].s = {
+                                    fill: { fgColor: { rgb: "DCE6F1" } }
+                                };
+                            }
+                           
+                            // Formato para números
+                            if (C > 0) {
+                                detailedWs[cell_address].s = {
+                                    ...detailedWs[cell_address].s,
+                                    numFmt: "0.000"
+                                };
+                            }
+                        }
+                    }
+                   
+                    // Ajustar ancho de columnas
+                    detailedWs['!cols'] = [
+                        { wch: 10 }, // Tiempo
+                        { wch: 12 }, // Posición
+                        { wch: 12 }, // Velocidad
+                        { wch: 15 }, // Aceleración
+                        { wch: 12 }, // Fuerza
+                        { wch: 12 }  // Energía
+                    ];
+                }
+               
                 XLSX.utils.book_append_sheet(wb, detailedWs, "Datos Detallados");
                
                 // Generar y descargar archivo
