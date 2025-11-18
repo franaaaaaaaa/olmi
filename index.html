@@ -6,7 +6,7 @@
     <title>Laboratorio Virtual - Plano Inclinado</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* (Mantengo todos los estilos anteriores para no hacer el código demasiado largo) */
+        /* Todos los estilos CSS se mantienen igual */
         :root {
             --primary-color: #1a365d;
             --secondary-color: #2d3748;
@@ -755,7 +755,7 @@
                         <label for="length-input">Longitud del plano (L)</label>
                         <div class="input-container">
                             <input type="number" id="length-input" min="1" value="8" step="0.5">
-                            <span class="unit">M</span>
+                            <span class="unit">m</span>
                         </div>
                     </div>
                    
@@ -763,14 +763,14 @@
                         <label for="gravity-input">Gravedad (g)</label>
                         <div class="input-container">
                             <input type="number" id="gravity-input" value="9.8" min="1" step="0.1">
-                            <span class="unit">M/s²</span>
+                            <span class="unit">m/s²</span>
                         </div>
                     </div>
                 </div>
                
                 <div class="tab-content" id="pulley-tab">
                     <div class="input-group">
-                        <label for="mass-input-pulley">Masa del objeto (M)</label>
+                        <label for="mass-input-pulley">Masa del objeto (m)</label>
                         <div class="input-container">
                             <input type="number" id="mass-input-pulley" min="0.1" value="5" step="0.1">
                             <span class="unit">Kg</span>
@@ -809,7 +809,7 @@
                         <label for="length-input-pulley">Longitud del plano (L)</label>
                         <div class="input-container">
                             <input type="number" id="length-input-pulley" min="1" value="8" step="0.5">
-                            <span class="unit">M</span>
+                            <span class="unit">m</span>
                         </div>
                     </div>
                    
@@ -817,7 +817,7 @@
                         <label for="gravity-input-pulley">Gravedad (g)</label>
                         <div class="input-container">
                             <input type="number" id="gravity-input-pulley" value="9.8" min="1" step="0.1">
-                            <span class="unit">M/s²</span>
+                            <span class="unit">m/s²</span>
                         </div>
                     </div>
                 </div>
@@ -851,27 +851,27 @@
                 <div class="data-display">
                     <div class="data-item">
                         <div class="data-label">Tiempo</div>
-                        <div class="data-value" id="time-value">0.00 s</div>
+                        <div class="data-value" id="time-value">0,00 s</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Posición</div>
-                        <div class="data-value" id="position-value">0.00 M</div>
+                        <div class="data-value" id="position-value">0,00 m</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Velocidad</div>
-                        <div class="data-value" id="velocity-value">0.00 M/s</div>
+                        <div class="data-value" id="velocity-value">0,00 m/s</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Aceleración</div>
-                        <div class="data-value" id="acceleration-value">0.00 M/s²</div>
+                        <div class="data-value" id="acceleration-value">0,00 m/s²</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Fuerza Net</div>
-                        <div class="data-value" id="force-value">0.00 N</div>
+                        <div class="data-value" id="force-value">0,00 N</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Energía</div>
-                        <div class="data-value" id="energy-value">0.00 J</div>
+                        <div class="data-value" id="energy-value">0,00 J</div>
                     </div>
                 </div>
                
@@ -939,41 +939,50 @@
            
             <div class="tab-content" id="formulas-tab">
                 <div class="theory-content">
-                    <p><strong>Fuerzas en un plano inclinado (Serway):</strong></p>
+                    <p><strong>Fuerzas en un plano inclinado:</strong></p>
                    
                     <div class="formula">
-                        F<sub>gx</sub> = mg sen θ
+                        Peso = m · g
                     </div>
                    
                     <div class="formula">
-                        F<sub>gy</sub> = mg cos θ
+                        Fuerza normal = m · g · cos θ
                     </div>
                    
                     <div class="formula">
-                        F<sub>n</sub> = mg cos θ
+                        Componente paralela del peso = m · g · sen θ
                     </div>
                    
                     <div class="formula">
-                        f<sub>k</sub> = μ<sub>k</sub> F<sub>n</sub> = μ<sub>k</sub> mg cos θ
+                        Fuerza de fricción = μ · m · g · cos θ
                     </div>
                    
                     <div class="formula">
-                        F<sub>neta</sub> = mg sen θ - f<sub>k</sub>
+                        Fuerza neta = m · g · sen θ - μ · m · g · cos θ
                     </div>
                    
                     <div class="formula">
-                        a = F<sub>neta</sub> / m
+                        Aceleración = Fuerza neta / m
                     </div>
                    
                     <p><strong>Con sistema de poleas:</strong></p>
                    
                     <div class="formula">
-                        F<sub>neta</sub> = mg sen θ - f<sub>k</sub> - m<sub>2</sub>g
+                        Fuerza neta = m · g · sen θ - μ · m · g · cos θ - m₂ · g
                     </div>
                    
                     <div class="formula">
-                        a = F<sub>neta</sub> / (m + m<sub>2</sub>)
+                        Aceleración = Fuerza neta / (m + m₂)
                     </div>
+                   
+                    <p><strong>Donde:</strong></p>
+                    <ul>
+                        <li><span class="variable">m</span> = masa del objeto (kg)</li>
+                        <li><span class="variable">m₂</span> = masa del contrapeso (kg)</li>
+                        <li><span class="variable">g</span> = aceleración gravitatoria (m/s²)</li>
+                        <li><span class="variable">θ</span> = ángulo del plano inclinado (grados)</li>
+                        <li><span class="variable">μ</span> = coeficiente de fricción</li>
+                    </ul>
                 </div>
             </div>
            
@@ -1142,26 +1151,26 @@
            
             // Análisis del movimiento
             if (netForceValue > 0) {
-                movementAnalysis.textContent = `El objeto se está moviendo hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''}.`;
+                movementAnalysis.textContent = `El objeto se está moviendo hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2).replace('.', ',')} N)` : ''}.`;
             } else if (netForceValue < 0) {
-                movementAnalysis.textContent = `El objeto se está moviendo hacia arriba del plano. La fuerza de fricción (${frictionForce.toFixed(2)} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2)} N)` : ''} son mayores que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N).`;
+                movementAnalysis.textContent = `El objeto se está moviendo hacia arriba del plano. La fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N)${usePulley ? ` y el contrapeso (${(pulleyConfig.counterMass * gravity).toFixed(2).replace('.', ',')} N)` : ''} son mayores que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N).`;
             } else {
-                movementAnalysis.textContent = `El objeto está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2)} N) es igual a ${usePulley ? 'la suma de la fricción y el contrapeso' : 'la fuerza de fricción'} (${frictionForce.toFixed(2)} N${usePulley ? ` + ${(pulleyConfig.counterMass * gravity).toFixed(2)} N` : ''}).`;
+                movementAnalysis.textContent = `El objeto está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es igual a ${usePulley ? 'la suma de la fricción y el contrapeso' : 'la fuerza de fricción'} (${frictionForce.toFixed(2).replace('.', ',')} N${usePulley ? ` + ${(pulleyConfig.counterMass * gravity).toFixed(2).replace('.', ',')} N` : ''}).`;
             }
            
             // Comportamiento del sistema
             if (usePulley) {
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
-                systemBehavior.textContent = `El sistema de poleas está activado. El contrapeso de ${pulleyConfig.counterMass} kg ejerce una fuerza de ${counterWeightForce.toFixed(2)} N. Cuando el objeto baja, el contrapeso sube.`;
+                systemBehavior.textContent = `El sistema de poleas está activado. El contrapeso de ${pulleyConfig.counterMass} kg ejerce una fuerza de ${counterWeightForce.toFixed(2).replace('.', ',')} N. Cuando el objeto baja, el contrapeso sube.`;
             } else {
                 systemBehavior.textContent = `El sistema de poleas está desactivado. El movimiento está determinado únicamente por la gravedad y la fricción.`;
             }
            
             // Explicación del desplazamiento
             if (acceleration > 0) {
-                displacementExplanation.textContent = `El objeto está acelerando hacia abajo del plano con una aceleración de ${acceleration.toFixed(2)} m/s². La velocidad aumenta con el tiempo.`;
+                displacementExplanation.textContent = `El objeto está acelerando hacia abajo del plano con una aceleración de ${acceleration.toFixed(2).replace('.', ',')} m/s². La velocidad aumenta con el tiempo.`;
             } else if (acceleration < 0) {
-                displacementExplanation.textContent = `El objeto está desacelerando (aceleración negativa de ${acceleration.toFixed(2)} m/s²). La velocidad disminuye con el tiempo.`;
+                displacementExplanation.textContent = `El objeto está desacelerando (aceleración negativa de ${acceleration.toFixed(2).replace('.', ',')} m/s²). La velocidad disminuye con el tiempo.`;
             } else {
                 displacementExplanation.textContent = `El objeto se mueve con velocidad constante o está en reposo. No hay aceleración neta.`;
             }
@@ -1276,7 +1285,7 @@
                
                 frictionInput.value = config.params.friction;
                 frictionRange.value = config.params.friction;
-                frictionValue.textContent = config.params.friction.toFixed(2);
+                frictionValue.textContent = config.params.friction.toFixed(2).replace('.', ',');
                 friction = config.params.friction;
                
                 lengthInput.value = config.params.length;
@@ -1341,7 +1350,7 @@
                     angleValuePulley.textContent = angle + '°';
                     frictionInputPulley.value = friction;
                     frictionRangePulley.value = friction;
-                    frictionValuePulley.textContent = friction.toFixed(2);
+                    frictionValuePulley.textContent = friction.toFixed(2).replace('.', ',');
                     lengthInputPulley.value = length;
                     gravityInputPulley.value = gravity;
                 }
@@ -1351,7 +1360,7 @@
             });
         });
        
-        // Sincronización de inputs de rango y número - MODIFICADO para notificar solo al soltar
+        // Sincronización de inputs de rango y número
         angleRange.addEventListener('input', function() {
             angleValue.textContent = this.value + '°';
             angleInput.value = this.value;
@@ -1374,7 +1383,7 @@
                 const netForceValue = gravitationalForce - frictionForce;
                
                 if (netForceValue <= 0 && angle < 90) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Aumente el ángulo o reduzca la fricción.`, 'warning');
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N). Aumente el ángulo o reduzca la fricción.`, 'warning');
                 } else {
                     showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
                 }
@@ -1383,7 +1392,7 @@
         });
        
         frictionRange.addEventListener('input', function() {
-            frictionValue.textContent = parseFloat(this.value).toFixed(2);
+            frictionValue.textContent = parseFloat(this.value).toFixed(2).replace('.', ',');
             frictionInput.value = this.value;
             friction = parseFloat(this.value);
             updateResultsExplanation();
@@ -1400,15 +1409,15 @@
                 const netForceValue = gravitationalForce - frictionForce;
                
                 if (netForceValue <= 0) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2)} N). Reduzca la fricción o aumente el ángulo.`, 'warning');
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N). Reduzca la fricción o aumente el ángulo.`, 'warning');
                 } else {
-                    showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+                    showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2).replace('.', ',')}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
                 }
                 frictionChanged = false;
             }
         });
        
-        // Sincronización para la pestaña de poleas - MODIFICADO para notificar solo al soltar
+        // Sincronización para la pestaña de poleas
         angleRangePulley.addEventListener('input', function() {
             angleValuePulley.textContent = this.value + '°';
             angleInputPulley.value = this.value;
@@ -1442,7 +1451,7 @@
         });
        
         frictionRangePulley.addEventListener('input', function() {
-            frictionValuePulley.textContent = parseFloat(this.value).toFixed(2);
+            frictionValuePulley.textContent = parseFloat(this.value).toFixed(2).replace('.', ',');
             frictionInputPulley.value = this.value;
             friction = parseFloat(this.value);
             updateResultsExplanation();
@@ -1461,9 +1470,9 @@
                 let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
                
                 if (netForceValue <= 0) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2)} N) junto con el contrapeso superan la componente gravitatoria. Reduzca la fricción o ajuste el contrapeso.`, 'warning');
+                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) junto con el contrapeso superan la componente gravitatoria. Reduzca la fricción o ajuste el contrapeso.`, 'warning');
                 } else {
-                    showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+                    showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2).replace('.', ',')}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
                 }
                 frictionChanged = false;
             }
@@ -1496,7 +1505,12 @@
             return isValid;
         }
        
-        // Actualizar valores de los inputs - MODIFICADO para notificar solo al cambiar
+        // Función para formatear número con coma como separador decimal
+        function formatNumberWithComma(value, decimals = 2) {
+            return value.toFixed(decimals).replace('.', ',');
+        }
+       
+        // Actualizar valores de los inputs
         massInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
@@ -1544,10 +1558,10 @@
             if (value > 0.5) value = 0.5;
             this.value = value;
             frictionRange.value = value;
-            frictionValue.textContent = value.toFixed(2);
+            frictionValue.textContent = formatNumberWithComma(value);
             friction = value;
             updateResultsExplanation();
-            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${value.toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
         });
        
         lengthInput.addEventListener('change', function() {
@@ -1571,7 +1585,7 @@
             showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
-        // Actualizar valores de los inputs de la pestaña de poleas - MODIFICADO para notificar solo al cambiar
+        // Actualizar valores de los inputs de la pestaña de poleas
         massInputPulley.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
@@ -1621,10 +1635,10 @@
             if (value > 0.5) value = 0.5;
             this.value = value;
             frictionRangePulley.value = value;
-            frictionValuePulley.textContent = value.toFixed(2);
+            frictionValuePulley.textContent = formatNumberWithComma(value);
             friction = value;
             updateResultsExplanation();
-            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${value.toFixed(2)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
         });
        
         lengthInputPulley.addEventListener('change', function() {
@@ -1648,7 +1662,7 @@
             showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
         });
        
-        // Configuración de poleas - MODIFICADO para notificar solo al cambiar
+        // Configuración de poleas
         counterMassInput.addEventListener('change', function() {
             let value = parseFloat(this.value);
             if (value < 0.1) value = 0.1;
@@ -1676,7 +1690,7 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA para mostrar la masa correctamente
+        // Función drawSimulation - MODIFICADA: Eliminé la etiqueta de masa
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
@@ -1751,15 +1765,7 @@
             ctx.restore();
             // --- FIN DIBUJO DE LA MASA ---
            
-            // Calcular posición del objeto para etiquetas
-            const objectX = baseX + (position / length) * planeWidth;
-            const objectY = baseY - planeHeight + (position / length) * planeHeight;
-           
-            // Etiqueta de masa
-            ctx.fillStyle = '#000';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${mass} kg`, objectX, objectY - massHeight - 15);
+            // NOTA: He eliminado la etiqueta de masa que mostraba "X kg" sobre el objeto
            
             // Posición del ángulo (esquina inferior DERECHA)
             const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
@@ -1804,7 +1810,7 @@
             ctx.stroke();
         }
        
-        // Dibujar sistema de poleas mejorado con cuerda recta
+        // Dibujar sistema de poleas mejorado con cuerda recta - MODIFICADA: Eliminé la etiqueta del contrapeso
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight) {
             // Posicionar la polea a la izquierda del plano
             const pulleyX = baseX - 100;
@@ -1883,11 +1889,7 @@
             ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 3);
             ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 10, counterWeightWidth - 10, 3);
            
-            // Etiqueta de contrapeso
-            ctx.fillStyle = '#2c3e50';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${pulleyConfig.counterMass} kg`, pulleyX, counterWeightY + counterWeightHeight/2 + 20);
+            // NOTA: He eliminado la etiqueta del contrapeso que mostraba "X kg" debajo del contrapeso
            
             // Dibujar cuerda del contrapeso (RECTA)
             ctx.beginPath();
@@ -1922,7 +1924,7 @@
                     // El objeto baja, el contrapeso sube
                     netForce = gravitationalForce - frictionForce - counterWeightForce;
                     acceleration = netForce / (mass + pulleyConfig.counterMass);
-                } 
+                }
                 // Si el contrapeso es mayor que la fuerza gravitatoria menos fricción, el objeto sube
                 else if (counterWeightForce > gravitationalForce - frictionForce) {
                     // El objeto sube, el contrapeso baja
@@ -1930,7 +1932,7 @@
                     acceleration = netForce / (mass + pulleyConfig.counterMass);
                     // La aceleración es negativa cuando el objeto sube
                     acceleration = -acceleration;
-                } 
+                }
                 // Sistema en equilibrio
                 else {
                     netForce = 0;
@@ -1979,12 +1981,12 @@
             energy = potentialEnergy + kineticEnergy;
            
             // Actualizar valores en pantalla
-            timeValue.textContent = currentTime.toFixed(2) + " s";
-            positionValue.textContent = position.toFixed(2) + " M";
-            velocityValue.textContent = velocity.toFixed(2) + " M/s";
-            accelerationValue.textContent = acceleration.toFixed(2) + " M/s²";
-            forceValue.textContent = netForce.toFixed(2) + " N";
-            energyValue.textContent = energy.toFixed(2) + " J";
+            timeValue.textContent = formatNumberWithComma(currentTime) + " s";
+            positionValue.textContent = formatNumberWithComma(position) + " m";
+            velocityValue.textContent = formatNumberWithComma(velocity) + " m/s";
+            accelerationValue.textContent = formatNumberWithComma(acceleration) + " m/s²";
+            forceValue.textContent = formatNumberWithComma(netForce) + " N";
+            energyValue.textContent = formatNumberWithComma(energy) + " J";
            
             // Actualizar explicación de resultados
             updateResultsExplanation();
@@ -2023,78 +2025,98 @@
             energy = 0;
             simulationData = [];
            
-            timeValue.textContent = "0.00 s";
-            positionValue.textContent = "0.00 M";
-            velocityValue.textContent = "0.00 M/s";
-            accelerationValue.textContent = "0.00 M/s²";
-            forceValue.textContent = "0.00 N";
-            energyValue.textContent = "0.00 J";
+            timeValue.textContent = "0,00 s";
+            positionValue.textContent = "0,00 m";
+            velocityValue.textContent = "0,00 m/s";
+            accelerationValue.textContent = "0,00 m/s²";
+            forceValue.textContent = "0,00 N";
+            energyValue.textContent = "0,00 J";
            
             drawSimulation();
             updateResultsExplanation();
             showNotification('Simulación Reiniciada', 'La simulación se ha reiniciado a su estado inicial.', 'info');
         }
 
-        // (Las funciones de exportación se mantienen igual)
+        // Función para exportar datos a CSV/Excel - FUNCIÓN MEJORADA
         function exportData() {
             if (simulationData.length === 0) {
-                showNotification('Sin Datos', 'No hay datos para exportar. Ejecuta la simulación primero.', 'warning');
+                showNotification('Error de Exportación', 'No hay datos de simulación para exportar. Inicie la simulación primero.', 'warning');
                 return;
             }
 
-            // Crear contenido CSV estructurado
-            let csvContent = "";
-           
-            // Encabezado con información del experimento
-            csvContent += "LABORATORIO VIRTUAL - PLANO INCLINADO\n";
-            csvContent += "Resultados de Simulación\n\n";
-           
-            // Información de configuración
-            csvContent += "CONFIGURACIÓN DEL EXPERIMENTO\n";
-            csvContent += `Masa del objeto: ${mass} kg\n`;
-            csvContent += `Ángulo del plano: ${angle}°\n`;
-            csvContent += `Coeficiente de fricción: ${friction}\n`;
-            csvContent += `Longitud del plano: ${length} m\n`;
-            csvContent += `Gravedad: ${gravity} m/s²\n`;
-            csvContent += `Sistema de poleas: ${usePulley ? "Activado" : "Desactivado"}\n`;
+            // --- 1. Hoja de DATOS DETALLADOS ---
+            // Mapear los datos para usar nombres de columnas claros y formatear los números a 3 decimales
+            const formattedData = simulationData.map(d => ({
+                'Tiempo (s)': formatNumberWithComma(d.time, 3),
+                'Posición (m)': formatNumberWithComma(d.position, 3),
+                'Velocidad (m/s)': formatNumberWithComma(d.velocity, 3),
+                'Aceleración (m/s²)': formatNumberWithComma(d.acceleration, 3),
+                'Fuerza Neta (N)': formatNumberWithComma(d.force, 3),
+                'Energía Total (J)': formatNumberWithComma(d.energy, 3),
+            }));
+
+            // Usamos json_to_sheet para crear la hoja con encabezados claros
+            const dataWs = XLSX.utils.json_to_sheet(formattedData);
+            
+            // --- 2. Hoja de PARÁMETROS DE LA SIMULACIÓN ---
+            const currentMassInput = usePulley ? massInputPulley : massInput;
+            const currentAngleInput = usePulley ? angleInputPulley : angleInput;
+            const currentFrictionInput = usePulley ? frictionInputPulley : frictionInput;
+            const currentLengthInput = usePulley ? lengthInputPulley : lengthInput;
+            const currentGravityInput = usePulley ? gravityInputPulley : gravityInput;
+
+            const paramsData = [
+                ["PARÁMETRO", "VALOR", "UNIDAD"],
+                ["Sistema", usePulley ? "Plano con Polea" : "Plano Básico", ""],
+                ["Masa Objeto (m)", formatNumberWithComma(parseFloat(currentMassInput.value)), "kg"],
+                ["Ángulo del Plano (θ)", formatNumberWithComma(parseFloat(currentAngleInput.value), 0), "°"],
+                ["Fricción (μ)", formatNumberWithComma(parseFloat(currentFrictionInput.value)), ""],
+                ["Longitud del Plano (L)", formatNumberWithComma(parseFloat(currentLengthInput.value), 1), "m"],
+                ["Gravedad (g)", formatNumberWithComma(parseFloat(currentGravityInput.value)), "m/s²"],
+            ];
+            
             if (usePulley) {
-                csvContent += `Masa del contrapeso: ${pulleyConfig.counterMass} kg\n`;
+                // Si la polea está activa, usar el input de polea para M y añadir M2
+                paramsData[2] = ["Masa Objeto (m)", formatNumberWithComma(parseFloat(massInputPulley.value)), "kg"]; 
+                paramsData.push(["Masa Contrapeso (m₂)", formatNumberWithComma(parseFloat(counterMassInput.value)), "kg"]);
             }
-            csvContent += `Fecha de simulación: ${new Date().toLocaleString()}\n\n`;
-           
-            // Resumen de resultados
-            csvContent += "RESUMEN DE RESULTADOS\n";
+            
+            // Usamos aoa_to_sheet (Array of Arrays) para datos sencillos como los parámetros
+            const paramsWs = XLSX.utils.aoa_to_sheet(paramsData);
+            
+            // --- 3. Hoja de RESUMEN DE RESULTADOS ---
             const finalTime = simulationData[simulationData.length - 1].time;
             const finalPosition = simulationData[simulationData.length - 1].position;
             const maxVelocity = Math.max(...simulationData.map(d => Math.abs(d.velocity)));
             const maxAcceleration = Math.max(...simulationData.map(d => Math.abs(d.acceleration)));
-           
-            csvContent += `Tiempo total de simulación: ${finalTime.toFixed(2)} s\n`;
-            csvContent += `Distancia recorrida: ${finalPosition.toFixed(2)} m\n`;
-            csvContent += `Velocidad máxima: ${maxVelocity.toFixed(2)} m/s\n`;
-            csvContent += `Aceleración máxima: ${maxAcceleration.toFixed(2)} m/s²\n`;
-            csvContent += `Estado final: ${finalPosition >= length ? "Completado" : "En progreso"}\n\n`;
-           
-            // Datos detallados
-            csvContent += "DATOS DETALLADOS DE LA SIMULACIÓN\n";
-            csvContent += "Tiempo (s),Posición (m),Velocidad (m/s),Aceleración (m/s²),Fuerza Neta (N),Energía (J)\n";
-           
-            simulationData.forEach(data => {
-                csvContent += `${data.time.toFixed(3)},${data.position.toFixed(3)},${data.velocity.toFixed(3)},${data.acceleration.toFixed(3)},${data.force.toFixed(3)},${data.energy.toFixed(3)}\n`;
-            });
-           
-            // Crear y descargar archivo
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `simulacion_plano_inclinado_${new Date().toISOString().slice(0,10)}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-           
-            showNotification('Datos Exportados', 'Los datos de la simulación se han exportado correctamente a un archivo CSV estructurado.', 'success');
+            const finalState = finalPosition >= length ? "Completado" : "Detenido/En progreso";
+
+            const summaryData = [
+                ["RESUMEN DE RESULTADOS DE LA SIMULACIÓN"],
+                [""],
+                ["PARÁMETRO", "VALOR", "UNIDAD"],
+                ["Tiempo total", formatNumberWithComma(finalTime, 3), "s"],
+                ["Distancia recorrida", formatNumberWithComma(finalPosition, 3), "m"],
+                ["Velocidad máxima (abs)", formatNumberWithComma(maxVelocity, 3), "m/s"],
+                ["Aceleración máxima (abs)", formatNumberWithComma(maxAcceleration, 3), "m/s²"],
+                ["Estado final", finalState, ""]
+            ];
+
+            const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+            
+            // --- 4. Crear el libro de Excel (Workbook) ---
+            const wb = XLSX.utils.book_new();
+
+            // Agregar las hojas en orden lógico
+            XLSX.utils.book_append_sheet(wb, paramsWs, "Parámetros");
+            XLSX.utils.book_append_sheet(wb, summaryWs, "Resumen");
+            XLSX.utils.book_append_sheet(wb, dataWs, "Datos Detallados");
+
+            // --- 5. Exportar el archivo ---
+            const filename = `Plano_Inclinado_Datos_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, filename);
+
+            showNotification('Exportación Exitosa', `Los datos se han exportado a "${filename}".`, 'success');
         }
 
         // Controladores de botones
