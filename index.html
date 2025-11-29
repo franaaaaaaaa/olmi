@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +5,7 @@
     <title>Laboratorio Virtual - Plano Inclinado</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* Todos los estilos CSS se mantienen igual */
         :root {
             --primary-color: #1a365d;
             --secondary-color: #2d3748;
@@ -387,6 +387,36 @@
             background: #2f855a;
         }
        
+        .pulley-config {
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 1px solid #e2e8f0;
+        }
+       
+        .pulley-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--border-radius);
+        }
+       
+        .pulley-toggle input {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-color);
+        }
+       
+        .pulley-options {
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+            margin-top: 12px;
+            border: 1px solid #e2e8f0;
+        }
+       
         .history-container {
             background: white;
             border-radius: var(--border-radius);
@@ -587,18 +617,6 @@
             display: flex;
             align-items: flex-start;
             animation: slideIn 0.3s ease;
-        }
-       
-        .notification.warning {
-            border-left-color: var(--warning-color);
-        }
-       
-        .notification.error {
-            border-left-color: var(--danger-color);
-        }
-       
-        .notification.success {
-            border-left-color: var(--success-color);
         }
        
         .notification-icon {
@@ -1087,7 +1105,7 @@
         function showNotification(title, message, type = 'info') {
             const notificationContainer = document.getElementById('notification-container');
             const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
+            notification.className = 'notification';
            
             let icon = 'ℹ️';
             if (type === 'warning') icon = '⚠️';
@@ -1118,64 +1136,73 @@
             }, 5000);
         }
        
-        // Función para verificar si hay movimiento posible
-        function checkMovementPossible() {
+        // Función para verificar si el objeto puede moverse
+        function canObjectMove() {
+            const angleRad = angle * Math.PI / 180;
+           
+            // Fuerza gravitatoria paralela al plano
+            const gravitationalForce = mass * gravity * Math.sin(angleRad);
+           
+            // Fuerza normal
+            const normalForce = mass * gravity * Math.cos(angleRad);
+           
+            // Fuerza de fricción
+            const frictionForce = friction * normalForce;
+           
+            // Verificar si hay movimiento
+            if (usePulley) {
+                // Fuerza del contrapeso
+                const counterWeightForce = pulleyConfig.counterMass * gravity;
+               
+                // Determinar la dirección del movimiento
+                // Si la fuerza gravitatoria es mayor que la suma de fricción y contrapeso, el objeto baja
+                if (gravitationalForce > frictionForce + counterWeightForce) {
+                    return { canMove: true, direction: 'down' };
+                }
+                // Si el contrapeso es mayor que la fuerza gravitatoria menos fricción, el objeto sube
+                else if (counterWeightForce > gravitationalForce - frictionForce) {
+                    return { canMove: true, direction: 'up' };
+                }
+                // Sistema en equilibrio
+                else {
+                    return { canMove: false, reason: 'equilibrium' };
+                }
+            } else {
+                // Sistema sin poleas
+                if (gravitationalForce > frictionForce) {
+                    return { canMove: true, direction: 'down' };
+                } else if (gravitationalForce < frictionForce) {
+                    return { canMove: false, reason: 'friction' };
+                } else {
+                    return { canMove: false, reason: 'equilibrium' };
+                }
+            }
+        }
+       
+        // Función para obtener mensaje de advertencia detallado
+        function getMovementWarningMessage(movementCheck) {
             const angleRad = angle * Math.PI / 180;
             const gravitationalForce = mass * gravity * Math.sin(angleRad);
             const normalForce = mass * gravity * Math.cos(angleRad);
             const frictionForce = friction * normalForce;
            
-            if (usePulley) {
-                const counterWeightForce = pulleyConfig.counterMass * gravity;
-                const netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-               
-                // Determinar si hay movimiento
-                if (Math.abs(netForceValue) < 0.001) {
-                    return {
-                        possible: false,
-                        reason: "equilibrio",
-                        message: `El sistema está en equilibrio perfecto. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es igual a la suma de la fricción (${frictionForce.toFixed(2).replace('.', ',')} N) y el contrapeso (${counterWeightForce.toFixed(2).replace('.', ',')} N).`,
-                        suggestions: [
-                            "Aumente el ángulo del plano para incrementar la fuerza gravitatoria paralela",
-                            "Reduzca el coeficiente de fricción para disminuir la fuerza de fricción",
-                            "Ajuste la masa del contrapeso para desequilibrar el sistema"
-                        ]
-                    };
-                } else if (netForceValue > 0) {
-                    return {
-                        possible: true,
-                        direction: "down",
-                        message: `El objeto se moverá hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es mayor que la suma de la fricción (${frictionForce.toFixed(2).replace('.', ',')} N) y el contrapeso (${counterWeightForce.toFixed(2).replace('.', ',')} N).`
-                    };
+            if (!movementCheck.canMove) {
+                if (usePulley) {
+                    const counterWeightForce = pulleyConfig.counterMass * gravity;
+                   
+                    if (movementCheck.reason === 'equilibrium') {
+                        return `El objeto no se mueve porque el sistema está en equilibrio. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es igual a la suma de la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) y la fuerza del contrapeso (${counterWeightForce.toFixed(2).replace('.', ',')} N). Para permitir el movimiento, aumente el ángulo, reduzca la fricción o ajuste la masa del contrapeso.`;
+                    }
                 } else {
-                    return {
-                        possible: true,
-                        direction: "up",
-                        message: `El objeto se moverá hacia arriba del plano. El contrapeso (${counterWeightForce.toFixed(2).replace('.', ',')} N) es mayor que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) menos la fricción (${frictionForce.toFixed(2).replace('.', ',')} N).`
-                    };
-                }
-            } else {
-                const netForceValue = gravitationalForce - frictionForce;
-               
-                // Determinar si hay movimiento
-                if (netForceValue <= 0) {
-                    return {
-                        possible: false,
-                        reason: "friccion",
-                        message: `El objeto no se moverá porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N).`,
-                        suggestions: [
-                            "Aumente el ángulo del plano para incrementar la fuerza gravitatoria paralela",
-                            "Reduzca el coeficiente de fricción para disminuir la fuerza de fricción"
-                        ]
-                    };
-                } else {
-                    return {
-                        possible: true,
-                        direction: "down",
-                        message: `El objeto se moverá hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N).`
-                    };
+                    if (movementCheck.reason === 'friction') {
+                        return `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) es mayor que la componente gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N). Para permitir el movimiento, aumente el ángulo del plano o reduzca el coeficiente de fricción.`;
+                    } else if (movementCheck.reason === 'equilibrium') {
+                        return `El objeto no se mueve porque el sistema está en equilibrio perfecto. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es igual a la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N). Para permitir el movimiento, aumente el ángulo del plano o reduzca el coeficiente de fricción.`;
+                    }
                 }
             }
+           
+            return null;
         }
        
         // Función para actualizar la sección de resultados
@@ -1417,17 +1444,11 @@
 
         angleRange.addEventListener('change', function() {
             if (angleChanged) {
-                // Verificar si hay movimiento posible
-                const movementCheck = checkMovementPossible();
-                if (!movementCheck.possible) {
-                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-                   
-                    // Mostrar sugerencias si están disponibles
-                    if (movementCheck.suggestions) {
-                        setTimeout(() => {
-                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                        }, 1000);
-                    }
+                // Verificar si el objeto puede moverse
+                const movementCheck = canObjectMove();
+                if (!movementCheck.canMove) {
+                    const warningMessage = getMovementWarningMessage(movementCheck);
+                    showNotification('Objeto en Reposo', warningMessage, 'warning');
                 } else {
                     showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
                 }
@@ -1445,17 +1466,11 @@
 
         frictionRange.addEventListener('change', function() {
             if (frictionChanged) {
-                // Verificar si hay movimiento posible
-                const movementCheck = checkMovementPossible();
-                if (!movementCheck.possible) {
-                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-                   
-                    // Mostrar sugerencias si están disponibles
-                    if (movementCheck.suggestions) {
-                        setTimeout(() => {
-                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                        }, 1000);
-                    }
+                // Verificar si el objeto puede moverse
+                const movementCheck = canObjectMove();
+                if (!movementCheck.canMove) {
+                    const warningMessage = getMovementWarningMessage(movementCheck);
+                    showNotification('Objeto en Reposo', warningMessage, 'warning');
                 } else {
                     showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2).replace('.', ',')}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
                 }
@@ -1478,17 +1493,11 @@
 
         angleRangePulley.addEventListener('change', function() {
             if (angleChanged) {
-                // Verificar si hay movimiento posible
-                const movementCheck = checkMovementPossible();
-                if (!movementCheck.possible) {
-                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-                   
-                    // Mostrar sugerencias si están disponibles
-                    if (movementCheck.suggestions) {
-                        setTimeout(() => {
-                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                        }, 1000);
-                    }
+                // Verificar si el objeto puede moverse
+                const movementCheck = canObjectMove();
+                if (!movementCheck.canMove) {
+                    const warningMessage = getMovementWarningMessage(movementCheck);
+                    showNotification('Objeto en Reposo', warningMessage, 'warning');
                 } else {
                     showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
                 }
@@ -1506,17 +1515,11 @@
 
         frictionRangePulley.addEventListener('change', function() {
             if (frictionChanged) {
-                // Verificar si hay movimiento posible
-                const movementCheck = checkMovementPossible();
-                if (!movementCheck.possible) {
-                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-                   
-                    // Mostrar sugerencias si están disponibles
-                    if (movementCheck.suggestions) {
-                        setTimeout(() => {
-                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                        }, 1000);
-                    }
+                // Verificar si el objeto puede moverse
+                const movementCheck = canObjectMove();
+                if (!movementCheck.canMove) {
+                    const warningMessage = getMovementWarningMessage(movementCheck);
+                    showNotification('Objeto en Reposo', warningMessage, 'warning');
                 } else {
                     showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2).replace('.', ',')}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
                 }
@@ -1568,17 +1571,11 @@
             }
             updateResultsExplanation();
            
-            // Verificar si hay movimiento posible
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
             } else {
                 showNotification('Masa Modificada', `La masa del objeto se ha cambiado a ${value} kg. Esto afecta tanto la fuerza gravitatoria como la inercia del objeto.`, 'info');
             }
@@ -1598,17 +1595,11 @@
             }
             updateResultsExplanation();
            
-            // Verificar si hay movimiento posible
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
             } else {
                 showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
             }
@@ -1624,17 +1615,11 @@
             friction = value;
             updateResultsExplanation();
            
-            // Verificar si hay movimiento posible
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
             } else {
                 showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
             }
@@ -1658,7 +1643,15 @@
             this.value = value;
             gravity = value;
             updateResultsExplanation();
-            showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
+           
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
+            } else {
+                showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
+            }
         });
        
         // Actualizar valores de los inputs de la pestaña de poleas
@@ -1673,17 +1666,11 @@
             }
             updateResultsExplanation();
            
-            // Verificar si hay movimiento posible
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
             } else {
                 showNotification('Masa Modificada', `La masa del objeto se ha cambiado a ${value} kg. Esto afecta tanto la fuerza gravitatoria como la inercia del objeto.`, 'info');
             }
@@ -1703,17 +1690,11 @@
             }
             updateResultsExplanation();
            
-            // Verificar si hay movimiento posible
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
             } else {
                 showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
             }
@@ -1729,17 +1710,11 @@
             friction = value;
             updateResultsExplanation();
            
-            // Verificar si hay movimiento posible
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
             } else {
                 showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
             }
@@ -1763,7 +1738,15 @@
             this.value = value;
             gravity = value;
             updateResultsExplanation();
-            showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
+           
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
+            } else {
+                showNotification('Gravedad Modificada', `El valor de la gravedad se ha cambiado a ${value} m/s². Esto afecta todas las fuerzas gravitatorias en el sistema.`, 'info');
+            }
         });
        
         // Configuración de poleas
@@ -1778,29 +1761,20 @@
             }
             updateResultsExplanation();
            
-            // Verificar si hay movimiento posible
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('Objeto en Reposo', warningMessage, 'warning');
             } else {
                 showNotification('Contrapeso Modificado', `La masa del contrapeso se ha cambiado a ${value} kg. Esto afecta la fuerza que contrarresta el movimiento del objeto.`, 'info');
             }
         });
        
-        // Función drawSimulation - CORREGIDA para mostrar poleas correctamente
+        // Función drawSimulation - MODIFICADA: Eliminé la etiqueta de masa
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
-           
-            // Limpiar canvas
-            ctx.clearRect(0, 0, width, height);
            
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
@@ -1810,6 +1784,8 @@
             // Ajustar posición inicial del plano según si hay polea o no
             const baseX = usePulley ? width * 0.4 : width * 0.2;
             const baseY = height - 100;
+           
+            ctx.clearRect(0, 0, width, height);
            
             // Dibujar plano inclinado
             ctx.beginPath();
@@ -1828,75 +1804,72 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight);
             }
            
-            // Dibujar la masa en el plano inclinado
-            drawMassOnIncline(baseX, baseY, planeWidth, planeHeight, angleRad);
-           
-            // Dibujar ángulo
-            drawAngle(baseX, baseY, planeWidth, angleRad);
-        }
-       
-        // Función para dibujar la masa en el plano inclinado
-        function drawMassOnIncline(baseX, baseY, planeWidth, planeHeight, angleRad) {
+            // --- DIBUJO DE LA MASA ---
             ctx.save();
-           
-            // Mover el origen al punto de inicio del plano inclinado
+            // 1. Mover el origen al punto de inicio del plano inclinado (Vértice Superior Izquierdo)
             const inclineXStart = baseX;
             const inclineYStart = baseY - planeHeight;
             ctx.translate(inclineXStart, inclineYStart);
-           
-            // Rotar el canvas para alinear el eje X con la hipotenusa
+            // 2. Rotar el canvas para alinear el eje X con la hipotenusa (incline)
             ctx.rotate(angleRad);
            
-            // Posición a lo largo del plano inclinado
-            const inclineLengthCanvas = planeWidth / Math.cos(angleRad);
+            // Posición a lo largo del plano inclinado (eje X rotado)
+            // Posición de dibujo para que position=0 esté en la parte superior y position=length esté en la base
+            const inclineLengthCanvas = planeWidth / Math.cos(angleRad); // Longitud de la hipotenusa en píxeles
             const distanceMovedFromTop = (position / length) * inclineLengthCanvas;
-            const massDrawX = distanceMovedFromTop;
-            const massDrawY = 0;
+            const massDrawX = distanceMovedFromTop; // CORRECCIÓN: Ahora comienza en la parte superior
+            const massDrawY = 0; // El plano inclinado es ahora el eje X
            
-            // Dibujar cuerpo (rectángulo)
+            // 1. Dibuja el cuerpo (rectángulo)
             const massWidth = 40;
             const massHeight = 25;
-            ctx.fillStyle = "rgba(211, 211, 211, 0.9)";
-            ctx.strokeStyle = "#333";
+            ctx.fillStyle = "rgba(211, 211, 211, 0.9)"; // Gris claro
+            ctx.strokeStyle = "#333"; // Gris oscuro para el borde
             ctx.lineWidth = 1.5;
            
+            // Dibuja el rectángulo desde la esquina superior izquierda (ajustado para sentarse en el eje X)
             ctx.fillRect(massDrawX, massDrawY - massHeight, massWidth, massHeight);
             ctx.strokeRect(massDrawX, massDrawY - massHeight, massWidth, massHeight);
            
-            // Dibujar centro de masa
+            // 2. Dibuja el centro de masa (círculo rojo)
             const massCenterX = massDrawX + massWidth / 2;
-            const massCenterY = massDrawY - massHeight / 2;
+            const massCenterY = massDrawY - massHeight / 2; // Centro vertical
            
             ctx.beginPath();
-            ctx.arc(massCenterX, massCenterY, 3.5, 0, 2 * Math.PI);
-            ctx.fillStyle = "#e53e3e";
+            ctx.arc(massCenterX, massCenterY, 3.5, 0, 2 * Math.PI); // Radio de 3.5px para el punto
+            ctx.fillStyle = "#e53e3e"; // Rojo
             ctx.fill();
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = '#000'; // Pequeño borde negro para contraste
             ctx.lineWidth = 0.5;
             ctx.stroke();
            
             ctx.restore();
-        }
-       
-        // Función para dibujar el ángulo
-        function drawAngle(baseX, baseY, planeWidth, angleRad) {
-            // Posición del ángulo (esquina inferior derecha)
-            const angleArcRadius = 30;
-            const angleArcX = baseX + planeWidth;
-            const angleArcY = baseY;
+            // --- FIN DIBUJO DE LA MASA ---
+           
+            // NOTA: He eliminado la etiqueta de masa que mostraba "X kg" sobre el objeto
+           
+            // Posición del ángulo (esquina inferior DERECHA)
+            const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
+            const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
+            const angleArcY = baseY;              // La Y del vértice (la base horizontal)
                        
             // Arco para θ
             ctx.beginPath();
+            // El ángulo se mide desde la base (Math.PI) hacia la hipotenusa (Math.PI - angleRad).
+            // Dibuja el arco desde Math.PI - angleRad hasta Math.PI (sentido antihorario = false)
             ctx.arc(angleArcX, angleArcY, angleArcRadius, Math.PI - angleRad, Math.PI, false);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
                        
-            // Etiqueta θ
+            // Etiqueta θ DENTRO del arco
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
            
-            const thetaTextRadius = angleArcRadius * 0.6;
+            // Calcular posición para el texto θ (a la mitad del ángulo y más cerca del vértice)
+            const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
+           
+            // Ángulo para el centro del texto: Math.PI - angleRad / 2
             const centerAngle = Math.PI - angleRad / 2;
            
             const thetaX = angleArcX + thetaTextRadius * Math.cos(centerAngle);
@@ -1904,7 +1877,7 @@
            
             ctx.fillText('θ', thetaX, thetaY);
            
-            // Dibujar cuadrado de 90°
+            // Dibujar cuadrado de 90° en la base (entre cateto adyacente y opuesto)
             const squareSize = 15;
             const squareX = baseX + squareSize/2;
             const squareY = baseY - squareSize/2;
@@ -1918,7 +1891,7 @@
             ctx.stroke();
         }
        
-        // Dibujar sistema de poleas - CORREGIDA
+        // Dibujar sistema de poleas mejorado con cuerda recta - MODIFICADA: Eliminé la etiqueta del contrapeso
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight) {
             // Posicionar la polea a la izquierda del plano
             const pulleyX = baseX - 100;
@@ -1968,14 +1941,10 @@
            
             // Calcular posición del objeto para la cuerda
             const angleRad = angle * Math.PI / 180;
-            const inclineLengthCanvas = planeWidth / Math.cos(angleRad);
-            const distanceMovedFromTop = (position / length) * inclineLengthCanvas;
+            const objectX = baseX + (position / length) * planeWidth;
+            const objectY = baseY - planeHeight + (position / length) * planeHeight;
            
-            // Coordenadas del objeto en el plano inclinado (sin rotación)
-            const objectX = baseX + distanceMovedFromTop * Math.cos(angleRad);
-            const objectY = (baseY - planeHeight) + distanceMovedFromTop * Math.sin(angleRad);
-           
-            // Dibujar cuerda desde el objeto hasta la polea
+            // Dibujar cuerda desde el objeto hasta la polea (RECTA)
             ctx.beginPath();
             ctx.moveTo(objectX, objectY);
             ctx.lineTo(pulleyX, pulleyY);
@@ -1983,11 +1952,11 @@
             ctx.lineWidth = 3;
             ctx.stroke();
            
-            // Calcular posición del contrapeso (se mueve en dirección opuesta)
+            // CORRECCIÓN: El contrapeso se mueve en dirección opuesta al objeto
             const maxCounterWeightMovement = 200;
             const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
            
-            // Dibujar contrapeso
+            // Dibujar contrapeso como RECTÁNGULO
             const counterWeightWidth = 20 + pulleyConfig.counterMass / 2;
             const counterWeightHeight = 15 + pulleyConfig.counterMass / 3;
             ctx.fillStyle = '#3498db';
@@ -2001,7 +1970,9 @@
             ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 3);
             ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 10, counterWeightWidth - 10, 3);
            
-            // Dibujar cuerda del contrapeso
+            // NOTA: He eliminado la etiqueta del contrapeso que mostraba "X kg" debajo del contrapeso
+           
+            // Dibujar cuerda del contrapeso (RECTA)
             ctx.beginPath();
             ctx.moveTo(pulleyX, pulleyY);
             ctx.lineTo(pulleyX, counterWeightY - counterWeightHeight/2);
@@ -2010,7 +1981,7 @@
             ctx.stroke();
         }
        
-        // Calcular física del plano inclinado - CORREGIDA
+        // Calcular física del plano inclinado - CORREGIDA COMPLETAMENTE
         function calculatePhysics() {
             const angleRad = angle * Math.PI / 180;
            
@@ -2023,7 +1994,7 @@
             // Fuerza de fricción
             const frictionForce = friction * normalForce;
            
-            // Física del sistema de poleas
+            // CORRECCIÓN COMPLETA: Física del sistema de poleas
             if (usePulley) {
                 // Fuerza del contrapeso
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
@@ -2147,14 +2118,15 @@
             showNotification('Simulación Reiniciada', 'La simulación se ha reiniciado a su estado inicial.', 'info');
         }
 
-        // Función para exportar datos a CSV/Excel
+        // Función para exportar datos a CSV/Excel - FUNCIÓN MEJORADA
         function exportData() {
             if (simulationData.length === 0) {
                 showNotification('Error de Exportación', 'No hay datos de simulación para exportar. Inicie la simulación primero.', 'warning');
                 return;
             }
 
-            // Crear datos formateados
+            // --- 1. Hoja de DATOS DETALLADOS ---
+            // Mapear los datos para usar nombres de columnas claros y formatear los números a 3 decimales
             const formattedData = simulationData.map(d => ({
                 'Tiempo (s)': formatNumberWithComma(d.time, 3),
                 'Posición (m)': formatNumberWithComma(d.position, 3),
@@ -2164,9 +2136,10 @@
                 'Energía Total (J)': formatNumberWithComma(d.energy, 3),
             }));
 
+            // Usamos json_to_sheet para crear la hoja con encabezados claros
             const dataWs = XLSX.utils.json_to_sheet(formattedData);
             
-            // Hoja de parámetros
+            // --- 2. Hoja de PARÁMETROS DE LA SIMULACIÓN ---
             const currentMassInput = usePulley ? massInputPulley : massInput;
             const currentAngleInput = usePulley ? angleInputPulley : angleInput;
             const currentFrictionInput = usePulley ? frictionInputPulley : frictionInput;
@@ -2184,13 +2157,15 @@
             ];
             
             if (usePulley) {
+                // Si la polea está activa, usar el input de polea para M y añadir M2
                 paramsData[2] = ["Masa Objeto (m)", formatNumberWithComma(parseFloat(massInputPulley.value)), "kg"]; 
                 paramsData.push(["Masa Contrapeso (m₂)", formatNumberWithComma(parseFloat(counterMassInput.value)), "kg"]);
             }
             
+            // Usamos aoa_to_sheet (Array of Arrays) para datos sencillos como los parámetros
             const paramsWs = XLSX.utils.aoa_to_sheet(paramsData);
             
-            // Hoja de resumen
+            // --- 3. Hoja de RESUMEN DE RESULTADOS ---
             const finalTime = simulationData[simulationData.length - 1].time;
             const finalPosition = simulationData[simulationData.length - 1].position;
             const maxVelocity = Math.max(...simulationData.map(d => Math.abs(d.velocity)));
@@ -2210,14 +2185,15 @@
 
             const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
             
-            // Crear libro de Excel
+            // --- 4. Crear el libro de Excel (Workbook) ---
             const wb = XLSX.utils.book_new();
 
+            // Agregar las hojas en orden lógico
             XLSX.utils.book_append_sheet(wb, paramsWs, "Parámetros");
             XLSX.utils.book_append_sheet(wb, summaryWs, "Resumen");
             XLSX.utils.book_append_sheet(wb, dataWs, "Datos Detallados");
 
-            // Exportar archivo
+            // --- 5. Exportar el archivo ---
             const filename = `Plano_Inclinado_Datos_${new Date().toISOString().slice(0, 10)}.xlsx`;
             XLSX.writeFile(wb, filename);
 
@@ -2228,17 +2204,11 @@
         startBtn.addEventListener('click', function() {
             if (!validateParameters()) return;
            
-            // Verificar si hay movimiento posible antes de iniciar
-            const movementCheck = checkMovementPossible();
-            if (!movementCheck.possible) {
-                showNotification('No Hay Movimiento', movementCheck.message, 'warning');
-               
-                // Mostrar sugerencias si están disponibles
-                if (movementCheck.suggestions) {
-                    setTimeout(() => {
-                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
-                    }, 1000);
-                }
+            // Verificar si el objeto puede moverse antes de iniciar la simulación
+            const movementCheck = canObjectMove();
+            if (!movementCheck.canMove) {
+                const warningMessage = getMovementWarningMessage(movementCheck);
+                showNotification('No hay movimiento', warningMessage, 'warning');
                 return;
             }
            
