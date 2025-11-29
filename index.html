@@ -6,7 +6,6 @@
     <title>Laboratorio Virtual - Plano Inclinado</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* Todos los estilos CSS se mantienen igual */
         :root {
             --primary-color: #1a365d;
             --secondary-color: #2d3748;
@@ -388,36 +387,6 @@
             background: #2f855a;
         }
        
-        .pulley-config {
-            margin-top: 22px;
-            padding-top: 22px;
-            border-top: 1px solid #e2e8f0;
-        }
-       
-        .pulley-toggle {
-            display: flex;
-            align-items: center;
-            margin-bottom: 18px;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: var(--border-radius);
-        }
-       
-        .pulley-toggle input {
-            margin-right: 12px;
-            width: 20px;
-            height: 20px;
-            accent-color: var(--accent-color);
-        }
-       
-        .pulley-options {
-            padding: 18px;
-            background: #f8fafc;
-            border-radius: var(--border-radius);
-            margin-top: 12px;
-            border: 1px solid #e2e8f0;
-        }
-       
         .history-container {
             background: white;
             border-radius: var(--border-radius);
@@ -618,6 +587,18 @@
             display: flex;
             align-items: flex-start;
             animation: slideIn 0.3s ease;
+        }
+       
+        .notification.warning {
+            border-left-color: var(--warning-color);
+        }
+       
+        .notification.error {
+            border-left-color: var(--danger-color);
+        }
+       
+        .notification.success {
+            border-left-color: var(--success-color);
         }
        
         .notification-icon {
@@ -1106,7 +1087,7 @@
         function showNotification(title, message, type = 'info') {
             const notificationContainer = document.getElementById('notification-container');
             const notification = document.createElement('div');
-            notification.className = 'notification';
+            notification.className = `notification ${type}`;
            
             let icon = 'ℹ️';
             if (type === 'warning') icon = '⚠️';
@@ -1813,10 +1794,13 @@
             }
         });
        
-        // Función drawSimulation - MODIFICADA: Eliminé la etiqueta de masa
+        // Función drawSimulation - CORREGIDA para mostrar poleas correctamente
         function drawSimulation() {
             const width = canvas.width;
             const height = canvas.height;
+           
+            // Limpiar canvas
+            ctx.clearRect(0, 0, width, height);
            
             // Calcular dimensiones del plano
             const angleRad = angle * Math.PI / 180;
@@ -1826,8 +1810,6 @@
             // Ajustar posición inicial del plano según si hay polea o no
             const baseX = usePulley ? width * 0.4 : width * 0.2;
             const baseY = height - 100;
-           
-            ctx.clearRect(0, 0, width, height);
            
             // Dibujar plano inclinado
             ctx.beginPath();
@@ -1846,72 +1828,75 @@
                 drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight);
             }
            
-            // --- DIBUJO DE LA MASA ---
+            // Dibujar la masa en el plano inclinado
+            drawMassOnIncline(baseX, baseY, planeWidth, planeHeight, angleRad);
+           
+            // Dibujar ángulo
+            drawAngle(baseX, baseY, planeWidth, angleRad);
+        }
+       
+        // Función para dibujar la masa en el plano inclinado
+        function drawMassOnIncline(baseX, baseY, planeWidth, planeHeight, angleRad) {
             ctx.save();
-            // 1. Mover el origen al punto de inicio del plano inclinado (Vértice Superior Izquierdo)
+           
+            // Mover el origen al punto de inicio del plano inclinado
             const inclineXStart = baseX;
             const inclineYStart = baseY - planeHeight;
             ctx.translate(inclineXStart, inclineYStart);
-            // 2. Rotar el canvas para alinear el eje X con la hipotenusa (incline)
+           
+            // Rotar el canvas para alinear el eje X con la hipotenusa
             ctx.rotate(angleRad);
            
-            // Posición a lo largo del plano inclinado (eje X rotado)
-            // Posición de dibujo para que position=0 esté en la parte superior y position=length esté en la base
-            const inclineLengthCanvas = planeWidth / Math.cos(angleRad); // Longitud de la hipotenusa en píxeles
+            // Posición a lo largo del plano inclinado
+            const inclineLengthCanvas = planeWidth / Math.cos(angleRad);
             const distanceMovedFromTop = (position / length) * inclineLengthCanvas;
-            const massDrawX = distanceMovedFromTop; // CORRECCIÓN: Ahora comienza en la parte superior
-            const massDrawY = 0; // El plano inclinado es ahora el eje X
+            const massDrawX = distanceMovedFromTop;
+            const massDrawY = 0;
            
-            // 1. Dibuja el cuerpo (rectángulo)
+            // Dibujar cuerpo (rectángulo)
             const massWidth = 40;
             const massHeight = 25;
-            ctx.fillStyle = "rgba(211, 211, 211, 0.9)"; // Gris claro
-            ctx.strokeStyle = "#333"; // Gris oscuro para el borde
+            ctx.fillStyle = "rgba(211, 211, 211, 0.9)";
+            ctx.strokeStyle = "#333";
             ctx.lineWidth = 1.5;
            
-            // Dibuja el rectángulo desde la esquina superior izquierda (ajustado para sentarse en el eje X)
             ctx.fillRect(massDrawX, massDrawY - massHeight, massWidth, massHeight);
             ctx.strokeRect(massDrawX, massDrawY - massHeight, massWidth, massHeight);
            
-            // 2. Dibuja el centro de masa (círculo rojo)
+            // Dibujar centro de masa
             const massCenterX = massDrawX + massWidth / 2;
-            const massCenterY = massDrawY - massHeight / 2; // Centro vertical
+            const massCenterY = massDrawY - massHeight / 2;
            
             ctx.beginPath();
-            ctx.arc(massCenterX, massCenterY, 3.5, 0, 2 * Math.PI); // Radio de 3.5px para el punto
-            ctx.fillStyle = "#e53e3e"; // Rojo
+            ctx.arc(massCenterX, massCenterY, 3.5, 0, 2 * Math.PI);
+            ctx.fillStyle = "#e53e3e";
             ctx.fill();
-            ctx.strokeStyle = '#000'; // Pequeño borde negro para contraste
+            ctx.strokeStyle = '#000';
             ctx.lineWidth = 0.5;
             ctx.stroke();
            
             ctx.restore();
-            // --- FIN DIBUJO DE LA MASA ---
-           
-            // NOTA: He eliminado la etiqueta de masa que mostraba "X kg" sobre el objeto
-           
-            // Posición del ángulo (esquina inferior DERECHA)
-            const angleArcRadius = 30; // Radio del arco, reducido para que quepa mejor.
-            const angleArcX = baseX + planeWidth; // La X del vértice (extremo derecho de la base)
-            const angleArcY = baseY;              // La Y del vértice (la base horizontal)
+        }
+       
+        // Función para dibujar el ángulo
+        function drawAngle(baseX, baseY, planeWidth, angleRad) {
+            // Posición del ángulo (esquina inferior derecha)
+            const angleArcRadius = 30;
+            const angleArcX = baseX + planeWidth;
+            const angleArcY = baseY;
                        
             // Arco para θ
             ctx.beginPath();
-            // El ángulo se mide desde la base (Math.PI) hacia la hipotenusa (Math.PI - angleRad).
-            // Dibuja el arco desde Math.PI - angleRad hasta Math.PI (sentido antihorario = false)
             ctx.arc(angleArcX, angleArcY, angleArcRadius, Math.PI - angleRad, Math.PI, false);
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 2;
             ctx.stroke();
                        
-            // Etiqueta θ DENTRO del arco
+            // Etiqueta θ
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 18px Arial';
            
-            // Calcular posición para el texto θ (a la mitad del ángulo y más cerca del vértice)
-            const thetaTextRadius = angleArcRadius * 0.6; // Mueve el texto más adentro del arco
-           
-            // Ángulo para el centro del texto: Math.PI - angleRad / 2
+            const thetaTextRadius = angleArcRadius * 0.6;
             const centerAngle = Math.PI - angleRad / 2;
            
             const thetaX = angleArcX + thetaTextRadius * Math.cos(centerAngle);
@@ -1919,7 +1904,7 @@
            
             ctx.fillText('θ', thetaX, thetaY);
            
-            // Dibujar cuadrado de 90° en la base (entre cateto adyacente y opuesto)
+            // Dibujar cuadrado de 90°
             const squareSize = 15;
             const squareX = baseX + squareSize/2;
             const squareY = baseY - squareSize/2;
@@ -1933,7 +1918,7 @@
             ctx.stroke();
         }
        
-        // Dibujar sistema de poleas mejorado con cuerda recta - MODIFICADA: Eliminé la etiqueta del contrapeso
+        // Dibujar sistema de poleas - CORREGIDA
         function drawPulleySystem(width, height, baseX, baseY, planeWidth, planeHeight) {
             // Posicionar la polea a la izquierda del plano
             const pulleyX = baseX - 100;
@@ -1983,10 +1968,14 @@
            
             // Calcular posición del objeto para la cuerda
             const angleRad = angle * Math.PI / 180;
-            const objectX = baseX + (position / length) * planeWidth;
-            const objectY = baseY - planeHeight + (position / length) * planeHeight;
+            const inclineLengthCanvas = planeWidth / Math.cos(angleRad);
+            const distanceMovedFromTop = (position / length) * inclineLengthCanvas;
            
-            // Dibujar cuerda desde el objeto hasta la polea (RECTA)
+            // Coordenadas del objeto en el plano inclinado (sin rotación)
+            const objectX = baseX + distanceMovedFromTop * Math.cos(angleRad);
+            const objectY = (baseY - planeHeight) + distanceMovedFromTop * Math.sin(angleRad);
+           
+            // Dibujar cuerda desde el objeto hasta la polea
             ctx.beginPath();
             ctx.moveTo(objectX, objectY);
             ctx.lineTo(pulleyX, pulleyY);
@@ -1994,11 +1983,11 @@
             ctx.lineWidth = 3;
             ctx.stroke();
            
-            // CORRECCIÓN: El contrapeso se mueve en dirección opuesta al objeto
+            // Calcular posición del contrapeso (se mueve en dirección opuesta)
             const maxCounterWeightMovement = 200;
             const counterWeightY = pulleyY + pulleyRadius + 30 + (position / length) * maxCounterWeightMovement;
            
-            // Dibujar contrapeso como RECTÁNGULO
+            // Dibujar contrapeso
             const counterWeightWidth = 20 + pulleyConfig.counterMass / 2;
             const counterWeightHeight = 15 + pulleyConfig.counterMass / 3;
             ctx.fillStyle = '#3498db';
@@ -2012,9 +2001,7 @@
             ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 5, counterWeightWidth - 10, 3);
             ctx.fillRect(pulleyX - counterWeightWidth/2 + 5, counterWeightY - counterWeightHeight/2 + 10, counterWeightWidth - 10, 3);
            
-            // NOTA: He eliminado la etiqueta del contrapeso que mostraba "X kg" debajo del contrapeso
-           
-            // Dibujar cuerda del contrapeso (RECTA)
+            // Dibujar cuerda del contrapeso
             ctx.beginPath();
             ctx.moveTo(pulleyX, pulleyY);
             ctx.lineTo(pulleyX, counterWeightY - counterWeightHeight/2);
@@ -2023,7 +2010,7 @@
             ctx.stroke();
         }
        
-        // Calcular física del plano inclinado - CORREGIDA COMPLETAMENTE
+        // Calcular física del plano inclinado - CORREGIDA
         function calculatePhysics() {
             const angleRad = angle * Math.PI / 180;
            
@@ -2036,7 +2023,7 @@
             // Fuerza de fricción
             const frictionForce = friction * normalForce;
            
-            // CORRECCIÓN COMPLETA: Física del sistema de poleas
+            // Física del sistema de poleas
             if (usePulley) {
                 // Fuerza del contrapeso
                 const counterWeightForce = pulleyConfig.counterMass * gravity;
@@ -2160,15 +2147,14 @@
             showNotification('Simulación Reiniciada', 'La simulación se ha reiniciado a su estado inicial.', 'info');
         }
 
-        // Función para exportar datos a CSV/Excel - FUNCIÓN MEJORADA
+        // Función para exportar datos a CSV/Excel
         function exportData() {
             if (simulationData.length === 0) {
                 showNotification('Error de Exportación', 'No hay datos de simulación para exportar. Inicie la simulación primero.', 'warning');
                 return;
             }
 
-            // --- 1. Hoja de DATOS DETALLADOS ---
-            // Mapear los datos para usar nombres de columnas claros y formatear los números a 3 decimales
+            // Crear datos formateados
             const formattedData = simulationData.map(d => ({
                 'Tiempo (s)': formatNumberWithComma(d.time, 3),
                 'Posición (m)': formatNumberWithComma(d.position, 3),
@@ -2178,10 +2164,9 @@
                 'Energía Total (J)': formatNumberWithComma(d.energy, 3),
             }));
 
-            // Usamos json_to_sheet para crear la hoja con encabezados claros
             const dataWs = XLSX.utils.json_to_sheet(formattedData);
             
-            // --- 2. Hoja de PARÁMETROS DE LA SIMULACIÓN ---
+            // Hoja de parámetros
             const currentMassInput = usePulley ? massInputPulley : massInput;
             const currentAngleInput = usePulley ? angleInputPulley : angleInput;
             const currentFrictionInput = usePulley ? frictionInputPulley : frictionInput;
@@ -2199,15 +2184,13 @@
             ];
             
             if (usePulley) {
-                // Si la polea está activa, usar el input de polea para M y añadir M2
                 paramsData[2] = ["Masa Objeto (m)", formatNumberWithComma(parseFloat(massInputPulley.value)), "kg"]; 
                 paramsData.push(["Masa Contrapeso (m₂)", formatNumberWithComma(parseFloat(counterMassInput.value)), "kg"]);
             }
             
-            // Usamos aoa_to_sheet (Array of Arrays) para datos sencillos como los parámetros
             const paramsWs = XLSX.utils.aoa_to_sheet(paramsData);
             
-            // --- 3. Hoja de RESUMEN DE RESULTADOS ---
+            // Hoja de resumen
             const finalTime = simulationData[simulationData.length - 1].time;
             const finalPosition = simulationData[simulationData.length - 1].position;
             const maxVelocity = Math.max(...simulationData.map(d => Math.abs(d.velocity)));
@@ -2227,15 +2210,14 @@
 
             const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
             
-            // --- 4. Crear el libro de Excel (Workbook) ---
+            // Crear libro de Excel
             const wb = XLSX.utils.book_new();
 
-            // Agregar las hojas en orden lógico
             XLSX.utils.book_append_sheet(wb, paramsWs, "Parámetros");
             XLSX.utils.book_append_sheet(wb, summaryWs, "Resumen");
             XLSX.utils.book_append_sheet(wb, dataWs, "Datos Detallados");
 
-            // --- 5. Exportar el archivo ---
+            // Exportar archivo
             const filename = `Plano_Inclinado_Datos_${new Date().toISOString().slice(0, 10)}.xlsx`;
             XLSX.writeFile(wb, filename);
 
