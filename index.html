@@ -1365,6 +1365,10 @@
             angleValue.textContent = this.value + '°';
             angleInput.value = this.value;
             angle = parseFloat(this.value);
+            
+            // NUEVA FUNCIONALIDAD: Ajustar automáticamente la longitud del plano
+            adjustLengthForAngle();
+            
             drawSimulation();
             if (isRunning) {
                 resetSimulation();
@@ -1422,6 +1426,10 @@
             angleValuePulley.textContent = this.value + '°';
             angleInputPulley.value = this.value;
             angle = parseFloat(this.value);
+            
+            // NUEVA FUNCIONALIDAD: Ajustar automáticamente la longitud del plano
+            adjustLengthForAngle();
+            
             drawSimulation();
             if (isRunning) {
                 resetSimulation();
@@ -1477,6 +1485,29 @@
                 frictionChanged = false;
             }
         });
+       
+        // NUEVA FUNCIÓN: Ajustar la longitud del plano según el ángulo
+        function adjustLengthForAngle() {
+            const angleRad = angle * Math.PI / 180;
+            
+            // Altura visual constante para mantener la representación visual
+            const visualHeight = 200; // Altura en píxeles que queremos mantener
+            
+            // Calcular la nueva longitud del plano basada en la trigonometría
+            // L = H / sin(θ)
+            const newLength = visualHeight / Math.sin(angleRad);
+            
+            // Ajustar la longitud para que sea razonable (entre 1 y 20 metros)
+            const adjustedLength = Math.max(1, Math.min(20, newLength));
+            
+            // Actualizar el valor de longitud en ambas pestañas
+            lengthInput.value = adjustedLength.toFixed(1);
+            lengthInputPulley.value = adjustedLength.toFixed(1);
+            length = adjustedLength;
+            
+            // Mostrar notificación informativa
+            showNotification('Longitud Ajustada', `La longitud del plano se ha ajustado automáticamente a ${adjustedLength.toFixed(1)} m para mantener una altura visual constante.`, 'info');
+        }
        
         // Validación de parámetros
         function validateParameters() {
@@ -1544,6 +1575,10 @@
             angleRange.value = value;
             angleValue.textContent = value + '°';
             angle = value;
+            
+            // NUEVA FUNCIONALIDAD: Ajustar automáticamente la longitud del plano
+            adjustLengthForAngle();
+            
             drawSimulation();
             if (isRunning) {
                 resetSimulation();
@@ -1621,6 +1656,10 @@
             angleRangePulley.value = value;
             angleValuePulley.textContent = value + '°';
             angle = value;
+            
+            // NUEVA FUNCIONALIDAD: Ajustar automáticamente la longitud del plano
+            adjustLengthForAngle();
+            
             drawSimulation();
             if (isRunning) {
                 resetSimulation();
