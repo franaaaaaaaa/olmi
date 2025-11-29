@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -1136,6 +1137,66 @@
             }, 5000);
         }
        
+        // Función para verificar si hay movimiento posible
+        function checkMovementPossible() {
+            const angleRad = angle * Math.PI / 180;
+            const gravitationalForce = mass * gravity * Math.sin(angleRad);
+            const normalForce = mass * gravity * Math.cos(angleRad);
+            const frictionForce = friction * normalForce;
+           
+            if (usePulley) {
+                const counterWeightForce = pulleyConfig.counterMass * gravity;
+                const netForceValue = gravitationalForce - frictionForce - counterWeightForce;
+               
+                // Determinar si hay movimiento
+                if (Math.abs(netForceValue) < 0.001) {
+                    return {
+                        possible: false,
+                        reason: "equilibrio",
+                        message: `El sistema está en equilibrio perfecto. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es igual a la suma de la fricción (${frictionForce.toFixed(2).replace('.', ',')} N) y el contrapeso (${counterWeightForce.toFixed(2).replace('.', ',')} N).`,
+                        suggestions: [
+                            "Aumente el ángulo del plano para incrementar la fuerza gravitatoria paralela",
+                            "Reduzca el coeficiente de fricción para disminuir la fuerza de fricción",
+                            "Ajuste la masa del contrapeso para desequilibrar el sistema"
+                        ]
+                    };
+                } else if (netForceValue > 0) {
+                    return {
+                        possible: true,
+                        direction: "down",
+                        message: `El objeto se moverá hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es mayor que la suma de la fricción (${frictionForce.toFixed(2).replace('.', ',')} N) y el contrapeso (${counterWeightForce.toFixed(2).replace('.', ',')} N).`
+                    };
+                } else {
+                    return {
+                        possible: true,
+                        direction: "up",
+                        message: `El objeto se moverá hacia arriba del plano. El contrapeso (${counterWeightForce.toFixed(2).replace('.', ',')} N) es mayor que la fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) menos la fricción (${frictionForce.toFixed(2).replace('.', ',')} N).`
+                    };
+                }
+            } else {
+                const netForceValue = gravitationalForce - frictionForce;
+               
+                // Determinar si hay movimiento
+                if (netForceValue <= 0) {
+                    return {
+                        possible: false,
+                        reason: "friccion",
+                        message: `El objeto no se moverá porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N).`,
+                        suggestions: [
+                            "Aumente el ángulo del plano para incrementar la fuerza gravitatoria paralela",
+                            "Reduzca el coeficiente de fricción para disminuir la fuerza de fricción"
+                        ]
+                    };
+                } else {
+                    return {
+                        possible: true,
+                        direction: "down",
+                        message: `El objeto se moverá hacia abajo del plano. La fuerza gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N) es mayor que la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N).`
+                    };
+                }
+            }
+        }
+       
         // Función para actualizar la sección de resultados
         function updateResultsExplanation() {
             const angleRad = angle * Math.PI / 180;
@@ -1375,15 +1436,17 @@
 
         angleRange.addEventListener('change', function() {
             if (angleChanged) {
-                // Explicación física del ángulo
-                const angleRad = angle * Math.PI / 180;
-                const gravitationalForce = mass * gravity * Math.sin(angleRad);
-                const normalForce = mass * gravity * Math.cos(angleRad);
-                const frictionForce = friction * normalForce;
-                const netForceValue = gravitationalForce - frictionForce;
-               
-                if (netForceValue <= 0 && angle < 90) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N). Aumente el ángulo o reduzca la fricción.`, 'warning');
+                // Verificar si hay movimiento posible
+                const movementCheck = checkMovementPossible();
+                if (!movementCheck.possible) {
+                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+                   
+                    // Mostrar sugerencias si están disponibles
+                    if (movementCheck.suggestions) {
+                        setTimeout(() => {
+                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                        }, 1000);
+                    }
                 } else {
                     showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
                 }
@@ -1401,15 +1464,17 @@
 
         frictionRange.addEventListener('change', function() {
             if (frictionChanged) {
-                // Explicación física de la fricción
-                const angleRad = angle * Math.PI / 180;
-                const gravitationalForce = mass * gravity * Math.sin(angleRad);
-                const normalForce = mass * gravity * Math.cos(angleRad);
-                const frictionForce = friction * normalForce;
-                const netForceValue = gravitationalForce - frictionForce;
-               
-                if (netForceValue <= 0) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) es mayor o igual que la componente gravitatoria paralela (${gravitationalForce.toFixed(2).replace('.', ',')} N). Reduzca la fricción o aumente el ángulo.`, 'warning');
+                // Verificar si hay movimiento posible
+                const movementCheck = checkMovementPossible();
+                if (!movementCheck.possible) {
+                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+                   
+                    // Mostrar sugerencias si están disponibles
+                    if (movementCheck.suggestions) {
+                        setTimeout(() => {
+                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                        }, 1000);
+                    }
                 } else {
                     showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2).replace('.', ',')}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
                 }
@@ -1432,17 +1497,17 @@
 
         angleRangePulley.addEventListener('change', function() {
             if (angleChanged) {
-                // Explicación física del ángulo con poleas
-                const angleRad = angle * Math.PI / 180;
-                const gravitationalForce = mass * gravity * Math.sin(angleRad);
-                const normalForce = mass * gravity * Math.cos(angleRad);
-                const frictionForce = friction * normalForce;
-                const counterWeightForce = pulleyConfig.counterMass * gravity;
-               
-                let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-               
-                if (netForceValue <= 0) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza del contrapeso y la fricción superan la componente gravitatoria. Aumente el ángulo, reduzca la fricción o ajuste el contrapeso.`, 'warning');
+                // Verificar si hay movimiento posible
+                const movementCheck = checkMovementPossible();
+                if (!movementCheck.possible) {
+                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+                   
+                    // Mostrar sugerencias si están disponibles
+                    if (movementCheck.suggestions) {
+                        setTimeout(() => {
+                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                        }, 1000);
+                    }
                 } else {
                     showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${this.value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
                 }
@@ -1460,17 +1525,17 @@
 
         frictionRangePulley.addEventListener('change', function() {
             if (frictionChanged) {
-                // Explicación física de la fricción con poleas
-                const angleRad = angle * Math.PI / 180;
-                const gravitationalForce = mass * gravity * Math.sin(angleRad);
-                const normalForce = mass * gravity * Math.cos(angleRad);
-                const frictionForce = friction * normalForce;
-                const counterWeightForce = pulleyConfig.counterMass * gravity;
-               
-                let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-               
-                if (netForceValue <= 0) {
-                    showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción (${frictionForce.toFixed(2).replace('.', ',')} N) junto con el contrapeso superan la componente gravitatoria. Reduzca la fricción o ajuste el contrapeso.`, 'warning');
+                // Verificar si hay movimiento posible
+                const movementCheck = checkMovementPossible();
+                if (!movementCheck.possible) {
+                    showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+                   
+                    // Mostrar sugerencias si están disponibles
+                    if (movementCheck.suggestions) {
+                        setTimeout(() => {
+                            showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                        }, 1000);
+                    }
                 } else {
                     showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${parseFloat(this.value).toFixed(2).replace('.', ',')}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
                 }
@@ -1522,15 +1587,17 @@
             }
             updateResultsExplanation();
            
-            // Explicación física de la masa
-            const angleRad = angle * Math.PI / 180;
-            const gravitationalForce = mass * gravity * Math.sin(angleRad);
-            const normalForce = mass * gravity * Math.cos(angleRad);
-            const frictionForce = friction * normalForce;
-            const netForceValue = gravitationalForce - frictionForce;
-           
-            if (netForceValue <= 0) {
-                showNotification('Objeto en Reposo', `El objeto no se mueve porque la fuerza de fricción supera la componente gravitatoria. La masa afecta ambas fuerzas por igual, por lo que no cambia el equilibrio.`, 'warning');
+            // Verificar si hay movimiento posible
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
             } else {
                 showNotification('Masa Modificada', `La masa del objeto se ha cambiado a ${value} kg. Esto afecta tanto la fuerza gravitatoria como la inercia del objeto.`, 'info');
             }
@@ -1549,7 +1616,21 @@
                 resetSimulation();
             }
             updateResultsExplanation();
-            showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+           
+            // Verificar si hay movimiento posible
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
+            } else {
+                showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+            }
         });
        
         frictionInput.addEventListener('change', function() {
@@ -1561,7 +1642,21 @@
             frictionValue.textContent = formatNumberWithComma(value);
             friction = value;
             updateResultsExplanation();
-            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+           
+            // Verificar si hay movimiento posible
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
+            } else {
+                showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+            }
         });
        
         lengthInput.addEventListener('change', function() {
@@ -1597,17 +1692,17 @@
             }
             updateResultsExplanation();
            
-            // Explicación física de la masa con poleas
-            const angleRad = angle * Math.PI / 180;
-            const gravitationalForce = mass * gravity * Math.sin(angleRad);
-            const normalForce = mass * gravity * Math.cos(angleRad);
-            const frictionForce = friction * normalForce;
-            const counterWeightForce = pulleyConfig.counterMass * gravity;
-           
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-           
-            if (netForceValue <= 0) {
-                showNotification('Objeto en Reposo', `El objeto no se mueve porque el contrapeso y la fricción superan la componente gravitatoria. Aumente la masa del objeto o reduzca el contrapeso.`, 'warning');
+            // Verificar si hay movimiento posible
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
             } else {
                 showNotification('Masa Modificada', `La masa del objeto se ha cambiado a ${value} kg. Esto afecta tanto la fuerza gravitatoria como la inercia del objeto.`, 'info');
             }
@@ -1626,7 +1721,21 @@
                 resetSimulation();
             }
             updateResultsExplanation();
-            showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+           
+            // Verificar si hay movimiento posible
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
+            } else {
+                showNotification('Ángulo Modificado', `El ángulo del plano se ha cambiado a ${value}°. Esto afecta la componente gravitatoria paralela al plano.`, 'info');
+            }
         });
        
         frictionInputPulley.addEventListener('change', function() {
@@ -1638,7 +1747,21 @@
             frictionValuePulley.textContent = formatNumberWithComma(value);
             friction = value;
             updateResultsExplanation();
-            showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+           
+            // Verificar si hay movimiento posible
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
+            } else {
+                showNotification('Fricción Modificada', `El coeficiente de fricción se ha cambiado a ${formatNumberWithComma(value)}. Esto afecta la fuerza de fricción que se opone al movimiento.`, 'info');
+            }
         });
        
         lengthInputPulley.addEventListener('change', function() {
@@ -1674,17 +1797,17 @@
             }
             updateResultsExplanation();
            
-            // Explicación física del contrapeso
-            const angleRad = angle * Math.PI / 180;
-            const gravitationalForce = mass * gravity * Math.sin(angleRad);
-            const normalForce = mass * gravity * Math.cos(angleRad);
-            const frictionForce = friction * normalForce;
-            const counterWeightForce = pulleyConfig.counterMass * gravity;
-           
-            let netForceValue = gravitationalForce - frictionForce - counterWeightForce;
-           
-            if (netForceValue <= 0) {
-                showNotification('Objeto en Reposo', `El objeto no se mueve porque el contrapeso de ${value} kg es demasiado pesado. Reduzca la masa del contrapeso para permitir el movimiento.`, 'warning');
+            // Verificar si hay movimiento posible
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('Objeto en Reposo', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
             } else {
                 showNotification('Contrapeso Modificado', `La masa del contrapeso se ha cambiado a ${value} kg. Esto afecta la fuerza que contrarresta el movimiento del objeto.`, 'info');
             }
@@ -2122,6 +2245,20 @@
         // Controladores de botones
         startBtn.addEventListener('click', function() {
             if (!validateParameters()) return;
+           
+            // Verificar si hay movimiento posible antes de iniciar
+            const movementCheck = checkMovementPossible();
+            if (!movementCheck.possible) {
+                showNotification('No Hay Movimiento', movementCheck.message, 'warning');
+               
+                // Mostrar sugerencias si están disponibles
+                if (movementCheck.suggestions) {
+                    setTimeout(() => {
+                        showNotification('Sugerencias', movementCheck.suggestions.join('<br>• '), 'info');
+                    }, 1000);
+                }
+                return;
+            }
            
             if (!isRunning) {
                 isRunning = true;
