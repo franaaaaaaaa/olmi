@@ -1,4 +1,4 @@
-// Variables globales eaea
+// Variables globales
 let animationId;
 let isRunning = false;
 let isPaused = false;
